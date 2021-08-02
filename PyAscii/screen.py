@@ -10,6 +10,7 @@ from .values import Characters, Resolutions
 from .models import Model
 from .rect import Rect
 from .globals import SCREENS
+from .methods.renders import slice_fit
 
 try:
     from typing import Callable, Tuple, Union, Optional, Dict
@@ -156,25 +157,8 @@ class Displayable:
     def blit(self, object, *args, **kwargs):
         # type: (Model, Optional[Tuple[int, int]], bool) -> None
         """
-         Blits an ASCII image onto screen from the given coordinate
-
-         Args:
-             coordinates (Tuple[int, int]): Cartesian coordinate on the screen by row to column plane
-             object (str): ASCII image
-
-         ```
-         Visual:
-           0                                32u
-         0 +--------------------------------+
-           |
-           |    (9, 2)  _     _
-           |            0     0
-           |               =]
-           |            =;_____;-
-           |
-           |
-        7u +
-        ```
+        Simply calls the object's inner blit method onto itself and does necessary
+        records.
         """
         self._frame = object.blit(self, *args, **kwargs)
         if self.all_models.get(object.rect) is None:

@@ -1,4 +1,4 @@
-from .methods.renders import rect_and_charpos, rect_and_modelen
+from .methods.renders import rect_and_charpos, rect_and_modelen, slice_fit
 from .methods.collisions import collides_with as collide_check
 from .rect import Rectable, Rect
 
@@ -13,15 +13,16 @@ DEFAULT_BRICK = "#"
 
 
 class Model(Rectable):
-    """
-    Parent class of for all shapes and models.
+    def __init__(self, path=None, image=None, rect=None, texture=None, coordinate=None):
+        # type: (str, str, Rect, str, Tuple[int, int]) -> None
+        """
+        Parent class of for all shapes and models.
 
-    The blit method can be overriden - just make sure to accept
-    a screen parameter that is passed in during a system call.
-    """
+        When subclassing under Model, the blit method can be overriden,
+        just make sure to accept a single parameter for the screen.
 
-    def __init__(self, path=None, image=None, rect=None, texture=None):
-        # type: (str, str, Rect, str) -> None
+        Can also add extra args and kwargs.
+        """
         tmp_model = None
         if path is not None:
             with open(path, "r", encoding="utf-8") as f:
@@ -37,27 +38,49 @@ class Model(Rectable):
             tmp_model,
             key=lambda element: tmp_model.count(element) and element != " ",
         )
-        self.rect = rect or self.get_rect()
+        self.rect = rect or self.get_rect(
+            coordinate=coordinate, dimension=self.dimension
+        )
 
     def collides_with(self, *rects):
         # type: (Rect) -> bool
         return collide_check(self, *rects)
 
-    def blit(self, *args, **kwargs):
+    def blit(self, screen, **kwargs):
         return (
-            rect_and_charpos(self, *args, **kwargs)
+            rect_and_charpos(self, screen, **kwargs)
             if "\n" in self.image
-            else rect_and_modelen(self, *args, **kwargs)
+            else rect_and_modelen(self, screen, **kwargs)
         )
 
 
-class Square(Model):
-    """
-    Represents a Square shaped Model.
-    """
+class SimpleText(Model):
+    def __init__(self, coordinate, text) -> None:
+        """
+        A Simple text model that houses normal text objects paired with a slice fit render method.
+        """
+        super().__init__(image=str(text), coordinate=coordinate)
 
+    def blit(self, screen):
+        return slice_fit(self, screen)
+
+
+class AsciiText(Model):
+    def __init__(self, coordinate, text) -> None:
+        """
+        An ascii text model that turns normal text into ascii text before rendering it.
+        """
+
+    def blit(self, screen):
+        pass
+
+
+class Square(Model):
     def __init__(self, coordinate, length, texture=None):
         # type: (Tuple[int, int], Tuple[int, int], str) -> None
+        """
+        A Square Model.
+        """
         self.length = length
 
         super().__init__(

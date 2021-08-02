@@ -9,7 +9,7 @@ except ImportError:
     pass
 
 
-def rect_and_charpos(model, screen, coordinate=None, empty=False):
+def rect_and_charpos(model, screen, empty=False):
     # type: (Any, Any, Optional[Tuple[int, int]], bool) -> List[str]
     """
     Figures out the position of the characters based on the temporal position and
@@ -41,7 +41,7 @@ def rect_and_charpos(model, screen, coordinate=None, empty=False):
     return frame
 
 
-def rect_and_modelen(model, screen, coordinate=None, empty=False):
+def rect_and_modelen(model, screen, empty=False):
     # type: (Any, Any, Optional[Tuple[int, int]], bool) -> List[str]
 
     """
@@ -67,3 +67,22 @@ def rect_and_modelen(model, screen, coordinate=None, empty=False):
             except IndexError:
                 pass
     return frame
+
+
+def slice_fit(model, screen):
+    """
+    Fits text onto the current frame.
+    An adaptation of how the screen blits it's menubar etc natively.
+
+    Extremely optimized.
+
+    Time Complexity: O(n) where n is len(TEXT)
+    """
+    point = model.rect.x + (screen.resolution.width * model.rect.y)
+    if point < 0:
+        point = screen.resolution.width + point
+    return (
+        screen._frame[:point]
+        + list(model.image)
+        + screen._frame[point + len(model.image) :]
+    )
