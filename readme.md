@@ -1,1 +1,3 @@
-This has yet to be documented ~
+# PyAscii
+
+![demo]('assets/colliding_squares.gif')
