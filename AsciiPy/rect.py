@@ -8,12 +8,11 @@ except ImportError:
 
 class Rectable:
     """
-    A parent class for all models that are required to get a rect attribute
-    automatically without user assignment.
+    A simple parent class for all models that can be translated into a rect.
     """
 
     def get_rect(self, coordinate=None, dimension=None):
-        # type: (Tuple[int, int], Tuple[int, int], str) -> Rect
+        # type: (Tuple[int, int], Tuple[int, int]) -> Rect
         """
         Builds a rect object from scratch. If neither coordinate or dimension
         is given, the coordinate is assumed to be the origin and the dimension is fetched
@@ -21,6 +20,15 @@ class Rectable:
 
         This only creates a new rectangle object if none is present.
         If present returns what it already has.
+
+        :param coordinate:
+            The top-left coordinate for the rect.
+        :type coordinate: Tuple[:class:`int`, :class:`int`]
+        :param dimension:
+            The dimension of the rect.
+        :type coordinate: Tuple[:class:`int`, :class:`int`]
+
+        :return: (:class:`Rect`) The rectangle made or acquired.
         """
         if self.__dict__.get("rect") is None:
             coordinate = coordinate or (0, 0)
@@ -34,13 +42,14 @@ class Rectable:
         """
         Builds a rect object from the given arguments.
 
+        :param coordinate:
+            The top left coordinate of the rect.
+        :type coordinate: Tuple[:class:`int`, :class:`int`]
+        :param dimension:
+            A tuple width it's width and height.
+        :type dimension: Tuple[:class:`int`, :class:`int`]
 
-        Args:
-            coordinate (Tuple[int, int]): The top left coordinate of the rect.
-            dimension (Tuple[int, int]): A tuple width it's width and height.
-
-        Returns:
-            Rect: The rect object made.
+        :return: (:class:`Rect`) The rectangle made or acquired.
         """
         if self.__dict__.get("rect") is None:
             coordinate = coordinate or (0, 0)
@@ -57,30 +66,22 @@ class Rect:
 
     This can be an erroneous measurement of collisions when sections of the model
     exceeds the given boundary or an object is moving extremely fast.
-
-    Attributes
-    ===========
-        x (int): Top left x position
-
-        y (int): Top left y position
-
-        width (int): The width of the rect. This is the horizontal difference.
-
-        height (int): The height of the rect (or length) this is the vertical difference.
-
-        parent (Model): A Parent object that the rect is assigned under.
-
-        texture (str): The outline texture of the rect.
     """
 
     def __init__(self, coordinate, dimension, parent):
         # type: (Tuple[int, int], Tuple[int, int], Any) -> None
-        self.x = coordinate[0]
-        self.y = coordinate[1]
-        self.width = dimension[0]
-        self.height = dimension[1]
-        self.parent = parent
-        self.texture = ""
+        self.x = coordinate[0]  #: :class:`int`: Top left x position
+        self.y = coordinate[1]  #: :class:`int`: Top left y position
+        self.width = dimension[
+            0
+        ]  #: :class:`int`: The width of the rect. This is the horizontal difference.
+        self.height = dimension[
+            1
+        ]  #: :class:`int`: The height of the rect (or length) this is the vertical difference.
+        self.parent = (
+            parent  #: :class:`Model`: A Parent object that the rect is assigned under.
+        )
+        self.texture = ""  #: :class:`str`: The outline texture of the rect.
 
         self._id = str(uuid4())[:5]
 
@@ -90,8 +91,7 @@ class Rect:
         """
         Uppermost y value.
 
-        Returns:
-            int
+        :type: :class:`int`
         """
         return self.y
 
@@ -101,8 +101,7 @@ class Rect:
         """
         Bottomost y value.
 
-        Returns:
-            int
+        :type: :class:`int`
         """
         return self.y + self.height
 
@@ -112,8 +111,7 @@ class Rect:
         """
         Right-most x value.
 
-        Returns:
-            int
+        :type: :class:`int`
         """
         return self.x + self.width
 
@@ -123,7 +121,6 @@ class Rect:
         """
         Left-most x value.
 
-        Returns:
-            int
+        :type: :class:`int`
         """
         return self.x

@@ -1,0 +1,1131 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Api Reference &#8212; Ascii.py 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/groundwork.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="The Window Class" href="basics.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="basics.html" title="The Window Class"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Ascii.py 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Api Reference</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="api-reference">
+<h1>Api Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="screens">
+<h2>Screens<a class="headerlink" href="#screens" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="AsciiPy.Window">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">AsciiPy.</span></span><span class="sig-name descname"><span class="pre">Window</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolution</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="#AsciiPy.Resolutions" title="AsciiPy.values.Resolutions"><span class="pre">AsciiPy.values.Resolutions</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_framerate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#AsciiPy.Window" title="Permalink to this definition">¶</a></dt>
+<dd><p>An abstract representation of a window, the class handles the internal loops for different kinds of uses.
+This isn’t the screen parameter passed into the client loop. See Displayable for that.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Window.resolution">
+<span class="sig-name descname"><span class="pre">resolution</span></span><a class="headerlink" href="#AsciiPy.Window.resolution" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#AsciiPy.Resolutions" title="AsciiPy.Resolutions"><code class="xref py py-class docutils literal notranslate"><span class="pre">Resolutions</span></code></a>: The respective resolution of the window.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.Window.loop">
+<span class="sig-name descname"><span class="pre">loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forcestop</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#AsciiPy.Displayable" title="AsciiPy.screen.Displayable"><span class="pre">AsciiPy.screen.Displayable</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#AsciiPy.Window.loop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basic wrapper to register a game loop onto the screen.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.Window.replay">
+<span class="sig-name descname"><span class="pre">replay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frames</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#AsciiPy.Window.replay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the replay loop with the given frames and fps limit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.Window.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_fps</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sysdout</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_stopwatch</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#AsciiPy.Window.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the client loop that has been defined.</p>
+</dd></dl>
+
+</dd></dl>
+
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="AsciiPy.Displayable">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">AsciiPy.</span></span><span class="sig-name descname"><span class="pre">Displayable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolution</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#AsciiPy.Resolutions" title="AsciiPy.values.Resolutions"><span class="pre">AsciiPy.values.Resolutions</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_framerate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forcestop</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_fps</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sysdout</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_stopwatch</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#AsciiPy.Displayable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the integral structure of a console displayable generalized for different OS terminals.</p>
+<p>Subclasses defines specific system calls to open a terminal, resize it, close it, move it and so on..</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Displayable.resolution">
+<span class="sig-name descname"><span class="pre">resolution</span></span><a class="headerlink" href="#AsciiPy.Displayable.resolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Union[<a class="reference internal" href="#AsciiPy.Resolutions" title="AsciiPy.Resolutions"><code class="xref py py-class docutils literal notranslate"><span class="pre">Resolutions</span></code></a>, Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]]: A conceptual enum of a the window resolution.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Displayable.width">
+<span class="sig-name descname"><span class="pre">width</span></span><a class="headerlink" href="#AsciiPy.Displayable.width" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>: The width of the window.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Displayable.height">
+<span class="sig-name descname"><span class="pre">height</span></span><a class="headerlink" href="#AsciiPy.Displayable.height" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>: The height of the window.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Displayable.debug_area">
+<span class="sig-name descname"><span class="pre">debug_area</span></span><a class="headerlink" href="#AsciiPy.Displayable.debug_area" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]: Approximated area of a debug prompt on the terminal.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Displayable.max_framerate">
+<span class="sig-name descname"><span class="pre">max_framerate</span></span><a class="headerlink" href="#AsciiPy.Displayable.max_framerate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]: The specified FPS limit of the window.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Displayable.goto_ramp">
+<span class="sig-name descname"><span class="pre">goto_ramp</span></span><a class="headerlink" href="#AsciiPy.Displayable.goto_ramp" title="Permalink to this definition">¶</a></dt>
+<dd><p>List[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]: The default list of a characters for test printing and native menu styling.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Displayable.all_models">
+<span class="sig-name descname"><span class="pre">all_models</span></span><a class="headerlink" href="#AsciiPy.Displayable.all_models" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict[<a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.Rect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rect</span></code></a>, <a class="reference internal" href="#AsciiPy.Model" title="AsciiPy.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a>]: A rect to model mapping of every model that the window has a record of presence.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Displayable.emptyframe">
+<span class="sig-name descname"><span class="pre">emptyframe</span></span><a class="headerlink" href="#AsciiPy.Displayable.emptyframe" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>: A base frame that is drawn over.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Displayable.show_fps">
+<span class="sig-name descname"><span class="pre">show_fps</span></span><a class="headerlink" href="#AsciiPy.Displayable.show_fps" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>: Whether if the window has a menu indicating the fps.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Displayable.show_stopwatch">
+<span class="sig-name descname"><span class="pre">show_stopwatch</span></span><a class="headerlink" href="#AsciiPy.Displayable.show_stopwatch" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>: Whether the menu shows the timer before elimination when given.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Displayable.sysdout">
+<span class="sig-name descname"><span class="pre">sysdout</span></span><a class="headerlink" href="#AsciiPy.Displayable.sysdout" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>: Whether the rendered frames are printed onto the window.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Displayable.debug">
+<span class="sig-name descname"><span class="pre">debug</span></span><a class="headerlink" href="#AsciiPy.Displayable.debug" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>: Whether the window has debug mode enabled.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="AsciiPy.Displayable.frame">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">frame</span></span><a class="headerlink" href="#AsciiPy.Displayable.frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current frame of the screen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="AsciiPy.Displayable.fps">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">fps</span></span><a class="headerlink" href="#AsciiPy.Displayable.fps" title="Permalink to this definition">¶</a></dt>
+<dd><p>The amount of frames rendered per the second passed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="AsciiPy.Displayable.average_fps">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">average_fps</span></span><a class="headerlink" href="#AsciiPy.Displayable.average_fps" title="Permalink to this definition">¶</a></dt>
+<dd><p>The amount of frames rendered on average from start to present.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="AsciiPy.Displayable.tick">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">tick</span></span><a class="headerlink" href="#AsciiPy.Displayable.tick" title="Permalink to this definition">¶</a></dt>
+<dd><p>Internal ticks, from 0 to 25 for timing certain things.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.Displayable.blit">
+<span class="sig-name descname"><span class="pre">blit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#AsciiPy.Model" title="AsciiPy.models.Model"><span class="pre">AsciiPy.models.Model</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#AsciiPy.Displayable.blit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simply calls the object’s internal blit method onto itself and does necessary
+records.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>object</strong> (<a class="reference internal" href="#AsciiPy.Model" title="AsciiPy.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a>) – The Model to be blitted onto screen.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.Displayable.refresh">
+<span class="sig-name descname"><span class="pre">refresh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_frames</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#AsciiPy.Displayable.refresh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Empties the current frame. If sysdout is enabled, it is printed onto the window.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>log_frames</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Whether to keep track of the amount of frames displayed throughout the session.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="values">
+<h2>Values<a class="headerlink" href="#values" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="AsciiPy.Resolutions">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">AsciiPy.</span></span><span class="sig-name descname"><span class="pre">Resolutions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dimension</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#AsciiPy.Resolutions" title="Permalink to this definition">¶</a></dt>
+<dd><p>The preset resolutions class that contains static variable for usage and transformation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>_50c</strong> – (50, 25):</p></li>
+<li><p><strong>_60c</strong> – (60, 30):</p></li>
+<li><p><strong>_100c</strong> – (100, 50):</p></li>
+<li><p><strong>_240c</strong> – (352, 240):</p></li>
+<li><p><strong>_360c</strong> – (480, 360):</p></li>
+<li><p><strong>_480c</strong> – (858, 480):</p></li>
+<li><p><strong>_720c</strong> – (1280, 720):</p></li>
+<li><p><strong>_768c</strong> – (1366, 768):</p></li>
+<li><p><strong>_1080c</strong> – (1980, 1080):</p></li>
+</ul>
+</dd>
+<dt class="field-even">Type</dt>
+<dd class="field-even"><p>Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="AsciiPy.Resolutions.width">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">width</span></span><a class="headerlink" href="#AsciiPy.Resolutions.width" title="Permalink to this definition">¶</a></dt>
+<dd><p>The width of the resolution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="AsciiPy.Resolutions.height">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">height</span></span><a class="headerlink" href="#AsciiPy.Resolutions.height" title="Permalink to this definition">¶</a></dt>
+<dd><p>The height of the resolution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="AsciiPy.Resolutions.pixels">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">pixels</span></span><a class="headerlink" href="#AsciiPy.Resolutions.pixels" title="Permalink to this definition">¶</a></dt>
+<dd><p>The sum of pixels present in a resolution configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="rects-and-boundaries">
+<h2>Rects and Boundaries<a class="headerlink" href="#rects-and-boundaries" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="AsciiPy.Rect">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">AsciiPy.</span></span><span class="sig-name descname"><span class="pre">Rect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimension</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#AsciiPy.Rect" title="Permalink to this definition">¶</a></dt>
+<dd><p>An abstract quadrilateral boundary for Rectable objects.</p>
+<p>Provides temporal positions of the given model’s boundary.</p>
+<p>This can be an erroneous measurement of collisions when sections of the model
+exceeds the given boundary or an object is moving extremely fast.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Rect.x">
+<span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#AsciiPy.Rect.x" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>: Top left x position</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Rect.y">
+<span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#AsciiPy.Rect.y" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>: Top left y position</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Rect.width">
+<span class="sig-name descname"><span class="pre">width</span></span><a class="headerlink" href="#AsciiPy.Rect.width" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>: The width of the rect. This is the horizontal difference.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Rect.height">
+<span class="sig-name descname"><span class="pre">height</span></span><a class="headerlink" href="#AsciiPy.Rect.height" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>: The height of the rect (or length) this is the vertical difference.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Rect.texture">
+<span class="sig-name descname"><span class="pre">texture</span></span><a class="headerlink" href="#AsciiPy.Rect.texture" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>: The outline texture of the rect.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="AsciiPy.Rect.top">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">top</span></span><a class="headerlink" href="#AsciiPy.Rect.top" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uppermost y value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="AsciiPy.Rect.bottom">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">bottom</span></span><a class="headerlink" href="#AsciiPy.Rect.bottom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bottomost y value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="AsciiPy.Rect.right">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">right</span></span><a class="headerlink" href="#AsciiPy.Rect.right" title="Permalink to this definition">¶</a></dt>
+<dd><p>Right-most x value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="AsciiPy.Rect.left">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">left</span></span><a class="headerlink" href="#AsciiPy.Rect.left" title="Permalink to this definition">¶</a></dt>
+<dd><p>Left-most x value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="AsciiPy.Rectable">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">AsciiPy.</span></span><span class="sig-name descname"><span class="pre">Rectable</span></span><a class="headerlink" href="#AsciiPy.Rectable" title="Permalink to this definition">¶</a></dt>
+<dd><p>A simple parent class for all models that can be translated into a rect.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.Rectable.get_rect">
+<span class="sig-name descname"><span class="pre">get_rect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimension</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.rect.Rect"><span class="pre">AsciiPy.rect.Rect</span></a></span></span><a class="headerlink" href="#AsciiPy.Rectable.get_rect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds a rect object from scratch. If neither coordinate or dimension
+is given, the coordinate is assumed to be the origin and the dimension is fetched
+from the parent Object.</p>
+<p>This only creates a new rectangle object if none is present.
+If present returns what it already has.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordinate</strong> (Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]) – The top-left coordinate for the rect.</p></li>
+<li><p><strong>dimension</strong> – The dimension of the rect.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.Rect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rect</span></code></a>) The rectangle made or acquired.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.Rectable.make_rect">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">make_rect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimension</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.rect.Rect"><span class="pre">AsciiPy.rect.Rect</span></a></span></span><a class="headerlink" href="#AsciiPy.Rectable.make_rect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds a rect object from the given arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordinate</strong> (Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]) – The top left coordinate of the rect.</p></li>
+<li><p><strong>dimension</strong> (Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]) – A tuple width it’s width and height.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.Rect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rect</span></code></a>) The rectangle made or acquired.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="models-and-subsequent-classes">
+<h2>Models and subsequent classes<a class="headerlink" href="#models-and-subsequent-classes" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="AsciiPy.Model">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">AsciiPy.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rect</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.rect.Rect"><span class="pre">AsciiPy.rect.Rect</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">texture</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#AsciiPy.Model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the integral structure for a model.</p>
+<p>It is used to provide basic inheritance for prerequisites in subsystem interactions.
+For example the model’s texture attribute is accessed in a certain
+rendering method and the image attribute is used to analyze it’s dimension when none is provided etc..</p>
+<p>When subclassing, overidding the defined methods are operable - so long as it is in awareness of their consequences.
+Overidding those methods require you to follow a strict format as provided by the abstract methods - it is encouraged to
+avoid this unless perfectly necessary.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Model.dimension">
+<span class="sig-name descname"><span class="pre">dimension</span></span><a class="headerlink" href="#AsciiPy.Model.dimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]: The dimensions of the model. (Width, Height)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Model.image">
+<span class="sig-name descname"><span class="pre">image</span></span><a class="headerlink" href="#AsciiPy.Model.image" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>: The model’s image/structure/shape.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Model.texture">
+<span class="sig-name descname"><span class="pre">texture</span></span><a class="headerlink" href="#AsciiPy.Model.texture" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>: The generalized texture of the entire model. It is the most common character from the image.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Model.rect">
+<span class="sig-name descname"><span class="pre">rect</span></span><a class="headerlink" href="#AsciiPy.Model.rect" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.Rect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rect</span></code></a>: The rect boundary of the class.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Model.occupancy">
+<span class="sig-name descname"><span class="pre">occupancy</span></span><a class="headerlink" href="#AsciiPy.Model.occupancy" title="Permalink to this definition">¶</a></dt>
+<dd><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]: A list of coordinates that the image would be at when blitted. This is used for collision detection.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.Model.collides_with">
+<span class="sig-name descname"><span class="pre">collides_with</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#AsciiPy.Model" title="AsciiPy.models.Model"><span class="pre">AsciiPy.models.Model</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#AsciiPy.Model.collides_with" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks whether if the current model is in collision with the provided
+model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model</strong> (<a class="reference internal" href="#AsciiPy.Model" title="AsciiPy.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a>) – The opposing model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) Whether if the current model is in collision with the opposite model.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.Model.blit">
+<span class="sig-name descname"><span class="pre">blit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">screen</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#AsciiPy.Displayable" title="AsciiPy.Displayable"><span class="pre">Displayable</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#AsciiPy.Model.blit" title="Permalink to this definition">¶</a></dt>
+<dd><p>The inner blitting method of the model. You should not use this yourself.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>screen</strong> (<a class="reference internal" href="#AsciiPy.Displayable" title="AsciiPy.Displayable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Displayable</span></code></a>) – This is passed in the subsystem call inside the <a class="reference internal" href="#AsciiPy.Displayable.blit" title="AsciiPy.Displayable.blit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Displayable.blit</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.Model.get_rect">
+<span class="sig-name descname"><span class="pre">get_rect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimension</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.rect.Rect"><span class="pre">AsciiPy.rect.Rect</span></a></span></span><a class="headerlink" href="#AsciiPy.Model.get_rect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds a rect object from scratch. If neither coordinate or dimension
+is given, the coordinate is assumed to be the origin and the dimension is fetched
+from the parent Object.</p>
+<p>This only creates a new rectangle object if none is present.
+If present returns what it already has.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordinate</strong> (Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]) – The top-left coordinate for the rect.</p></li>
+<li><p><strong>dimension</strong> – The dimension of the rect.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.Rect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rect</span></code></a>) The rectangle made or acquired.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="AsciiPy.SimpleText">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">AsciiPy.</span></span><span class="sig-name descname"><span class="pre">SimpleText</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#AsciiPy.SimpleText" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Simple text model that stores normal text objects in it’s image attribute.</p>
+<p>Uses the slice-fit render method that native menus for the screen uses in a
+system level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordinate</strong> (Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]) – The top-left coordinate of the text.</p></li>
+<li><p><strong>text</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – The text for the model.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.SimpleText.blit">
+<span class="sig-name descname"><span class="pre">blit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">screen</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#AsciiPy.SimpleText.blit" title="Permalink to this definition">¶</a></dt>
+<dd><p>The inner blitting method of the model. You should not use this yourself.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>screen</strong> (<a class="reference internal" href="#AsciiPy.Displayable" title="AsciiPy.Displayable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Displayable</span></code></a>) – This is passed in the subsystem call inside the <a class="reference internal" href="#AsciiPy.Displayable.blit" title="AsciiPy.Displayable.blit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Displayable.blit</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.SimpleText.collides_with">
+<span class="sig-name descname"><span class="pre">collides_with</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#AsciiPy.Model" title="AsciiPy.models.Model"><span class="pre">AsciiPy.models.Model</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#AsciiPy.SimpleText.collides_with" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks whether if the current model is in collision with the provided
+model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model</strong> (<a class="reference internal" href="#AsciiPy.Model" title="AsciiPy.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a>) – The opposing model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) Whether if the current model is in collision with the opposite model.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.SimpleText.get_rect">
+<span class="sig-name descname"><span class="pre">get_rect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimension</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.rect.Rect"><span class="pre">AsciiPy.rect.Rect</span></a></span></span><a class="headerlink" href="#AsciiPy.SimpleText.get_rect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds a rect object from scratch. If neither coordinate or dimension
+is given, the coordinate is assumed to be the origin and the dimension is fetched
+from the parent Object.</p>
+<p>This only creates a new rectangle object if none is present.
+If present returns what it already has.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordinate</strong> (Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]) – The top-left coordinate for the rect.</p></li>
+<li><p><strong>dimension</strong> – The dimension of the rect.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.Rect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rect</span></code></a>) The rectangle made or acquired.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.SimpleText.dimension">
+<span class="sig-name descname"><span class="pre">dimension</span></span><a class="headerlink" href="#AsciiPy.SimpleText.dimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]: The dimensions of the model. (Width, Height)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.SimpleText.image">
+<span class="sig-name descname"><span class="pre">image</span></span><a class="headerlink" href="#AsciiPy.SimpleText.image" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>: The model’s image/structure/shape.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.SimpleText.texture">
+<span class="sig-name descname"><span class="pre">texture</span></span><a class="headerlink" href="#AsciiPy.SimpleText.texture" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>: The generalized texture of the entire model. It is the most common character from the image.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.SimpleText.rect">
+<span class="sig-name descname"><span class="pre">rect</span></span><a class="headerlink" href="#AsciiPy.SimpleText.rect" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.Rect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rect</span></code></a>: The rect boundary of the class.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.SimpleText.occupancy">
+<span class="sig-name descname"><span class="pre">occupancy</span></span><a class="headerlink" href="#AsciiPy.SimpleText.occupancy" title="Permalink to this definition">¶</a></dt>
+<dd><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]: A list of coordinates that the image would be at when blitted. This is used for collision detection.</p>
+</dd></dl>
+
+</dd></dl>
+
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="AsciiPy.AsciiText">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">AsciiPy.</span></span><span class="sig-name descname"><span class="pre">AsciiText</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#AsciiPy.AsciiText" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.AsciiText.blit">
+<span class="sig-name descname"><span class="pre">blit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">screen</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#AsciiPy.AsciiText.blit" title="Permalink to this definition">¶</a></dt>
+<dd><p>The inner blitting method of the model. You should not use this yourself.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>screen</strong> (<a class="reference internal" href="#AsciiPy.Displayable" title="AsciiPy.Displayable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Displayable</span></code></a>) – This is passed in the subsystem call inside the <a class="reference internal" href="#AsciiPy.Displayable.blit" title="AsciiPy.Displayable.blit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Displayable.blit</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.AsciiText.collides_with">
+<span class="sig-name descname"><span class="pre">collides_with</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#AsciiPy.Model" title="AsciiPy.models.Model"><span class="pre">AsciiPy.models.Model</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#AsciiPy.AsciiText.collides_with" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks whether if the current model is in collision with the provided
+model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model</strong> (<a class="reference internal" href="#AsciiPy.Model" title="AsciiPy.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a>) – The opposing model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) Whether if the current model is in collision with the opposite model.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.AsciiText.get_rect">
+<span class="sig-name descname"><span class="pre">get_rect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimension</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.rect.Rect"><span class="pre">AsciiPy.rect.Rect</span></a></span></span><a class="headerlink" href="#AsciiPy.AsciiText.get_rect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds a rect object from scratch. If neither coordinate or dimension
+is given, the coordinate is assumed to be the origin and the dimension is fetched
+from the parent Object.</p>
+<p>This only creates a new rectangle object if none is present.
+If present returns what it already has.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordinate</strong> (Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]) – The top-left coordinate for the rect.</p></li>
+<li><p><strong>dimension</strong> – The dimension of the rect.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.Rect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rect</span></code></a>) The rectangle made or acquired.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.AsciiText.dimension">
+<span class="sig-name descname"><span class="pre">dimension</span></span><a class="headerlink" href="#AsciiPy.AsciiText.dimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]: The dimensions of the model. (Width, Height)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.AsciiText.image">
+<span class="sig-name descname"><span class="pre">image</span></span><a class="headerlink" href="#AsciiPy.AsciiText.image" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>: The model’s image/structure/shape.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.AsciiText.texture">
+<span class="sig-name descname"><span class="pre">texture</span></span><a class="headerlink" href="#AsciiPy.AsciiText.texture" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>: The generalized texture of the entire model. It is the most common character from the image.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.AsciiText.rect">
+<span class="sig-name descname"><span class="pre">rect</span></span><a class="headerlink" href="#AsciiPy.AsciiText.rect" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.Rect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rect</span></code></a>: The rect boundary of the class.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.AsciiText.occupancy">
+<span class="sig-name descname"><span class="pre">occupancy</span></span><a class="headerlink" href="#AsciiPy.AsciiText.occupancy" title="Permalink to this definition">¶</a></dt>
+<dd><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]: A list of coordinates that the image would be at when blitted. This is used for collision detection.</p>
+</dd></dl>
+
+</dd></dl>
+
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="AsciiPy.PixelPainter">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">AsciiPy.</span></span><span class="sig-name descname"><span class="pre">PixelPainter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">screen</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#AsciiPy.Displayable" title="AsciiPy.Displayable"><span class="pre">Displayable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Tuple(int,</span> <span class="pre">int)</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimension</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Tuple(int,</span> <span class="pre">int)</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#AsciiPy.PixelPainter" title="Permalink to this definition">¶</a></dt>
+<dd><p>A model that takes in a coordinate and a dimension to create an empty canvas that is imprinted
+onto the frame at the exact coordinate when blitted onto screen.</p>
+<p>If not obvious, it doesn’t directly create an imprint onto the frame - so when drawing onto the canvas
+the distance units and x, y values are relative to the dimensions of the canvas, not the screen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>screen</strong> (<a class="reference internal" href="#AsciiPy.Displayable" title="AsciiPy.Displayable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Displayable</span></code></a>) – The screen of which the PixelPainter is attached to.</p></li>
+<li><p><strong>coordinate</strong> (Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]) – The (x, y) coordinates that defines the top right of the canvas relative to the screen.</p></li>
+<li><p><strong>dimension</strong> (Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]) – The width and height of the canvas.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.PixelPainter.dimension">
+<span class="sig-name descname"><span class="pre">dimension</span></span><a class="headerlink" href="#AsciiPy.PixelPainter.dimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]: The dimensions of the model. (Width, Height)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.PixelPainter.rect">
+<span class="sig-name descname"><span class="pre">rect</span></span><a class="headerlink" href="#AsciiPy.PixelPainter.rect" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.Rect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rect</span></code></a>: The rect boundary of the class.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.PixelPainter.image">
+<span class="sig-name descname"><span class="pre">image</span></span><a class="headerlink" href="#AsciiPy.PixelPainter.image" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>: The model’s image/structure/shape.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.PixelPainter.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">pixels</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List(str)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xy</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Tuple(int,</span> <span class="pre">int)</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#AsciiPy.PixelPainter.draw" title="Permalink to this definition">¶</a></dt>
+<dd><p>A gateway to directly editing the pixels in the canvas based on the distance from the origin or
+through coordinates.</p>
+<p>You must pass in either a <cite>xy</cite> or a <cite>distance</cite> kwarg to work.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pixels</strong> (List[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]) – The pixels to be drawn.</p></li>
+<li><p><strong>xy</strong> (Optional[Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]]) – The x and y position of the pixels to be drawn - Defaults to None.</p></li>
+<li><p><strong>distance</strong> (Optional[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]) – The distance of the pixels relative to the origin - Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.9)"><strong>TypeError</strong></a> – Raised when neither xy or distance is passed in.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.9)"><strong>IndexError</strong></a> – Raised when the coordinate of the pixel is out of bounds.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.PixelPainter.blit">
+<span class="sig-name descname"><span class="pre">blit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">screen</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#AsciiPy.PixelPainter.blit" title="Permalink to this definition">¶</a></dt>
+<dd><p>The inner blitting method of the model. You should not use this yourself.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>screen</strong> (<a class="reference internal" href="#AsciiPy.Displayable" title="AsciiPy.Displayable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Displayable</span></code></a>) – This is passed in the subsystem call inside the <a class="reference internal" href="#AsciiPy.Displayable.blit" title="AsciiPy.Displayable.blit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Displayable.blit</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.PixelPainter.collides_with">
+<span class="sig-name descname"><span class="pre">collides_with</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#AsciiPy.Model" title="AsciiPy.models.Model"><span class="pre">AsciiPy.models.Model</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#AsciiPy.PixelPainter.collides_with" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks whether if the current model is in collision with the provided
+model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model</strong> (<a class="reference internal" href="#AsciiPy.Model" title="AsciiPy.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a>) – The opposing model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) Whether if the current model is in collision with the opposite model.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.PixelPainter.get_rect">
+<span class="sig-name descname"><span class="pre">get_rect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimension</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.rect.Rect"><span class="pre">AsciiPy.rect.Rect</span></a></span></span><a class="headerlink" href="#AsciiPy.PixelPainter.get_rect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds a rect object from scratch. If neither coordinate or dimension
+is given, the coordinate is assumed to be the origin and the dimension is fetched
+from the parent Object.</p>
+<p>This only creates a new rectangle object if none is present.
+If present returns what it already has.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordinate</strong> (Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]) – The top-left coordinate for the rect.</p></li>
+<li><p><strong>dimension</strong> – The dimension of the rect.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.Rect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rect</span></code></a>) The rectangle made or acquired.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.PixelPainter.make_rect">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">make_rect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimension</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.rect.Rect"><span class="pre">AsciiPy.rect.Rect</span></a></span></span><a class="headerlink" href="#AsciiPy.PixelPainter.make_rect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds a rect object from the given arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordinate</strong> (Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]) – The top left coordinate of the rect.</p></li>
+<li><p><strong>dimension</strong> (Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]) – A tuple width it’s width and height.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.Rect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rect</span></code></a>) The rectangle made or acquired.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.PixelPainter.texture">
+<span class="sig-name descname"><span class="pre">texture</span></span><a class="headerlink" href="#AsciiPy.PixelPainter.texture" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>: The generalized texture of the entire model. It is the most common character from the image.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.PixelPainter.occupancy">
+<span class="sig-name descname"><span class="pre">occupancy</span></span><a class="headerlink" href="#AsciiPy.PixelPainter.occupancy" title="Permalink to this definition">¶</a></dt>
+<dd><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]: A list of coordinates that the image would be at when blitted. This is used for collision detection.</p>
+</dd></dl>
+
+</dd></dl>
+
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="AsciiPy.Square">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">AsciiPy.</span></span><span class="sig-name descname"><span class="pre">Square</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">texture</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'#'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#AsciiPy.Square" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Square Model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordinate</strong> (Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]) – The top-left coordiante of the square.</p></li>
+<li><p><strong>length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – The length of the square.</p></li>
+<li><p><strong>texture</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – The monotone texture of the square.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.Square.blit">
+<span class="sig-name descname"><span class="pre">blit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">screen</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#AsciiPy.Displayable" title="AsciiPy.Displayable"><span class="pre">Displayable</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#AsciiPy.Square.blit" title="Permalink to this definition">¶</a></dt>
+<dd><p>The inner blitting method of the model. You should not use this yourself.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>screen</strong> (<a class="reference internal" href="#AsciiPy.Displayable" title="AsciiPy.Displayable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Displayable</span></code></a>) – This is passed in the subsystem call inside the <a class="reference internal" href="#AsciiPy.Displayable.blit" title="AsciiPy.Displayable.blit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Displayable.blit</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.Square.collides_with">
+<span class="sig-name descname"><span class="pre">collides_with</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#AsciiPy.Model" title="AsciiPy.models.Model"><span class="pre">AsciiPy.models.Model</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#AsciiPy.Square.collides_with" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks whether if the current model is in collision with the provided
+model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model</strong> (<a class="reference internal" href="#AsciiPy.Model" title="AsciiPy.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a>) – The opposing model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) Whether if the current model is in collision with the opposite model.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.Square.get_rect">
+<span class="sig-name descname"><span class="pre">get_rect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimension</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.rect.Rect"><span class="pre">AsciiPy.rect.Rect</span></a></span></span><a class="headerlink" href="#AsciiPy.Square.get_rect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds a rect object from scratch. If neither coordinate or dimension
+is given, the coordinate is assumed to be the origin and the dimension is fetched
+from the parent Object.</p>
+<p>This only creates a new rectangle object if none is present.
+If present returns what it already has.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordinate</strong> (Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]) – The top-left coordinate for the rect.</p></li>
+<li><p><strong>dimension</strong> – The dimension of the rect.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.Rect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rect</span></code></a>) The rectangle made or acquired.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Square.dimension">
+<span class="sig-name descname"><span class="pre">dimension</span></span><a class="headerlink" href="#AsciiPy.Square.dimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]: The dimensions of the model. (Width, Height)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Square.image">
+<span class="sig-name descname"><span class="pre">image</span></span><a class="headerlink" href="#AsciiPy.Square.image" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>: The model’s image/structure/shape.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Square.texture">
+<span class="sig-name descname"><span class="pre">texture</span></span><a class="headerlink" href="#AsciiPy.Square.texture" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>: The generalized texture of the entire model. It is the most common character from the image.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Square.rect">
+<span class="sig-name descname"><span class="pre">rect</span></span><a class="headerlink" href="#AsciiPy.Square.rect" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.Rect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rect</span></code></a>: The rect boundary of the class.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Square.occupancy">
+<span class="sig-name descname"><span class="pre">occupancy</span></span><a class="headerlink" href="#AsciiPy.Square.occupancy" title="Permalink to this definition">¶</a></dt>
+<dd><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]: A list of coordinates that the image would be at when blitted. This is used for collision detection.</p>
+</dd></dl>
+
+</dd></dl>
+
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="AsciiPy.Rectangle">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">AsciiPy.</span></span><span class="sig-name descname"><span class="pre">Rectangle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimension</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">texture</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'#'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#AsciiPy.Rectangle" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Rectangle Model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordinate</strong> (Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]) – The top-left coordiante of the square.</p></li>
+<li><p><strong>dimension</strong> (Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]) – The dimension of the rectangle in Width, Height.</p></li>
+<li><p><strong>texture</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – The monotone texture of the square.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.Rectangle.blit">
+<span class="sig-name descname"><span class="pre">blit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">screen</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#AsciiPy.Displayable" title="AsciiPy.Displayable"><span class="pre">Displayable</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#AsciiPy.Rectangle.blit" title="Permalink to this definition">¶</a></dt>
+<dd><p>The inner blitting method of the model. You should not use this yourself.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>screen</strong> (<a class="reference internal" href="#AsciiPy.Displayable" title="AsciiPy.Displayable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Displayable</span></code></a>) – This is passed in the subsystem call inside the <a class="reference internal" href="#AsciiPy.Displayable.blit" title="AsciiPy.Displayable.blit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Displayable.blit</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.Rectangle.collides_with">
+<span class="sig-name descname"><span class="pre">collides_with</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#AsciiPy.Model" title="AsciiPy.models.Model"><span class="pre">AsciiPy.models.Model</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#AsciiPy.Rectangle.collides_with" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks whether if the current model is in collision with the provided
+model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model</strong> (<a class="reference internal" href="#AsciiPy.Model" title="AsciiPy.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a>) – The opposing model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) Whether if the current model is in collision with the opposite model.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.Rectangle.get_rect">
+<span class="sig-name descname"><span class="pre">get_rect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimension</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.rect.Rect"><span class="pre">AsciiPy.rect.Rect</span></a></span></span><a class="headerlink" href="#AsciiPy.Rectangle.get_rect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds a rect object from scratch. If neither coordinate or dimension
+is given, the coordinate is assumed to be the origin and the dimension is fetched
+from the parent Object.</p>
+<p>This only creates a new rectangle object if none is present.
+If present returns what it already has.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordinate</strong> (Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]) – The top-left coordinate for the rect.</p></li>
+<li><p><strong>dimension</strong> – The dimension of the rect.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.Rect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rect</span></code></a>) The rectangle made or acquired.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Rectangle.dimension">
+<span class="sig-name descname"><span class="pre">dimension</span></span><a class="headerlink" href="#AsciiPy.Rectangle.dimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]: The dimensions of the model. (Width, Height)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Rectangle.image">
+<span class="sig-name descname"><span class="pre">image</span></span><a class="headerlink" href="#AsciiPy.Rectangle.image" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>: The model’s image/structure/shape.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Rectangle.texture">
+<span class="sig-name descname"><span class="pre">texture</span></span><a class="headerlink" href="#AsciiPy.Rectangle.texture" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>: The generalized texture of the entire model. It is the most common character from the image.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Rectangle.rect">
+<span class="sig-name descname"><span class="pre">rect</span></span><a class="headerlink" href="#AsciiPy.Rectangle.rect" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#AsciiPy.Rect" title="AsciiPy.Rect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rect</span></code></a>: The rect boundary of the class.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AsciiPy.Rectangle.occupancy">
+<span class="sig-name descname"><span class="pre">occupancy</span></span><a class="headerlink" href="#AsciiPy.Rectangle.occupancy" title="Permalink to this definition">¶</a></dt>
+<dd><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]: A list of coordinates that the image would be at when blitted. This is used for collision detection.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="utilities">
+<h2>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.utils.beautify">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">beautify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">screen</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#AsciiPy.utils.beautify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps an uncut frame into different pieces with newline characters to make it
+readable without perfect resolution.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>frame (Union[str, List[str], Displayable]): The frame to be converted from newline characters to a straight line.
+screen (Displayable): The screen where this frame is taken from.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.utils.morph">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">morph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">end_string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">consume</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'end'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#AsciiPy.utils.morph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Morphs one string onto another and return a string array
+of all the frames needed to be displayed.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>initial_string (str): The starting frame of the resulting string.
+end_string (str): The ending frame of the resulting string.
+consume (Literal[“end”], Literal[“start”]): Direction of space consumption.
+loop (bool): Whether to make the morphing loop-friendly. Defaults to True.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Tuple[List[str]]: All the frames needed to be displayed for the morphing process.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="AsciiPy.utils.write_collision_state">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">write_collision_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self_frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_frame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#AsciiPy.utils.write_collision_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helps tracking collision states by writing it onto a file IO.
+Uses a global flag to make sure it doesn’t write a thousand times.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>screen (Displayable): The screen where this is taking place.
+self_frame (List[str]): The frame of itself.
+other_frame (List[str]): The frame of the other model.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Api Reference</a><ul>
+<li><a class="reference internal" href="#screens">Screens</a></li>
+<li><a class="reference internal" href="#values">Values</a></li>
+<li><a class="reference internal" href="#rects-and-boundaries">Rects and Boundaries</a></li>
+<li><a class="reference internal" href="#models-and-subsequent-classes">Models and subsequent classes</a></li>
+<li><a class="reference internal" href="#utilities">Utilities</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="basics.html"
+                        title="previous chapter">The Window Class</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/api.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="basics.html" title="The Window Class"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Ascii.py 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Api Reference</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Rickaym.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
+    </div>
+  </body>
+</html>

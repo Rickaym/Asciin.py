@@ -11,23 +11,20 @@ DEFAULT_BRICK = "#"
 
 
 class Model(Rectable):
+    """
+    Defines the integral structure for a model.
+
+    It is used to provide basic inheritance for prerequisites in subsystem interactions.
+    For example the model's texture attribute is accessed in a certain
+    rendering method and the image attribute is used to analyze it's dimension when none is provided etc..
+
+    When subclassing, overidding the defined methods are operable - so long as it is in awareness of their consequences.
+    Overidding those methods require you to follow a strict format as provided by the abstract methods - it is encouraged to
+    avoid this unless perfectly necessary.
+    """
+
     def __init__(self, path=None, image=None, rect=None, texture=None, coordinate=None):
         # type: (str, str, Rect, str, Tuple[int, int]) -> None
-        """
-        Defines the integral structure for a model.
-
-        It is used to provide basic inheritance for prerequisites in subsystem interactions.
-        For example the model's texture attribute is accessed in a certain
-        rendering method and the image attribute is used to analyze it's dimension when none is provided etc..
-
-        When subclassing, overidding the defined methods are operable - so long as it is in awareness of their consequences.
-        Overidding those methods require you to follow a strict format as provided by the abstract methods - it is encouraged to
-        avoid this unless perfectly necessary.
-
-        Attributes
-        ===========
-            dimension
-        """
         tmp_model = None
         if path is not None:
             with open(path, "r", encoding="utf-8") as f:
@@ -40,23 +37,43 @@ class Model(Rectable):
         self.dimension = (
             len(max(split_model, key=lambda e: len(e))),
             len(split_model),
-        )
-        self.image = str(tmp_model)
+        )  #: Tuple[:class:`int`, :class:`int`]: The dimensions of the model. (Width, Height)
+        self.image = str(tmp_model)  #: :class:`str`: The model's image/structure/shape.
+
         self.texture = texture or max(
             tmp_model,
             key=lambda element: tmp_model.count(element) and element != " ",
-        )
+        )  #: :class:`str`: The generalized texture of the entire model. It is the most common character from the image.
+
         self.rect = rect or self.get_rect(
             coordinate=coordinate, dimension=self.dimension
-        )
-        self.occupancy = []
+        )  #: :class:`Rect`: The rect boundary of the class.
+        self.occupancy = (
+            []
+        )  #: List[:class:`int`]: A list of coordinates that the image would be at when blitted. This is used for collision detection.
 
     def collides_with(self, model):
         # type: (Model) -> bool
+        """
+        Checks whether if the current model is in collision with the provided
+        model.
+
+        :param model:
+            The opposing model.
+        :type model: :class:`Model`
+        :returns: (:class:`bool`) Whether if the current model is in collision with the opposite model.
+        """
         return collide_check(self, model)
 
     def blit(self, screen, **kwargs):
-        # type: (Any, Dict[str, Any]) -> None
+        # type: (Displayable, Dict[str, Any]) -> None
+        """
+        The inner blitting method of the model. You should not use this yourself.
+
+        :param screen:
+            This is passed in the subsystem call inside the :obj:`Displayable.blit`.
+        :type screen: :class:`Displayable`
+        """
         return (
             rect_and_charpos(self, screen, **kwargs)
             if "\n" in self.image
@@ -65,13 +82,22 @@ class Model(Rectable):
 
 
 class SimpleText(Model):
-    def __init__(self, coordinate, text) -> None:
-        """
-        A Simple text model that stores normal text objects in it's image attribute.
+    """
+    A Simple text model that stores normal text objects in it's image attribute.
 
-        Uses the slice-fit render method that native menus for the screen uses in a
-        system level.
-        """
+    Uses the slice-fit render method that native menus for the screen uses in a
+    system level.
+
+    :param coordinate:
+        The top-left coordinate of the text.
+    :type coordinate: Tuple[:class:`int`, :class:`int`]
+
+    :param text:
+        The text for the model.
+    :type text: :class:`str`
+    """
+
+    def __init__(self, coordinate, text) -> None:
         super().__init__(image=str(text), coordinate=coordinate)
 
     def blit(self, screen):
@@ -89,19 +115,26 @@ class AsciiText(Model):
 
 
 class PixelPainter(Model):
+    """
+    A model that takes in a coordinate and a dimension to create an empty canvas that is imprinted
+    onto the frame at the exact coordinate when blitted onto screen.
+
+    If not obvious, it doesn't directly create an imprint onto the frame - so when drawing onto the canvas
+    the distance units and x, y values are relative to the dimensions of the canvas, not the screen.
+
+    :param screen:
+        The screen of which the PixelPainter is attached to.
+    :type screen: :class:`Displayable`
+    :param coordinate:
+        The (x, y) coordinates that defines the top right of the canvas relative to the screen.
+    :type coordinate: Tuple[:class:`int`, :class:`int`]
+    :param dimension:
+        The width and height of the canvas.
+    :type dimension: Tuple[:class:`int`, :class:`int`]
+    """
+
     def __init__(self, screen, coordinate=None, dimension=None):
         # type: (Displayable, Tuple(int, int), Tuple(int, int)) -> None
-        """
-        A model that takes in a coordinate and a dimension to create an empty canvas that is imprinted
-        onto the frame at the exact coordinate when blitted onto screen.
-
-        If not obvious, it doesn't directly create an imprint onto the frame - so when drawing onto the canvas
-        the distance units and x, y values are relative to the dimensions of the canvas, not the screen.
-
-        Args:
-            coordinate (Tuple(int, int)): The (x, y) coordinates that defines the top right of the canvas relative to the screen.
-            dimension (Tuple(int, int)): The width and height of the canvas.
-        """
         self.coordinate = coordinate or (0, 0)
         self.dimension = dimension or (screen.width, screen.height)
         self.rect = self.get_rect(coordinate=coordinate, dimension=dimension)
@@ -114,13 +147,19 @@ class PixelPainter(Model):
         through coordinates.
 
         You must pass in either a `xy` or a `distance` kwarg to work.
-        Args:
-            xy (Optional[Tuple[int, int]]): The x and y position of the pixels to be drawn - Defaults to None.
-            distance ([type], optional): The distance of the pixels relative to the origin - Defaults to None.
 
-        Raises:
-            TypeError: Raised when neither xy or distance is passed in.
-            IndexError: Raised when the coordinate of the pixel is out of bounds.
+        :param pixels:
+            The pixels to be drawn.
+        :type pixels: List[:class:`str`]
+        :param xy:
+            The x and y position of the pixels to be drawn - Defaults to None.
+        :type xy: Optional[Tuple[:class:`int`, :class:`int`]]
+        :param distance:
+            The distance of the pixels relative to the origin - Defaults to None.
+        :type distance: Optional[:class:`int`]
+
+        :raises TypeError: Raised when neither xy or distance is passed in.
+        :raises IndexError: Raised when the coordinate of the pixel is out of bounds.
         """
         if xy is None and distance is None:
             raise TypeError("draw needs either xy or distance point")
@@ -139,11 +178,22 @@ class PixelPainter(Model):
 
 
 class Square(Model):
+    """
+    A Square Model.
+
+    :param coordinate:
+        The top-left coordiante of the square.
+    :type coordinate: Tuple[:class:`int`, :class:`int`]
+    :param length:
+        The length of the square.
+    :type length: :class:`int`
+    :param texture:
+        The monotone texture of the square.
+    :type texture: :class:`str`
+    """
+
     def __init__(self, coordinate, length, texture=DEFAULT_BRICK):
         # type: (Tuple[int, int], int, str) -> None
-        """
-        A Square Model.
-        """
         self.length = length
 
         super().__init__(
@@ -154,11 +204,22 @@ class Square(Model):
 
 
 class Rectangle(Model):
+    """
+    A Rectangle Model.
+
+    :param coordinate:
+        The top-left coordiante of the square.
+    :type coordinate: Tuple[:class:`int`, :class:`int`]
+    :param dimension:
+        The dimension of the rectangle in Width, Height.
+    :type dimension: Tuple[:class:`int`, :class:`int`]
+    :param texture:
+        The monotone texture of the square.
+    :type texture: :class:`str`
+    """
+
     def __init__(self, coordinate, dimension, texture=DEFAULT_BRICK):
         # type: (Tuple[int, int], Tuple[int, int], str) -> None
-        """
-        A Rectangle Model.
-        """
         super().__init__(
             image=(((texture * dimension[0]) + "\n") * (dimension[1])).strip(),
             rect=self.get_rect(coordinate, dimension),

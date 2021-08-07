@@ -18,6 +18,7 @@ try:
 except ImportError:
     pass
 
+
 __all__ = ["Window", "Displayable"]
 
 """
@@ -31,32 +32,6 @@ class Displayable:
     Defines the integral structure of a console displayable generalized for different OS terminals.
 
     Subclasses defines specific system calls to open a terminal, resize it, close it, move it and so on..
-
-    Attributes
-    ===========
-        resolution (Resolutions): A conceptual enum of a the window resolution.
-
-        width (int): The width of the window.
-
-        height (int): The height of the window.
-
-        debug_area (Tuple[int, int]): Approximated area of a debug prompt on the terminal.
-
-        max_framerate (Optional[int]): The specified FPS limit of the window.
-
-        goto_ramp (List[str]): The default list of a characters for test printing and native menu styling.
-
-        all_models (Dict[Rect, Model]): A rect to model mapping of every model that the window has a record of presence.
-
-        emptyframe (str): A base frame that is drawn over.
-
-        show_fps (bool): Whether if the window has a menu indicating the fps.
-
-        show_stopwatch (bool): Whether the menu shows the timer before elimination when given.
-
-        sysdout (bool): Whether the rendered frames are printed onto the window.
-
-        debug (bool): Whether the window has debug mode enabled.
     """
 
     TPS = 25
@@ -72,18 +47,30 @@ class Displayable:
         show_stopwatch,
     ):
         # type: (Resolutions, Optional[int], Optional[int], bool, bool, bool, bool) -> None
-        self.resolution = resolution
-        self.width = resolution.width
-        self.height = resolution.height
-        self.debug_area = [0, self.resolution.height * 0.8]
-        self.max_framerate = max_framerate
-        self.goto_ramp = Characters.miniramp.value
-        self.all_models = {}  # type: Dict[Rect, Model]
-        self.emptyframe = [" "] * self.resolution.pixels
-        self.show_fps = show_fps
-        self.show_stopwatch = show_stopwatch
-        self.sysdout = sysdout
-        self.debug = debug
+        self.resolution = resolution  #: Union[:class:`Resolutions`, Tuple[:class:`int`, :class:`int`]]: A conceptual enum of a the window resolution.
+        self.width = resolution.width  #: :class:`int`: The width of the window.
+        self.height = resolution.height  #: :class:`int`: The height of the window.
+        self.debug_area = [
+            0,
+            self.resolution.height * 0.8,
+        ]  #: Tuple[:class:`int`, :class:`int`]: Approximated area of a debug prompt on the terminal.
+        self.max_framerate = max_framerate  #: Optional[:class:`int`]: The specified FPS limit of the window.
+        self.goto_ramp = (
+            Characters.miniramp.value
+        )  #: List[:class:`str`]: The default list of a characters for test printing and native menu styling.
+
+        self.all_models = (
+            {}
+        )  #: Dict[:class:`Rect`, :class:`Model`]: A rect to model mapping of every model that the window has a record of presence.
+
+        self.emptyframe = [
+            " "
+        ] * self.resolution.pixels  #: :class:`str`: A base frame that is drawn over.
+        self.show_fps = show_fps  #: :class:`bool`: Whether if the window has a menu indicating the fps.
+        self.show_stopwatch = show_stopwatch  #: :class:`bool`: Whether the menu shows the timer before elimination when given.
+        self.sysdout = sysdout  #: :class:`bool`: Whether the rendered frames are printed onto the window.
+
+        self.debug = debug  #: :class:`bool`: Whether the window has debug mode enabled.
 
         # pre-rendered
         self._infotext = (
@@ -122,6 +109,8 @@ class Displayable:
         # type: () -> str
         """
         The current frame of the screen.
+
+        :type: :class:`int`
         """
         return "".join(self._frame)
 
@@ -130,6 +119,8 @@ class Displayable:
         # type: () -> int
         """
         The amount of frames rendered per the second passed.
+
+        :type: :class:`int`
         """
         now = time()
         duration = now - self._last_checked
@@ -145,6 +136,8 @@ class Displayable:
         # type: () -> int
         """
         The amount of frames rendered on average from start to present.
+
+        :type: :class:`int`
         """
         return self._session_fps / (time() - self._started_at)
 
@@ -153,6 +146,8 @@ class Displayable:
         # type: () -> int
         """
         Internal ticks, from 0 to 25 for timing certain things.
+
+        :type: :class:`int`
         """
         return round(time() - self._started_at) % self.TPS
 
@@ -187,10 +182,14 @@ class Displayable:
             )
 
     def blit(self, object, *args, **kwargs):
-        # type: (Model, Optional[Tuple[int, int]], bool) -> None
+        # type: (Model, Tuple[Any], Dict[str, Any]) -> None
         """
         Simply calls the object's internal blit method onto itself and does necessary
         records.
+
+        :param object:
+            The Model to be blitted onto screen.
+        :type object: :class:`Model`
         """
         self._frame, object.occupancy = object.blit(self, *args, **kwargs)
         if self.all_models.get(object.rect) is None:
@@ -200,6 +199,10 @@ class Displayable:
         # type: (bool) -> None
         """
         Empties the current frame. If sysdout is enabled, it is printed onto the window.
+
+        :param log_frames:
+            Whether to keep track of the amount of frames displayed throughout the session.
+        :type log_frames: :class:`bool`
         """
         if self._stop_at is not None and time() - self._started_at >= self._stop_at:
             raise RuntimeError("Times up! Program has been force stopped.")
@@ -252,12 +255,6 @@ class Window:
     """
     An abstract representation of a window, the class handles the internal loops for different kinds of uses.
     This isn't the screen parameter passed into the client loop. See Displayable for that.
-
-    Attributes
-    ===========
-        resolution (Union[Resolutions, Tuple(int, int)]): The resolution of the window.
-
-        max_framerate (Optional[int]): The limiting cap for FPS.
     """
 
     platform_to_window = {
@@ -268,15 +265,12 @@ class Window:
 
     def __init__(self, resolution, max_framerate=None):
         # type: (Union[Tuple[int, int], Resolutions], int) -> None
-        """
-        An abstract representation of a window, the class handles the internal loops for different kinds of
-        uses.
-        Args:
-            resolution (Union[Resolutions, Tuple(int, int)]): The resolution of the window. You can pass in a predefined resolution from the Resolutiosn class or pass in a tuple.
-            max_framerate (Optional[int]): The limiting cap for FPS. Defaults to None.
-        """
-        self.resolution = Resolutions(resolution)
-        self.max_framerate = max_framerate
+        self.resolution = Resolutions(
+            resolution
+        )  #: :class:`Resolutions`: The respective resolution of the window.
+        self.max_framerate = (
+            max_framerate  #: Optional[:class:`int`]: The limiting cap for FPS.
+        )
 
         self._window = None
         self._client_loop = None  # type: Callable
@@ -321,8 +315,7 @@ class Window:
         """
         Basic wrapper to register a game loop onto the screen.
 
-        Args:
-            forcestop (Optional[int]): Time duration in seconds to stop the loop. Defaults to None and runs until the function is exhausted.
+        :returns: (Callable[[:class:`Displayable`], None]) The wrapped function.
         """
         self._stop_time = forcestop
 

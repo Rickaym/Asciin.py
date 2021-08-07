@@ -1,2 +1,10 @@
+# sphinx
+build
+make.bat
+Makefile
+
+# ide / editor
 .vscode
+
+# cache
 *.pyc

@@ -1,6 +1,9 @@
 # PyAscii
 
+![logo](assets/inverted_logo.png)
+
 A 2D and 3D Ascii game engine written for performance (still under development and nowhere near ready for use without extensive knowledge).
+
 LuckyDevStuff_render.gif
 
 ### Status Demo
