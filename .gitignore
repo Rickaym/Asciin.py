@@ -8,6 +8,7 @@ Makefile
 # pypi
 dist
 MANIFEST
+Asciin.py.egg-info
 
 # tests
 tests
