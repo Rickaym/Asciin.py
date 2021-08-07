@@ -13,18 +13,40 @@ Current docs: **https://asciipy.readthedocs.io/en/latest/**
 
 ![demo](https://raw.githubusercontent.com/Rickaym/Asciin.py/main/assets/LuckyDevStuff_render.gif)
 
-2. **Moving Text**
-   <br>
-   ~ demonstrates simple movement.
-   See code [here](https://github.com/Rickaym/Asciin.py/tree/main/examples/moving_text.py).
+More examples [here](https://github.com/Rickaym/Asciin.py/tree/main/examples/).
 
-![demo](https://raw.githubusercontent.com/Rickaym/Asciin.py/main/assets/moving_text.gif)
+### Installing
 
-3. **Colliding Squares**
-   <br>
-   ~ demonstrates the collision physics by utilizing mechanisms built into Asciin.py.
-   See code [here](https://github.com/Rickaym/Asciin.py/tree/main/examples/colliding_squares.py).
+**Python 2.7 or higher is required**
 
-![demo](https://raw.githubusercontent.com/Rickaym/Asciin.py/main/assets/colliding_squares.gif)
+```js
+// Windows
+py -m pip install -U asciin.py
+
+// Linux/macOS
+python -m pip install -U asciin.py
+```
+
+### Simple Example
+
+```py
+from Asciinpy import Square, Displayable, Window, Resolutions
+
+# Define a window
+window = Window(resolution=Resolutions._60c)
+
+@window.loop()
+def game_loop(screen):
+   # type: (Displayable) -> None
+   coordinate = (0, 0)
+   length = 8
+   texture = "%"
+   Square = Square(coordinate, length, texture)
+   while True:
+      screen.blit(Square)
+      screen.refresh()
+
+window.run()
+```
 
 Contact me at Neo#1844 for inquiries.

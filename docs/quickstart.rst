@@ -12,7 +12,7 @@ Quickstart
 
 .. code:: py
 
-   from AsciiPy import Square, Displayable, Window, Resolutions
+   from Asciinpy import Square, Displayable, Window, Resolutions
 
    # Define a window
    window = Window(resolution=Resolutions._60c)

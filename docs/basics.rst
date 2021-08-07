@@ -1,24 +1,24 @@
 Fundamentals
 ===============
-To start off, an instantiation of the :class:`AsciiPy.Window` class is required.
+To start off, an instantiation of the :class:`Asciinpy.Window` class is required.
 It handles the OS dependencies and provides a way to inject a game loop through a decorator.
 
 `E.g. 1`
 
 .. code:: py
 
-   from AsciiPy import Window
+   from Asciinpy import Window
 
-   window = Window(resolution: Union[Tuple[int, int], AsciiPy.values.Resolutions], max_framerate: Optional[int] = None)
+   window = Window(resolution: Union[Tuple[int, int], Asciinpy.values.Resolutions], max_framerate: Optional[int] = None)
 
-There are a few methods you can call from this instance; :obj:`AsciiPy.Window.replay` and :obj:`AsciiPy.Window.run`.
+There are a few methods you can call from this instance; :obj:`Asciinpy.Window.replay` and :obj:`Asciinpy.Window.run`.
 
 Run
 ----
 The run method executes the game loop that has been passed in previously with an internal clock.
-It is possible to set a timer for termination, refer to :obj:`AsciiPy.Window.loop` for further information.
+It is possible to set a timer for termination, refer to :obj:`Asciinpy.Window.loop` for further information.
 Passing in the game loop is as simple as defining a function with a given signature of one parameter and decorated.
-The game loop must accept a single parameter of type :class:`AsciiPy.Displayable`, it will raise an error if the signature is incorrect.
+The game loop must accept a single parameter of type :class:`Asciinpy.Displayable`, it will raise an error if the signature is incorrect.
 
 .. note::
 
@@ -34,7 +34,7 @@ The game loop must accept a single parameter of type :class:`AsciiPy.Displayable
 
    window.run()
 
-There are a few customizations you can make when running a game loop. This includes with and without sysdout. For instance rendering frame headless to get an animation and have it fetched from a hidden attribute :obj:`AsciiPy.Window._frame_log`.
+There are a few customizations you can make when running a game loop. This includes with and without sysdout. For instance rendering frame headless to get an animation and have it fetched from a hidden attribute :obj:`Asciinpy.Window._frame_log`.
 
 Replay
 -------
@@ -49,20 +49,20 @@ The replay method simply covers plain iteration of a recorded ascii string array
 Models
 =======
 Models, they are shapes, angles, text, diagrams, spheres and circles.
-Every model inherits from the :class:`AsciiPy.Model` that provides an interface for a variety of things necessary for subsystem interactions to the model.
+Every model inherits from the :class:`Asciinpy.Model` that provides an interface for a variety of things necessary for subsystem interactions to the model.
 
 There are two ways to create your own models.
 
 1. Subclassing.
 
-When subclassing :class:`AsciiPy.Model` you are provided a full set of methods that a model should traditionally have such as :obj:`AsciiPy.Model.blit` and :obj:`AsciiPy.Model.collides_with`.
+When subclassing :class:`Asciinpy.Model` you are provided a full set of methods that a model should traditionally have such as :obj:`Asciinpy.Model.blit` and :obj:`Asciinpy.Model.collides_with`.
 These methods can be overidden but avoid it if possible.
 
 `E.g. 2`
 
 .. code:: py
 
-   from AsciiPy import Model
+   from Asciinpy import Model
 
    class MyModel(Model):
       def __init__(self, ...):
@@ -80,7 +80,7 @@ These methods can be overidden but avoid it if possible.
 
 2. Using the **__init__** method.
 
-Taking a closer look to :obj:`AsciiPy.Model.__init__` you will understand that all the built-in models calls this method somewhere during instantiation.
+Taking a closer look to :obj:`Asciinpy.Model.__init__` you will understand that all the built-in models calls this method somewhere during instantiation.
 
 You can do the same and acquire a function model. The **__init__** method takes a few parameters such as *path* and *image*.
 providing either is enough to make a model from scratch.
@@ -89,25 +89,25 @@ providing either is enough to make a model from scratch.
 
 .. code:: py
 
-   from AsciiPy import Model
+   from Asciinpy import Model
 
    my_model = Model(image="ABBBBBBBB\nABBBBBBB")
 
 Pixel Painter
 --------------
-A :class:`AsciiPy.PixelPainter` model is a simple interface to draw over each pixel on the screen.
+A :class:`Asciinpy.PixelPainter` model is a simple interface to draw over each pixel on the screen.
 
-You can instantiate a pixel painter model by passing in the current :class:`AsciiPy.Displayable`.
+You can instantiate a pixel painter model by passing in the current :class:`Asciinpy.Displayable`.
 After instantiation, the pixel painter takes a copy of the screen with the given coordinates and dimension (if none is given it takes the entire screen - by default the coordinate and the dimension of the model is based on the screen).
 
-You will be drawing onto this frame by making use of :obj:`AsciiPy.PixelPainter.draw` method.
+You will be drawing onto this frame by making use of :obj:`Asciinpy.PixelPainter.draw` method.
 Like every other model, it must be blitted onto screen. Only when it is blitted, the changes in the canvas are rendered onto the screen elegantly.
 
 `E.g. 2.3`
 
 .. code:: py
 
-   from AsciiPy import PixelPainter, Resolutions
+   from Asciinpy import PixelPainter, Resolutions
 
    window = Window(Resolutions._60c)
 
@@ -129,8 +129,8 @@ Refer to the Api Reference for more information.
 ============================== ==============================================================================================
 Class                             Description
 ============================== ==============================================================================================
-:class:`AsciiPy.Rectangle`      Makes a generic rectangle from **coordinate** and **width**, **height**.
-:class:`AsciiPy.Square`         Makes a generic square from **coordinate** and **length**.
-:class:`AsciiPy.SimpleText`     Makes a simple model with a text body from **coordinate** and **text**.
-:class:`AsciiPy.AsciiText`      Makes an ascii model in the form of a typical text body
+:class:`Asciinpy.Rectangle`      Makes a generic rectangle from **coordinate** and **width**, **height**.
+:class:`Asciinpy.Square`         Makes a generic square from **coordinate** and **length**.
+:class:`Asciinpy.SimpleText`     Makes a simple model with a text body from **coordinate** and **text**.
+:class:`Asciinpy.AsciiText`      Makes an ascii model in the form of a typical text body
 ============================== ==============================================================================================

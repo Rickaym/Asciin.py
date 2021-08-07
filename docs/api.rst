@@ -1,4 +1,4 @@
-.. currentmodule:: AsciiPy
+.. currentmodule:: Asciinpy
 
 Api Reference
 ===============
