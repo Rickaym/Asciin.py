@@ -4,7 +4,8 @@
 
 A 2D and 3D Ascii game engine written for performance (still under development)
 
-Current docs: **https://asciipy.readthedocs.io/en/latest/**
+Current docs: **https://asciinpy.readthedocs.io/en/latest/**
+pypi project: **https://pypi.org/project/Asciin.py/**
 
 ### Status Demo
 
