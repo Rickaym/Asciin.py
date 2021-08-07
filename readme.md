@@ -9,7 +9,7 @@ Current docs: **https://asciipy.readthedocs.io/en/latest/**
 ### Status Demo
 
 1. **Matrixes Patterns**
-   <br> Great example in working with PixelPainters.
+   <br> An example in working with PixelPainters.
 
 ![demo](https://raw.githubusercontent.com/Rickaym/Asciin.py/main/assets/LuckyDevStuff_render.gif)
 
