@@ -1,0 +1,2 @@
+SCREENS = []
+SINGLE_PRINT_FLAG = False

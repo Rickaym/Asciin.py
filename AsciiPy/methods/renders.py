@@ -4,13 +4,25 @@ Different models can pick best fitting render methods circumstantially.
 """
 
 try:
-    from typing import Any, Optional, Tuple, List
+    from typing import Any, Optional, Tuple, List, Set
 except ImportError:
     pass
 
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+def abstract_render_method(model, screen, **kwargs):
+    # type: (Model, Displayable, Dict[str, Any]) -> Tuple[List[str], Tuple[int]]
+    """
+    Every rendering methods must implement this conceptual abstract method.
+    """
+
+
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 
 def rect_and_charpos(model, screen, empty=False):
-    # type: (Any, Any, Optional[Tuple[int, int]], bool) -> List[str]
+    # type: (Any, Optional[Tuple[int, int]], bool) -> Tuple[List[str], Set[int]]
     """
     Figures out the position of the characters based on the temporal position and
     the position of the character in the model image.
@@ -23,27 +35,45 @@ def rect_and_charpos(model, screen, empty=False):
 
     # gets the starting index of the image in a straight line screen
     loc = round(model.rect.x) + (round(model.rect.y) * screen.resolution.width)
-    placed = 0
-    for char in pixels:
-        if loc < 0:
+    max_loc = screen.resolution.width * screen.resolution.height
+
+    x_depth = 0
+    y_depth = 0
+    occupancy = []
+
+    for i, char in enumerate(pixels):
+        if loc < 0 or loc > max_loc:
             continue
+        if model.rect.texture:
+            if char == "\n":
+                frame[loc - 1] = model.rect.texture
+            elif x_depth == 0 or y_depth == 0 or y_depth == (model.dimension[1] - 1):
+                char = model.rect.texture
+            elif i == (len(pixels) - 1):
+                char = model.rect.texture
         if char == "\n":
-            loc += screen.resolution.width - placed
-            placed = 0
+            loc += screen.resolution.width - x_depth
+            x_depth = 0
+            y_depth += 1
             continue
+
+        occupancy.append(loc)
         try:
             frame[loc] = char
         except IndexError:
             continue
         else:
-            placed += 1
+            x_depth += 1
             loc += 1
-    return frame
+
+    if model.rect.texture:
+        frame[-1] = model.rect.texture
+
+    return frame, set(occupancy)
 
 
 def rect_and_modelen(model, screen, empty=False):
-    # type: (Any, Any, Optional[Tuple[int, int]], bool) -> List[str]
-
+    # type: (Any, Any, bool) -> Tuple[List[str], Set[int]]
     """
     Figures out the positions of characters by using the position of the character in the model
     image and it's desired dimensions to guess where it is on the screen.
@@ -53,6 +83,8 @@ def rect_and_modelen(model, screen, empty=False):
     Time Complexity of this method is O(n) where n is
     the total amount of characters in a model image."""
     frame = list(screen._frame) if not empty else list(screen.emptyframe)
+    pixels = list(model.image)
+    occupancy = []
 
     for row in range(model.rect.dimension[1]):
         for col in range(model.rect.dimension[0]):
@@ -62,14 +94,17 @@ def rect_and_modelen(model, screen, empty=False):
                 + (screen.resolution.width * row)
                 + round(model.rect.y) * screen.resolution.width
             )
+            occupancy.append(loc)
             try:
                 frame[loc] = model.texture
             except IndexError:
                 pass
-    return frame
+
+    return frame, set(occupancy)
 
 
 def slice_fit(model, screen):
+    # type: (Any, Any) -> Tuple[List[str], Set[int]]
     """
     Fits text onto the current frame.
     An adaptation of how the screen blits it's menubar etc natively.
@@ -78,11 +113,12 @@ def slice_fit(model, screen):
 
     Time Complexity: O(n) where n is len(TEXT)
     """
-    point = model.rect.x + (screen.resolution.width * model.rect.y)
+    point = round(model.rect.x) + (screen.resolution.width * round(model.rect.y))
     if point < 0:
         point = screen.resolution.width + point
-    return (
-        screen._frame[:point]
-        + list(model.image)
-        + screen._frame[point + len(model.image) :]
-    )
+
+    frame = screen._frame[:point]
+    frame.extend(list(model.image))
+    frame.extend(screen._frame[point + len(model.image) :])
+
+    return frame, set(range(point, point + len(model.image)))

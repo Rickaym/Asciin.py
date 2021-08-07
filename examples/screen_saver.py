@@ -1,32 +1,43 @@
-from PyAscii.screen import Displayable
-from PyAscii import Model, Square, Screen, Resolutions
+"""
+Recreation of the classic DVD screensaver
 
-screen = Screen(resolution=Resolutions._60c)
+PixelPainter doesn't directly create an imprint onto the frame. It keeps a reference frame inside
+itself that the user draw onto. Only when it is blitted that the pixel painter localizes it's
+canvas onto the screen frame. Even then, it is rendered like every other Model.
+"""
+from AsciiPy import Displayable, Window, Resolutions, Model
 
+# Start by defining a screen object with the desired resolution
+window = Window(resolution=Resolutions._60c)
 
-@screen.loop()
+# Define a user loop for the screen and accept a screen parameter, this is of type Displayable.
+@window.loop()
 def my_loop(screen):
     # type: (Displayable) -> None
-    my_square = Square((0, 0), 10, texture="@")
+    # Make the DVD_logo model out of scratch with the path
+    DVD_logo = Model(path="examples/DVD_logo.txt")
+    # Map the velocity for the mmovement
     velocity = [0.02002, 0.02002]
     while True:
-        my_square.rect.y += velocity[1]
-        my_square.rect.x += velocity[0]
+        DVD_logo.rect.y += velocity[1]
+        DVD_logo.rect.x += velocity[0]
 
-        if round(my_square.rect.y) < 0:
+        # Check for border collisions and flip signs
+        if round(DVD_logo.rect.y) < 0:
             velocity[1] = abs(velocity[1])
-        elif (
-            round(my_square.rect.y) + (my_square.length // 2) > screen.resolution.height
-        ):
+        elif round(DVD_logo.rect.y) + DVD_logo.dimension[1] >= screen.resolution.height:
             velocity[1] = -velocity[1]
 
-        if round(my_square.rect.x) < 0:
+        if round(DVD_logo.rect.x) < 0:
             velocity[0] = abs(velocity[0])
-        elif round(my_square.rect.x) + my_square.length > screen.resolution.width:
+        elif round(DVD_logo.rect.x) + DVD_logo.dimension[0] >= screen.resolution.width:
             velocity[0] = -velocity[0]
 
-        screen.blit(my_square)
+        # Blit the dvd logo onto screen
+        screen.blit(DVD_logo)
+        # Refresh the screen to render new blits
         screen.refresh()
 
 
-screen.run(debug=False)
+# Runs the window
+window.run(show_fps=True)

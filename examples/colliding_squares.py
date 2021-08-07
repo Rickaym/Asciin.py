@@ -1,44 +1,63 @@
-from PyAscii.screen import Displayable
-from PyAscii import Square, Screen, Resolutions
+"""
+Simple collisions system with squares.
+"""
+from AsciiPy import Square, Displayable, Window, Resolutions
 
-screen = Screen(resolution=Resolutions._60c)
+try:
+    from typing import Tuple
+except ImportError:
+    "Python 2.7.2 + compatibility"
+
+# Start by defining a screen object with the desired resolution
+window = Window(resolution=Resolutions._60c)
 
 
 def manage_collisions(velocities, i, square, other_squares):
+    # type: (Tuple[int, int], int, Square, Square) -> Tuple[int, int]
     for other in other_squares:
+        # Squares or any Subclass of `Model` has a `collides_with` method, this can be
+        # overidden when making your own model or making a model out of scratch.
+        # Here we simply use a the method on other squares
+        #
+        # When you check a collisions for a square and itself, it returns False
+
+        tolerance = 7
         if square.collides_with(other):
-            if abs(square.rect.right - other.rect.left) <= 5:
+            # When a collision is certain, we need to find where it happened
+            # this can be done simply by finding the distances of their points
+
+            if abs(square.rect.right - other.rect.left) <= tolerance:
                 velocities[i][0] = -abs(velocities[i][0])
-            elif abs(square.rect.left - other.rect.right) <= 5:
+            elif abs(square.rect.left - other.rect.right) <= tolerance:
                 velocities[i][0] = abs(velocities[i][0])
-            if abs(square.rect.top - other.rect.bottom) <= 5:
+
+            if abs(square.rect.top - other.rect.bottom) <= tolerance:
                 velocities[i][1] = abs(velocities[i][1])
-            elif abs(square.rect.bottom - other.rect.top) <= 5:
+            elif abs(square.rect.bottom - other.rect.top) <= tolerance:
                 velocities[i][1] = -abs(velocities[i][1])
-        else:
-            continue
+
+    # returns the altered velocities
     return velocities
 
 
-@screen.loop()
+# Define a user loop for the screen and accept a screen parameter, this is of type Displayable.
+@window.loop()
 def my_loop(screen):
     # type: (Displayable) -> None
-    squares = [
-        Square((0, 0), 6, texture="@"),
+    # Make a bunch of squares to simulate collisions
+    squares = (
+        Square((0, 0), 9, texture="@"),
         Square((0, 24), 10, texture="&"),
-        Square((24, 0), 6, texture="^"),
-        Square((40, 0), 8, texture="L"),
-    ]
-    STATIC = 0.04
-    velocities = [
-        [STATIC, STATIC],
-        [STATIC, STATIC],
-        [STATIC, STATIC],
-        [STATIC, STATIC],
-    ]
+        Square((24, 0), 7, texture="^"),
+        Square((30, 0), 4, texture="L"),
+    )
+
+    # Make a list to appoint each of the squares a movement velocity
+    STATIC = 0.03002
+    velocities = [[STATIC, STATIC]] * len(squares)
+
     while True:
         for i, square in enumerate(squares):
-            screen.blit(square)
             square.rect.x += velocities[i][0]
             square.rect.y += velocities[i][1]
 
@@ -51,8 +70,14 @@ def my_loop(screen):
                 velocities[i][0] = -1 * velocities[i][0]
             elif round(square.rect.x) + square.length > screen.resolution.width:
                 velocities[i][0] = -1 * velocities[i][0]
-            manage_collisions(velocities, i, square, squares)
+
+            velocities = manage_collisions(velocities, i, square, squares)
+
+            # Blit the current square in iteration
+            screen.blit(square)
+        # Refresh the screen to render new blits
         screen.refresh()
 
 
-screen.run(debug=False, show_fps=True)
+# Runs the window
+window.run(show_fps=True)

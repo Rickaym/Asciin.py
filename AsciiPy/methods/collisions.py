@@ -1,36 +1,30 @@
+"""
+Contains different definitions on checking collisions of a model
+Different models can pick best fitting collisions checking methods circumstantially.
+"""
 from ..globals import SCREENS
-from ..rect import Rect
-from ..utils import beautify
+from ..utils import deprecated, write_collision_state
 
 try:
     from typing import Any
 except ImportError:
     pass
-"""
-Contains different definitions on checking collisions of a model
-Different models can pick best fitting collisions checking methods circumstantially.
-"""
-
-#
-#  Measures the true collisions based on the overlapping changes of two empty frames
-#  after rendering.
-#
-
-single_print = True
 
 
-def write_collision_state(screen, self_frame, other_frame):
-    global single_print
-
-    if single_print:
-        with open("self_frame.txt", "w") as f:
-            f.write(beautify(self_frame, screen))
-
-        with open("model_frame.txt", "w") as f:
-            f.write(beautify(other_frame, screen))
-        single_print = False
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
+def abstract_collision_checker(self, other):
+    # type: (Model, Model) -> bool
+    """
+    Every collisions checking method must implement this conceptual abstract method.
+    """
+
+
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+@deprecated
 def multi_collides_with(self, *models):
     # type: (Any, Any) -> bool
     self_frame = None
@@ -66,6 +60,7 @@ def multi_collides_with(self, *models):
     return states if len(states) > 1 else states[0]
 
 
+@deprecated
 def collides_with(self, model):
     # type: (Any, Any) -> bool
     if model == self:
@@ -99,40 +94,17 @@ def collides_with(self, model):
     return False
 
 
-#
-#  Measuring collisions based on quadilateral pixel overlapping
-#
-
-
-def get_occupancy(rect):
-    occupancy = []
-    for y_point in range(rect.y, rect.y + rect.dimension[1]):
-        occupancy.extend(
-            list(
-                zip(
-                    list(range(rect.x, rect.x + rect.dimension[0])),
-                    [y_point] * rect.dimension[0],
-                )
-            )
-        )
-    return occupancy
-
-
-def colliding_with(rect):
-    # type: (Rect) -> bool
+def coord_collides_with(self, model):
     """
-    IMAGINE
-
-    x = 0, 0   |   length = 20
-    y = 0, 0   |   height = 20
-
-    Objective: Gets all possible coordinates of the rectangle and checks for
-        similarities.
-
-    range of height = range(y, y+height)
-    range of width = range(x, x+legth)
+    Retrives model occupancy and compares each sets to identify and
+    colliding pixels.
     """
-    self_occupancy = get_occupancy()
-    alien_occupancy = get_occupancy(rect)
+    if model is self:
+        return False
+    if len(set([*model.occupancy, *self.occupancy])) < (
+        len(model.occupancy) + len(self.occupancy)
+    ):
 
-    return any()
+        return True
+    else:
+        return False

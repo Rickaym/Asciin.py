@@ -1,12 +1,9 @@
-from enum import Enum
-
-
-class Characters(Enum):
+class Characters:
     ramp = r"""$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?<>i!lI;:-_+~,"^`'. """
     miniramp = r"""@%#*+=-:. """
 
 
-class Resolutions(Enum):
+class Resolutions:
     _50c = (50, 25)
     _60c = (60, 30)
     _100c = (100, 50)
@@ -16,6 +13,9 @@ class Resolutions(Enum):
     _720c = (1280, 720)
     _768c = (1366, 768)
     _1080c = (1980, 1080)
+
+    def __init__(self, dimension) -> None:
+        self.value = dimension
 
     @property
     def width(self):
