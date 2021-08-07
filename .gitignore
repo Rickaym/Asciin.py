@@ -1,5 +1,7 @@
 # sphinx
 build
+source/_build
+source/_templates
 make.bat
 Makefile
 
