@@ -33,7 +33,7 @@ class Resolutions:
     _1080c = (1980, 1080)
 
     def __init__(self, dimension):
-        if not isinstance(dimension, self):
+        if not isinstance(dimension, (type(self))):
             self.value = dimension
         else:
             self.value = dimension.value

@@ -5,7 +5,7 @@ PixelPainter doesn't directly create an imprint onto the frame. It keeps a refer
 itself that the user draw onto. Only when it is blitted that the pixel painter localizes it's
 canvas onto the screen frame. Even then, it is rendered like every other Model.
 """
-from AsciiPy import PixelPainter, Displayable, Resolutions, Window
+from Asciinpy import PixelPainter, Displayable, Resolutions, Window
 from random import random, choice
 from string import ascii_letters
 

@@ -1,4 +1,4 @@
-from AsciiPy import PixelPainter, Displayable, Resolutions, Window
+from Asciinpy import PixelPainter, Displayable, Resolutions, Window
 from random import randint, choice
 
 # Start by defining a screen object with the desired resolution

@@ -1,12 +1,15 @@
 from __future__ import print_function
 
 import platform
+import pydoc
 import re
 
 from math import e
 from functools import wraps
 from time import sleep, time
 from os import system
+from io import StringIO
+from contextlib import redirect_stdout
 
 from .values import Characters, Resolutions
 from .models import Model
@@ -56,7 +59,7 @@ class Displayable:
         ]  #: Tuple[:class:`int`, :class:`int`]: Approximated area of a debug prompt on the terminal.
         self.max_framerate = max_framerate  #: Optional[:class:`int`]: The specified FPS limit of the window.
         self.goto_ramp = (
-            Characters.miniramp.value
+            Characters.miniramp
         )  #: List[:class:`str`]: The default list of a characters for test printing and native menu styling.
 
         self.all_models = (
@@ -268,6 +271,7 @@ class Window:
         self.resolution = Resolutions(
             resolution
         )  #: :class:`Resolutions`: The respective resolution of the window.
+        # format: off
         self.max_framerate = (
             max_framerate  #: Optional[:class:`int`]: The limiting cap for FPS.
         )
@@ -299,13 +303,10 @@ class Window:
         """
         Simply checks if the provided function has a single arg to pass the screen parameter into.
         """
-        spec = help(function)
+        spec = pydoc.render_doc(function)
+        signature = re.compile(r"\((?: *)(.*)\)")
 
-        signature = re.compile(r"(?:\w+)\((.*)\)")
-        args = re.compile(r"(\w+)(?: *),")
-
-        fn_sig = signature.findall(spec)[0]
-        if len(args.findall(fn_sig)) > 0:
+        if len(signature.findall(spec)) > 0:
             return True
         else:
             return False
@@ -341,7 +342,7 @@ class Window:
 
         window = self.platform_to_window[platform.system()]
         win_instance = window(
-            self._resolution, self.max_framerate, self._stop_time, False, False, False
+            self.resolution, self.max_framerate, self._stop_time, False, False, False
         )
 
         if len(SCREENS) > 1:
@@ -363,7 +364,7 @@ class Window:
 
         window = self.platform_to_window[platform.system()]
         win_instance = window(
-            self._resolution,
+            self.resolution,
             self.max_framerate,
             self._stop_time,
             debug,
