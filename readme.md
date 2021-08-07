@@ -7,7 +7,8 @@ LuckyDevStuff_render.gif
 
 1. **Matrixes Patterns**
    <br> Great example in working with PixelPainters.
-   ![demo](assets/LuckyDevStuff_render.gif)
+
+![demo](assets/LuckyDevStuff_render.gif)
 
 2. **Moving Text**
    <br>
