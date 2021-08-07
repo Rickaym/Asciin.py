@@ -1,13 +1,13 @@
 Quickstart
 ===========
 
-#. Instantiate a :class:`Window` class with the desired values.
+#. Instantiate a :class:`Asciinpy.Window` class with the desired values.
 
-#. Define your game loop and decorate it with the :obj:`Window.loop` decorator that should accept one parameter of type :class:`Displayable`.
+#. Define your game loop and decorate it with the :obj:`Asciinpy.Window.loop` decorator that should accept one parameter of type :class:`Displayable`.
 
 #. Write some fancy code with or without built-in models to render.
 
-#. Call the :obj:`Window.run` method!
+#. Call the :obj:`Asciinpy.Window.run` method!
 
 
 .. code:: py
