@@ -97,7 +97,7 @@ class SimpleText(Model):
     :type text: :class:`str`
     """
 
-    def __init__(self, coordinate, text) -> None:
+    def __init__(self, coordinate, text):
         super().__init__(image=str(text), coordinate=coordinate)
 
     def blit(self, screen):
@@ -105,7 +105,7 @@ class SimpleText(Model):
 
 
 class AsciiText(Model):
-    def __init__(self, coordinate, text) -> None:
+    def __init__(self, coordinate, text):
         """
         An ascii text model that turns normal text into ascii text before rendering it.
         """

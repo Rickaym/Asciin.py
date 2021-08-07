@@ -32,8 +32,11 @@ class Resolutions:
     _768c = (1366, 768)
     _1080c = (1980, 1080)
 
-    def __init__(self, dimension) -> None:
-        self.value = dimension
+    def __init__(self, dimension):
+        if not isinstance(dimension, self):
+            self.value = dimension
+        else:
+            self.value = dimension.value
 
     @property
     def width(self):

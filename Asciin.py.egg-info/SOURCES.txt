@@ -1,0 +1,16 @@
+LICENSE
+setup.py
+Asciin.py.egg-info/PKG-INFO
+Asciin.py.egg-info/SOURCES.txt
+Asciin.py.egg-info/dependency_links.txt
+Asciin.py.egg-info/top_level.txt
+Asciinpy/__init__.py
+Asciinpy/globals.py
+Asciinpy/models.py
+Asciinpy/rect.py
+Asciinpy/screen.py
+Asciinpy/utils.py
+Asciinpy/values.py
+Asciinpy/methods/__init__.py
+Asciinpy/methods/collisions.py
+Asciinpy/methods/renders.py
