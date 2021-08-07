@@ -1,10 +1,10 @@
-.. Ascii.py documentation master file, created by
+.. Asciin.py documentation master file, created by
 
    sphinx-quickstart on Sat Aug  7 15:27:30 2021.
 .. image:: ../assets/inverted_logo.png
    :alt: Logo
 
-**Ascii.py** is a 2D and 3D Ascii game engine written for performance.
+**Asciin.py** is a 2D and 3D Ascii game engine written for performance.
 
 .. note::
    This project is under active development.
