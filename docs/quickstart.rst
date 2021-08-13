@@ -12,7 +12,8 @@ Quickstart
 
 .. code:: py
 
-   from Asciinpy import Square, Displayable, Window, Resolutions
+   from Asciinpy import Displayable, Window, Resolutions
+   from Asciinpy.twod import Square
 
    # Define a window
    window = Window(resolution=Resolutions._60c)
