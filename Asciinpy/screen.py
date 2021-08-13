@@ -10,7 +10,6 @@ from time import sleep, time
 from os import system
 
 from .values import Characters, Resolutions
-from .twod.models import Model
 from .globals import SCREENS
 
 try:
