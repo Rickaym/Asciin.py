@@ -15,7 +15,7 @@ packages = [pkg_name, "Asciinpy.methods"]
 setup(
     name=prj_name,
     version=version,
-    description="Featherweight 3D / 2D ascii game engine for Python 2.7+ with no external dependencies and written in Python and optimized in C.",
+    description="Featherweight 3D / 2D ascii game engine for Python 2.7+ with no external dependencies and written purely in Python.",
     author="Rickaym",
     long_description=long_description,
     long_description_content_type="text/markdown",

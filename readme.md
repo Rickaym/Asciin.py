@@ -2,11 +2,15 @@
 
 ![logo](https://raw.githubusercontent.com/Rickaym/Asciin.py/main/assets/inverted_logo.png)
 
-A 2D and 3D Ascii game engine written for performance (still under development)
+A 2D and 3D Ascii game engine written for performance (still under development).
 
 Current docs: **https://asciipy.readthedocs.io/en/latest/**
 
 pypi project: **https://pypi.org/project/Asciin.py/**
+
+Github repository: **https://github.com/Rickaym/Asciin.py**
+
+Development server: **https://discord.gg/UmnzdPgn6g**
 
 ### Status Demo
 
