@@ -38,7 +38,15 @@ Rects and Boundaries
 Models and subsequent classes
 ---------------------------------
 
-.. autoclass:: Model
+.. autoclass:: Plane
+    :show-inheritance:
+    :inherited-members:
+    :members:
+    :exclude-members: make_rect
+
+|
+
+.. autoclass:: Triangle
     :show-inheritance:
     :inherited-members:
     :members:

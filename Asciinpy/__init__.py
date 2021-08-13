@@ -22,9 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+from . import twod, threed, amath, utils, globals
 from .screen import *
-from .models import *
 from .values import *
-from . import utils
 
-__version__ = "0.1.2"
+__version__ = "0.1.4"

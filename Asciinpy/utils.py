@@ -17,9 +17,10 @@ def beautify(frame, screen):
         screen (Displayable): The screen where this frame is taken from.
     """
     new_frame = list(frame)
-    for i, char in enumerate(frame):
-        if (i + 1) % screen.resolution.width == 0:
-            new_frame[i] = char + "\n"
+    for h in range(screen.height):
+        dist = h * screen.width
+        new_frame[dist] = new_frame[dist] + "\n"
+
     return "".join(new_frame)
 
 

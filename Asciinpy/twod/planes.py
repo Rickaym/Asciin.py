@@ -2,17 +2,20 @@ from .methods.renders import rect_and_charpos, rect_and_modelen, slice_fit
 from .methods.collisions import coord_collides_with as collide_check
 from .rect import Rectable, Rect
 
+from ..point import Line
+
 try:
     from typing import Tuple, List, str, Any, Dict
 except ImportError:
     pass
 
+
 DEFAULT_BRICK = "#"
 
 
-class Model(Rectable):
+class Plane(Rectable):
     """
-    Defines the integral structure for a model.
+    Defines the integral structure for a model on a 2D plane.
 
     It is used to provide basic inheritance for prerequisites in subsystem interactions.
     For example the model's texture attribute is accessed in a certain
@@ -81,7 +84,7 @@ class Model(Rectable):
         )
 
 
-class SimpleText(Model):
+class SimpleText(Plane):
     """
     A Simple text model that stores normal text objects in it's image attribute.
 
@@ -104,17 +107,58 @@ class SimpleText(Model):
         return slice_fit(self, screen)
 
 
-class AsciiText(Model):
+class AsciiText(Plane):
     def __init__(self, coordinate, text):
-        """
-        An ascii text model that turns normal text into ascii text before rendering it.
-        """
+        pass
 
-    def blit(self, screen):
+    def blit(self, screen, **kwargs):
         pass
 
 
-class PixelPainter(Model):
+class Triangle(Plane):
+    """
+    A triangle model, this is often used as a 3D primitive.
+
+    :param p1:
+        Pivot or starting point
+    :type p1: Tuple[:class:`int`, :class:`int`]
+    :param p2:
+        Certain bottom point
+    :type p2: Tuple[:class:`int`, :class:`int`]
+    :param p3:
+        Certain bottom point
+    :type p3: Tuple[:class:`int`, :class:`int`]
+    """
+
+    def __init__(self, p1, p2, p3):
+        # type: (Tuple[int, int], Tuple[int, int], Tuple[int, int]) -> None
+        self.p1 = p1
+        self.p2 = p2
+        self.p3 = p3
+
+    def blit(self, screen):
+        self.vertices = (
+            Line(self.p1, self.p2),
+            Line(self.p1, self.p3),
+            Line(self.p2, self.p3),
+        )
+        frame = screen._frame
+        for vert in self.vertices:
+            for p in vert.points:
+                if (
+                    p[0] <= screen.width
+                    or p[1] >= screen.height
+                    or p[0] <= 0
+                    or p[1] <= 0
+                ):
+                    try:
+                        frame[screen.to_distance(p)] = "&"
+                    except IndexError:
+                        pass
+        return frame, [vert.points for vert in self.vertices]
+
+
+class PixelPainter(Plane):
     """
     A model that takes in a coordinate and a dimension to create an empty canvas that is imprinted
     onto the frame at the exact coordinate when blitted onto screen.
@@ -135,7 +179,7 @@ class PixelPainter(Model):
 
     def __init__(self, screen, coordinate=None, dimension=None):
         # type: (Displayable, Tuple(int, int), Tuple(int, int)) -> None
-        self.coordinate = coordinate or (0, 0)
+        self.coordinate = coordinate or 0, 0
         self.dimension = dimension or (screen.width, screen.height)
         self.rect = self.get_rect(coordinate=coordinate, dimension=dimension)
         self.image = [" "] * (self.dimension[0] * self.dimension[1])
@@ -177,7 +221,7 @@ class PixelPainter(Model):
         return rect_and_charpos(self, screen, **kwargs)
 
 
-class Square(Model):
+class Square(Plane):
     """
     A Square Model.
 
@@ -203,7 +247,7 @@ class Square(Model):
         )
 
 
-class Rectangle(Model):
+class Rectangle(Plane):
     """
     A Rectangle Model.
 

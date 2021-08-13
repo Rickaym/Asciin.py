@@ -8,12 +8,9 @@ from math import e
 from functools import wraps
 from time import sleep, time
 from os import system
-from io import StringIO
-from contextlib import redirect_stdout
 
 from .values import Characters, Resolutions
-from .models import Model
-from .rect import Rect
+from .twod.models import Model
 from .globals import SCREENS
 
 try:
@@ -24,9 +21,8 @@ except ImportError:
 
 __all__ = ["Window", "Displayable"]
 
-"""
-Use Type comments for backwards compatibility
-"""
+# Use Type comments for backwards compatibility
+
 SIGMOID = lambda x: 1 / (1 + e ** (-x))
 
 
@@ -184,6 +180,9 @@ class Displayable:
                 20,
             )
 
+    def to_distance(self, coordinate):
+        return round(coordinate[0]) + (round(coordinate[1]) * self.width)
+
     def blit(self, object, *args, **kwargs):
         # type: (Model, Tuple[Any], Dict[str, Any]) -> None
         """
@@ -195,7 +194,7 @@ class Displayable:
         :type object: :class:`Model`
         """
         self._frame, object.occupancy = object.blit(self, *args, **kwargs)
-        if self.all_models.get(object.rect) is None:
+        if hasattr(object, "rect") and self.all_models.get(object.rect) is None:
             self.all_models[object.rect] = object
 
     def refresh(self, log_frames=False):
@@ -247,7 +246,8 @@ class DispWindow(Displayable):
 
 
 class DispLinux(Displayable):
-    pass
+    def _resize(self):
+        system(f"printf '\e[8;{self.resolution.height};{self.resolution.width}t'")
 
 
 class DispMacOS(Displayable):

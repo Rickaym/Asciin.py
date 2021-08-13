@@ -15,7 +15,7 @@ window = Window(resolution=Resolutions._60c)
 def my_loop(screen):
     # type: (Displayable) -> None
     # Make the DVD_logo model out of scratch with the path
-    DVD_logo = Model(path="/DVD_logo.txt")
+    DVD_logo = Model(path="./examples/DVD_logo.txt")
     # Map the velocity for the mmovement
     velocity = [0.02002, 0.02002]
     while True:

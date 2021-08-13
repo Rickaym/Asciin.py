@@ -1,4 +1,5 @@
-from Asciinpy import PixelPainter, Displayable, Resolutions, Window
+from Asciinpy.twod import PixelPainter
+from Asciinpy import Displayable, Resolutions, Window
 from random import randint, choice
 
 # Start by defining a screen object with the desired resolution
@@ -40,9 +41,7 @@ def my_loop(screen):
 
     # Create a pixel painter object, this creates a blank canvas in the given size to draw onto
     # this is a great way when editing each pixels one by one (which we're about to)
-    rain_model = PixelPainter(
-        (0, 0), (screen.resolution.width, screen.resolution.height)
-    )
+    rain_model = PixelPainter(screen, (0, 0))
 
     # Make a list to keep track of each drizzle
     matrixes = []

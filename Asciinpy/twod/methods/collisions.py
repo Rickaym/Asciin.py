@@ -2,8 +2,8 @@
 Contains different definitions on checking collisions of a model
 Different models can pick best fitting collisions checking methods circumstantially.
 """
-from ..globals import SCREENS
-from ..utils import deprecated, write_collision_state
+from ...globals import SCREENS
+from ...utils import deprecated, write_collision_state
 
 try:
     from typing import Any
