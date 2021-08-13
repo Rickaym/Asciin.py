@@ -1,5 +1,7 @@
+"""
+THIS IS ON THE WORKS AND NOT STABLE
+"""
 from Asciinpy import Displayable, Resolutions, Window
-from Asciinpy.amath import M
 from Asciinpy.twod import Triangle
 
 from random import randint

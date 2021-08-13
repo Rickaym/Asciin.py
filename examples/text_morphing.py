@@ -1,5 +1,6 @@
 from Asciinpy.utils import morph
-from Asciinpy import Window, Resolutions, Displayable, SimpleText
+from Asciinpy import Window, Resolutions, Displayable
+from Asciinpy.twod import SimpleText
 
 # Start by defining a screen object with the desired resolution
 window = Window(resolution=Resolutions._60c)

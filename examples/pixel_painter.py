@@ -5,7 +5,8 @@ PixelPainter doesn't directly create an imprint onto the frame. It keeps a refer
 itself that the user draw onto. Only when it is blitted that the pixel painter localizes it's
 canvas onto the screen frame. Even then, it is rendered like every other Model.
 """
-from Asciinpy.twod import PixelPainter, Displayable, Resolutions, Window
+from Asciinpy import Displayable, Resolutions, Window
+from Asciinpy.twod import PixelPainter
 from random import random, choice
 from string import ascii_letters
 
@@ -17,7 +18,7 @@ window = Window(resolution=Resolutions._60c)
 def my_loop(screen):
     # type: (Displayable) -> None
     # Create a PixelPainter class to keep a reference frame
-    canvas = PixelPainter((18, 4), (20, 20))
+    canvas = PixelPainter(screen, (18, 4), (20, 20))
     while True:
         # Randomly draw ascii letters onto the canvas
         canvas.draw(

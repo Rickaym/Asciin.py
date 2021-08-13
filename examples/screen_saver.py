@@ -5,7 +5,8 @@ PixelPainter doesn't directly create an imprint onto the frame. It keeps a refer
 itself that the user draw onto. Only when it is blitted that the pixel painter localizes it's
 canvas onto the screen frame. Even then, it is rendered like every other Model.
 """
-from Asciinpy import Displayable, Window, Resolutions, Model
+from Asciinpy import Displayable, Window, Resolutions
+from Asciinpy.twod import Plane
 
 # Start by defining a screen object with the desired resolution
 window = Window(resolution=Resolutions._60c)
@@ -15,7 +16,7 @@ window = Window(resolution=Resolutions._60c)
 def my_loop(screen):
     # type: (Displayable) -> None
     # Make the DVD_logo model out of scratch with the path
-    DVD_logo = Model(path="./examples/DVD_logo.txt")
+    DVD_logo = Plane(path="./examples/DVD_logo.txt")
     # Map the velocity for the mmovement
     velocity = [0.02002, 0.02002]
     while True:

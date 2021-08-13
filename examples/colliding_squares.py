@@ -1,7 +1,8 @@
 """
 Simple collisions system with squares.
 """
-from Asciinpy import Square, Displayable, Window, Resolutions
+from Asciinpy import Displayable, Window, Resolutions
+from Asciinpy.twod import Square
 
 try:
     from typing import Tuple
