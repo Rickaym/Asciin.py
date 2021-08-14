@@ -26,4 +26,4 @@ from . import _2D, _3D, amath, utils, globals
 from .screen import *
 from .values import *
 
-__version__ = "0.1.5"
+__version__ = "0.1.6"

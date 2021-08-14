@@ -3,6 +3,7 @@ build
 source/_build
 source/_templates
 make.bat
+publish.bat
 Makefile
 
 # pypi

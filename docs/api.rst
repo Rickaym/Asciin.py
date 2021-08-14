@@ -38,6 +38,17 @@ Utilities
 .. automethod:: utils.write_collision_state
 
 
+Line and Matrixes
+-------------------
+
+.. autoclass:: Asciinpy.amath.Matrix
+    :members:
+
+
+.. autoclass:: Asciinpy.amath.Line
+    :members:
+
+
 2D Objects
 -----------
 

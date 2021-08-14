@@ -2,7 +2,7 @@ from .methods.renders import rect_and_charpos, rect_and_modelen, slice_fit
 from .methods.collisions import coord_collides_with as collide_check
 from .rect import Rectable, Rect
 
-from ..point import Line
+from ..amath import Line
 
 try:
     from typing import Tuple, List, str, Any, Dict
@@ -30,7 +30,7 @@ class Plane(Rectable):
         # type: (str, str, Rect, str, Tuple[int, int]) -> None
         tmp_model = None
         if path is not None:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, "r") as f:
                 tmp_model = f.read()
         elif image is not None:
             tmp_model = image

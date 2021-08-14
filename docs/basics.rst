@@ -49,22 +49,22 @@ The replay method simply covers plain iteration of a recorded ascii string array
 Models
 =======
 Models, they are shapes, angles, text, diagrams, spheres and circles.
-Every model inherits from the :class:`Asciinpy.Model` that provides an interface for a variety of things necessary for subsystem interactions to the model.
+Every model inherits from the :class:`Asciinpy.Plane` that provides an interface for a variety of things necessary for subsystem interactions to the model.
 
 There are two ways to create your own models.
 
 1. Subclassing.
 
-When subclassing :class:`Asciinpy.Model` you are provided a full set of methods that a model should traditionally have such as :obj:`Asciinpy.Model.blit` and :obj:`Asciinpy.Model.collides_with`.
+When subclassing :class:`Asciinpy.Plane` you are provided a full set of methods that a model should traditionally have such as :obj:`Asciinpy.Plane.blit` and :obj:`Asciinpy.Plane.collides_with`.
 These methods can be overidden but avoid it if possible.
 
 `E.g. 2`
 
 .. code:: py
 
-   from Asciinpy import Model
+   from Asciinpy import Plane
 
-   class MyModel(Model):
+   class MyModel(Plane):
       def __init__(self, ...):
          super().__init__() # necessary
 
@@ -80,7 +80,7 @@ These methods can be overidden but avoid it if possible.
 
 2. Using the **__init__** method.
 
-Taking a closer look to :obj:`Asciinpy.Model.__init__` you will understand that all the built-in models calls this method somewhere during instantiation.
+Taking a closer look to :obj:`Asciinpy.Plane.__init__` you will understand that all the built-in models calls this method somewhere during instantiation.
 
 You can do the same and acquire a function model. The **__init__** method takes a few parameters such as *path* and *image*.
 providing either is enough to make a model from scratch.
@@ -89,9 +89,9 @@ providing either is enough to make a model from scratch.
 
 .. code:: py
 
-   from Asciinpy import Model
+   from Asciinpy import Plane
 
-   my_model = Model(image="ABBBBBBBB\nABBBBBBB")
+   my_model = Plane(image="ABBBBBBBB\nABBBBBBB")
 
 Pixel Painter
 --------------
@@ -126,11 +126,13 @@ Shapes
 
 Refer to the Api Reference for more information.
 
-============================== ==============================================================================================
+==========================-===== ==============================================================================================
 Class                             Description
-============================== ==============================================================================================
-:class:`Asciinpy.Rectangle`      Makes a generic rectangle from **coordinate** and **width**, **height**.
-:class:`Asciinpy.Square`         Makes a generic square from **coordinate** and **length**.
-:class:`Asciinpy.SimpleText`     Makes a simple model with a text body from **coordinate** and **text**.
-:class:`Asciinpy.AsciiText`      Makes an ascii model in the form of a typical text body
-============================== ==============================================================================================
+================================ ==============================================================================================
+:class:`Asciinpy.Line`               Constructs a simple line from two given points
+:class:`Asciinpy._2D.Rectangle`      Makes a generic rectangle from **coordinate** and **width**, **height**.
+:class:`Asciinpy._2D.Square`         Makes a generic square from **coordinate** and **length**.
+:class:`Asciinpy._2D.SimpleText`     Makes a simple model with a text body from **coordinate** and **text**.
+:class:`Asciinpy._2D.AsciiText`      Makes an ascii model in the form of a typical text body
+:class:`Asciinpy._2D.Triangle`       Constructs a triangle from any given three points, this is directly derived from line.
+================================ ==============================================================================================

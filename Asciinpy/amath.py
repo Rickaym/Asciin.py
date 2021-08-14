@@ -1,4 +1,23 @@
+from __future__ import division
+
+GRADIENT = (
+    lambda P1, P2: None if P2[0] - P1[0] == 0 else (P2[1] - P1[1]) / (P2[0] - P1[0])
+)
+
+
 class Matrix:
+    """
+    A matrix class that supports up to 10x10 matrixes.
+
+    Supports scalar multiplication, pretty printing, equality checks,
+    matrix multiplication and alias references such as x for element 0 and
+    y for element 1.
+
+    :param layers:
+        The layers of the Matrix, a matrix can contain other matrixes.
+    :type layers: Union[Tuple[:class:`int`], :class:`Matrix`]
+    """
+
     NAME_SPACE = ("x", "y", "z", "k", "a", "e", "i", "o", "u")
 
     def __init__(self, *layers):
@@ -74,6 +93,96 @@ class Matrix:
         else:
             # scalar multiplication
             return M(*[val * other for val in list(self.dimension.values())])
+
+
+class Line:
+    """
+    A conceptual line class with simple properties.
+
+    :param p1:
+        Starting point
+    :type p1: List[:class:`int`, :class:`int`]
+    :param p2:
+        Endpoint
+    :type p2: List[:class:`int`, :class:`int`]
+    """
+
+    def __init__(self, p1, p2):
+        self.p1 = p1
+        self.p2 = p2
+
+        self.gradient = GRADIENT(
+            p1, p2
+        )  #: Union[:class:`int`, :class:`int`]: The gradient of the line
+        self.equation = (
+            self._get_equation()
+        )  #: Callable[[:class:`int`], Tuple[:class:`int`, :class:`int`]]: f(x) of the line that takes in x to return the (x,y) at that point
+        self.inverse_equation = (
+            self._get_inverse_equation()
+        )  #: Callable[[:class:`int`], Tuple[:class:`int`, :class:`int`]]: inverse f(x) of the line that takes in y to return the (x,y) at that point
+        self._points = None
+
+    def __getitem__(self, x):
+        return self.equation(x)
+
+    @property
+    def points(self):
+        """
+        The points that join p1 to p2.
+
+        :type: :class:`int`
+        """
+        if self._points is None or self._points[1] != [self.p1, self.p2]:
+            self._points = self._get_points(), [self.p1[:], self.p2[:]]
+        return self._points[0]
+
+    def _get_points(self):
+        points_set = []
+        if self.gradient is not None:
+            points_set.extend(
+                [
+                    self.equation(x)
+                    for x in range(
+                        *(
+                            (self.p1[0], self.p2[0] + 1)
+                            if self.p1[0] - self.p2[0] < 0
+                            else (self.p2[0], self.p1[0] + 1)
+                        )
+                    )
+                ]
+            )
+
+        points_set.extend(
+            [
+                self.inverse_equation(y)
+                for y in range(
+                    *(
+                        (self.p1[1], self.p2[1] + 1)
+                        if self.p1[1] - self.p2[1] < 0
+                        else (self.p2[1], self.p1[1] + 1)
+                    )
+                )
+            ]
+        )
+
+        return set(points_set)
+
+    def _get_equation(self):
+        if self.p1[1] - self.p2[1] == 0:
+            return lambda x: (x, self.p1[1])
+        elif self.gradient is None or self.gradient == 0:
+            return lambda y: (self.p1[0], y)
+        else:
+            return lambda x: (
+                x,
+                (self.gradient * x) - (self.gradient * self.p1[0]) + self.p1[1],
+            )
+
+    def _get_inverse_equation(self):
+        if self.gradient is None or self.gradient == 0:
+            return lambda y: (self.p1[0], y)
+        else:
+            return lambda y: (((y - self.p1[1]) / self.gradient) + self.p1[0], y)
 
 
 class MatrixFactory:

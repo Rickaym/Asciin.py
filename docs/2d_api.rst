@@ -1,4 +1,4 @@
-.. currentmodule:: Asciinpy.twod
+.. currentmodule:: Asciinpy._2D
 
 Rects and Boundaries
 ----------------------
@@ -54,14 +54,6 @@ Models and subsequent classes
 |
 
 .. autoclass:: Square
-    :show-inheritance:
-    :inherited-members:
-    :members:
-    :exclude-members: make_rect
-
-|
-
-.. autoclass:: Rectangle
     :show-inheritance:
     :inherited-members:
     :members:

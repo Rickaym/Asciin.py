@@ -10,6 +10,9 @@ with open(f"{pkg_name}/__init__.py") as fp:
 
 with open(f"readme.md", encoding="utf-8") as f:
     long_description = f.read()
+with open(f"changelog.md", encoding="utf-8") as f:
+    long_description += f.read()
+
 packages = [pkg_name, "Asciinpy._2D", "Asciinpy._2D.methods", "Asciinpy._3D"]
 
 setup(
@@ -27,4 +30,14 @@ setup(
     license="MIT",
     python_requires=">=2.7",
     packages=packages,
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Developers",
+        "Topic :: Multimedia :: Graphics :: 3D Modeling",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.9",
+    ],
 )
