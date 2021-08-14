@@ -2,7 +2,7 @@
 THIS IS ON THE WORKS AND NOT STABLE
 """
 from Asciinpy import Displayable, Resolutions, Window
-from Asciinpy.twod import Triangle
+from Asciinpy._2D import Triangle
 
 from random import randint
 

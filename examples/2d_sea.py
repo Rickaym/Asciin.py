@@ -2,16 +2,15 @@
 THIS IS ON THE WORKS AND NOT STABLE
 """
 from Asciinpy import Displayable, Resolutions, Window
-from Asciinpy.twod import PixelPainter
+from Asciinpy._2D import PixelPainter
 from random import randint, choice
 
 # Start by defining a screen object with the desired resolution
-window = Window(resolution=Resolutions._60c, max_framerate=60)
-
+window = Window(resolution=Resolutions._60c)
 
 # We will approach this example in an object oriented way
 class MatrixDrop:
-    def __init__(self, x, y, s) -> None:
+    def __init__(self, x, y, s):
         """
         A simple matrix class with x, y and a size value s.
 
@@ -61,7 +60,7 @@ def my_loop(screen):
         # a different reference to the matrixes list. (bad idea to remove elements from the list
         # currently being looped)
         for ent in list(matrixes):
-            # lower down the drizzle
+            # lower down the drizzles
             ent.y += 0.11
 
             # the drizzle had entirely gone off screen
@@ -77,7 +76,7 @@ def my_loop(screen):
                 if ent.y < screen.resolution.height:
                     rain_model.draw(
                         choice(["0", "1"]),
-                        distance=(ent.x + ent.y * rain_model.dimension[0]),
+                        distance=int(ent.x + ent.y * rain_model.dimension[0]),
                     )
 
         tick += 1

@@ -1,12 +1,12 @@
 from Asciinpy.utils import morph
 from Asciinpy import Window, Resolutions, Displayable
-from Asciinpy.twod import SimpleText
+from Asciinpy._2D import SimpleText
 
 # Start by defining a screen object with the desired resolution
 window = Window(resolution=Resolutions._60c)
 
 # Define a user loop for the screen and accept a screen parameter, this is of type Displayable.
-@window.loop(forcestop=2)
+@window.loop()
 def my_loop(screen):
     # type: (Displayable) -> None
     text = SimpleText((10, 20), " ")
@@ -15,7 +15,7 @@ def my_loop(screen):
     index = 0
     while True:
         screen.blit(text)
-        text.image = morphs[round(index)]
+        text.image = morphs[int(round(index))]
         index += 0.006
         if round(index) >= len(morphs):
             index = 0

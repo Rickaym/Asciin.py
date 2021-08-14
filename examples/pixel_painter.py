@@ -6,7 +6,7 @@ itself that the user draw onto. Only when it is blitted that the pixel painter l
 canvas onto the screen frame. Even then, it is rendered like every other Model.
 """
 from Asciinpy import Displayable, Resolutions, Window
-from Asciinpy.twod import PixelPainter
+from Asciinpy._2D import PixelPainter
 from random import random, choice
 from string import ascii_letters
 

@@ -101,7 +101,7 @@ class SimpleText(Plane):
     """
 
     def __init__(self, coordinate, text):
-        super().__init__(image=str(text), coordinate=coordinate)
+        super(SimpleText, self).__init__(image=str(text), coordinate=coordinate)
 
     def blit(self, screen):
         return slice_fit(self, screen)
@@ -142,7 +142,7 @@ class Triangle(Plane):
             Line(self.p1, self.p3),
             Line(self.p2, self.p3),
         )
-        frame = screen._frame
+        frame = list(screen._frame)
         for vert in self.vertices:
             for p in vert.points:
                 if (
@@ -151,10 +151,17 @@ class Triangle(Plane):
                     or p[0] <= 0
                     or p[1] <= 0
                 ):
+                    loc = screen.to_distance(p)
                     try:
-                        frame[screen.to_distance(p)] = "&"
+                        frame[loc] = "&"
                     except IndexError:
                         pass
+                    except TypeError:
+                        raise TypeError(
+                            "list indices must be integers, not {} of value {}".format(
+                                type(loc), loc
+                            )
+                        )
         return frame, [vert.points for vert in self.vertices]
 
 
@@ -184,7 +191,7 @@ class PixelPainter(Plane):
         self.rect = self.get_rect(coordinate=coordinate, dimension=dimension)
         self.image = [" "] * (self.dimension[0] * self.dimension[1])
 
-    def draw(self, *pixels, xy=None, distance=None):
+    def draw(self, pixels, xy=None, distance=None):
         # type: (List(str), Tuple(int, int), int) -> None
         """
         A gateway to directly editing the pixels in the canvas based on the distance from the origin or
@@ -209,13 +216,19 @@ class PixelPainter(Plane):
             raise TypeError("draw needs either xy or distance point")
         elif xy is not None:
             x, y = xy
-            distance = round(x) + (round(y) * self.dimension[0])
+            distance = int(round(x) + (round(y) * self.dimension[0]))
 
         for i, pix in enumerate(pixels):
             try:
                 self.image[distance + i] = pix
             except IndexError:
-                raise IndexError("list index %d is out of range" % distance)
+                raise IndexError("list index {} is out of range".format(distance))
+            except TypeError:
+                raise TypeError(
+                    "list indices must be integers, not {} of value {}".format(
+                        type(distance), distance
+                    )
+                )
 
     def blit(self, screen, **kwargs):
         return rect_and_charpos(self, screen, **kwargs)

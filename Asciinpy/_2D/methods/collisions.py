@@ -101,10 +101,12 @@ def coord_collides_with(self, model):
     """
     if model is self:
         return False
-    if len(set([*model.occupancy, *self.occupancy])) < (
+    intersections = []
+    intersections.extend(model.occupancy)
+    intersections.extend(self.occupancy)
+    if len(set(intersections)) < (
         len(model.occupancy) + len(self.occupancy)
     ):
-
         return True
     else:
         return False

@@ -14,7 +14,10 @@ class Matrix:
         self.__dict__.update(self.dimension)
 
     def __eq__(self, o):
-        to_cmpr = set((*list(self.dimension.keys()), *list(o.dimension.keys())))
+        to_cmpr = []
+        to_cmpr.extend(list(self.dimension.keys()))
+        to_cmpr.extend(list(o.dimension.keys()))
+        to_cmpr = set(to_cmpr)
         return all(self.__dict__.get(attr) == o.__dict__.get(attr) for attr in to_cmpr)
 
     def __ne__(self, o):
@@ -25,7 +28,7 @@ class Matrix:
             "["
             + " ".join(
                 (
-                    f"{val}"
+                    val
                     if not isinstance(val, Matrix)
                     else ("\n " if i != 0 else "") + val.__repr__()
                 )

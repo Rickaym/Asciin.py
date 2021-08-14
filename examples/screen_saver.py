@@ -6,7 +6,7 @@ itself that the user draw onto. Only when it is blitted that the pixel painter l
 canvas onto the screen frame. Even then, it is rendered like every other Model.
 """
 from Asciinpy import Displayable, Window, Resolutions
-from Asciinpy.twod import Plane
+from Asciinpy._2D import Plane
 
 # Start by defining a screen object with the desired resolution
 window = Window(resolution=Resolutions._60c)

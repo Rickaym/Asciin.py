@@ -1,16 +1,21 @@
+![pipenv](https://img.shields.io/pypi/pyversions/Asciin.py.svg)
+![release](https://img.shields.io/pypi/v/Asciin.py.svg)
+![platform](https://img.shields.io/static/v1?label=platforms&message=Windows+|+Linux+|+OSX&color=informational)
+[![Documentation Status](https://readthedocs.org/projects/asciinpy/badge/?version=latest)](https://asciinpy.readthedocs.io/en/latest/?badge=latest)
+
 # Asciin.py
 
 ![logo](https://raw.githubusercontent.com/Rickaym/Asciin.py/main/assets/inverted_logo.png)
 
 A 2D and 3D Ascii game engine written for performance (still under development).
 
-Current docs: **https://asciipy.readthedocs.io/en/latest/**
+---
 
-pypi project: **https://pypi.org/project/Asciin.py/**
+**[ReadTheDocs](https://asciinpy.readthedocs.io/en/latest/)** | **[PyPi Project](https://pypi.org/project/Asciin.py/)** |
+**[Github Repo](https://github.com/Rickaym/Asciin.py)** |
+**[Dev server](https://discord.gg/UmnzdPgn6g)**
 
-Github repository: **https://github.com/Rickaym/Asciin.py**
-
-Development server: **https://discord.gg/UmnzdPgn6g**
+---
 
 ### Status Demo
 
@@ -47,7 +52,7 @@ python -m pip install -U asciin.py
 
 ```py
 from Asciinpy import Displayable, Window, Resolutions
-from Asciinpy.twod import Square
+from Asciinpy._2D import Square
 # Define a window
 
 window = Window(resolution=Resolutions._60c)

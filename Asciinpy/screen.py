@@ -2,11 +2,13 @@ from __future__ import print_function
 
 import platform
 import pydoc
+import sys
 import re
 
 from math import e
 from functools import wraps
 from time import sleep, time
+from ctypes import WinDLL
 from os import system
 
 from .values import Characters, Resolutions
@@ -20,7 +22,6 @@ except ImportError:
 
 __all__ = ["Window", "Displayable"]
 
-# Use Type comments for backwards compatibility
 
 SIGMOID = lambda x: 1 / (1 + e ** (-x))
 
@@ -30,6 +31,7 @@ class Displayable:
     Defines the integral structure of a console displayable generalized for different OS terminals.
 
     Subclasses defines specific system calls to open a terminal, resize it, close it, move it and so on..
+    You shalln't make instances of this class or it's subclasses.
     """
 
     TPS = 25
@@ -37,12 +39,12 @@ class Displayable:
     def __init__(
         self,
         resolution,
-        max_framerate,
+        fps_limiter,
         forcestop,
         debug,
         show_fps,
         sysdout,
-        show_stopwatch,
+        timer,
     ):
         # type: (Resolutions, Optional[int], Optional[int], bool, bool, bool, bool) -> None
         self.resolution = resolution  #: Union[:class:`Resolutions`, Tuple[:class:`int`, :class:`int`]]: A conceptual enum of a the window resolution.
@@ -52,22 +54,18 @@ class Displayable:
             0,
             self.resolution.height * 0.8,
         ]  #: Tuple[:class:`int`, :class:`int`]: Approximated area of a debug prompt on the terminal.
-        self.max_framerate = max_framerate  #: Optional[:class:`int`]: The specified FPS limit of the window.
-        self.goto_ramp = (
+        self.fps_limiter = fps_limiter  #: Optional[:class:`int`]: The specified FPS limit of the window.
+        self.palette = (
             Characters.miniramp
-        )  #: List[:class:`str`]: The default list of a characters for test printing and native menu styling.
+        )  #: List[:class:`str`]: The default list of a characters for test printing and native menu styling. Any changes to it must be in references to the valid :class:`Characters` texture list.
 
-        self.all_models = (
-            {}
-        )  #: Dict[:class:`Rect`, :class:`Model`]: A rect to model mapping of every model that the window has a record of presence.
+        self.emptyframe = (
+            " " * self.resolution.pixels
+        )  #: :class:`str`: A base frame with nothing on it.
 
-        self.emptyframe = [
-            " "
-        ] * self.resolution.pixels  #: :class:`str`: A base frame that is drawn over.
         self.show_fps = show_fps  #: :class:`bool`: Whether if the window has a menu indicating the fps.
-        self.show_stopwatch = show_stopwatch  #: :class:`bool`: Whether the menu shows the timer before elimination when given.
+        self.timer = timer  #: :class:`bool`: Whether the menu shows the timer before elimination when given.
         self.sysdout = sysdout  #: :class:`bool`: Whether the rendered frames are printed onto the window.
-
         self.debug = debug  #: :class:`bool`: Whether the window has debug mode enabled.
 
         # pre-rendered
@@ -82,33 +80,23 @@ class Displayable:
             + "||"
             + "".join((r"\\", "=" * (resolution.width - 4), r"//"))
         )
-        # the distro_function is used for test printing color gradients with the default ramp
-        g = len(self.goto_ramp) * resolution.height
-        self._distro_function = lambda x: g * x
-        # supervised print log
-        self._temp_log = [""] * 6
-        self._DEBUG_BOX = (
-            "/" * self.resolution.width
-            + " " * self.resolution.width * 4
-            + "/" * self.resolution.width
-        )
         self._frame = self.emptyframe[:]
         self._last_frame = self.emptyframe[:]
         self._frame_log = []
         self._fps = 0
         self._session_fps = 0
         self._frames_displayed = 0
-        self._started_at = time()
         self._stop_at = forcestop
+        self._started_at = time()
         self._last_checked = time()
 
     @property
     def frame(self):
         # type: () -> str
         """
-        The current frame of the screen.
+        The current frame rendered.
 
-        :type: :class:`int`
+        :type: :class:`str`
         """
         return "".join(self._frame)
 
@@ -173,14 +161,14 @@ class Displayable:
             args.append("True")
         if args:
             self._frame = self._slice_fit(self._infotext % tuple(args), 0)
-        if self._stop_at is not None and self.show_stopwatch:
+        if self._stop_at is not None and self.timer:
             self._frame = self._slice_fit(
                 "Stopwatch: " + str(self._stop_at - round(time() - self._started_at)),
                 20,
             )
 
     def to_distance(self, coordinate):
-        return round(coordinate[0]) + (round(coordinate[1]) * self.width)
+        return int(round(coordinate[0]) + (round(coordinate[1]) * self.width))
 
     def blit(self, object, *args, **kwargs):
         # type: (Model, Tuple[Any], Dict[str, Any]) -> None
@@ -193,8 +181,6 @@ class Displayable:
         :type object: :class:`Model`
         """
         self._frame, object.occupancy = object.blit(self, *args, **kwargs)
-        if hasattr(object, "rect") and self.all_models.get(object.rect) is None:
-            self.all_models[object.rect] = object
 
     def refresh(self, log_frames=False):
         # type: (bool) -> None
@@ -223,7 +209,7 @@ class Displayable:
 
     def _resize(self):
         """
-        Resizes a powershell or a command prompt to the given resolution, this does not actually
+        Abstract method in resizing a powershell or a command prompt to the given resolution, this does not actually
         care about the size of the screen - also removes scroll wheel.
         """
 
@@ -236,8 +222,9 @@ class Displayable:
 class DispWindow(Displayable):
     def _resize(self):
         system(
-            "mode con cols=%d lines=%d"
-            % (self.resolution.width, self.resolution.height)
+            "mode con cols={} lines={}".format(
+                self.resolution.width, self.resolution.height
+            )
         )
 
     def _new(self):
@@ -246,7 +233,9 @@ class DispWindow(Displayable):
 
 class DispLinux(Displayable):
     def _resize(self):
-        system(f"printf '\e[8;{self.resolution.height};{self.resolution.width}t'")
+        system(
+            "printf '\e[8;{};{}t'".format(self.resolution.height, self.resolution.width)
+        )
 
 
 class DispMacOS(Displayable):
@@ -265,16 +254,13 @@ class Window:
         "Darwin": DispMacOS,
     }  # type: Dict[str, Displayable]
 
-    def __init__(self, resolution, max_framerate=None):
+    def __init__(self, resolution, fps_limiter=None):
         # type: (Union[Tuple[int, int], Resolutions], int) -> None
         self.resolution = Resolutions(
             resolution
         )  #: :class:`Resolutions`: The respective resolution of the window.
         # format: off
-        self.max_framerate = (
-            max_framerate  #: Optional[:class:`int`]: The limiting cap for FPS.
-        )
-
+        self.fps_limiter = fps_limiter  #: Optional[:class:`int`]: A simple FPS lock.
         self._window = None
         self._client_loop = None  # type: Callable
         self._system_loop = None  # type: Callable
@@ -285,7 +271,8 @@ class Window:
         # type: (Displayable, Tuple[List[str]], int) -> None
         """
         A screen manipulation loop written to reply frames submitted with the desired fps.
-        Run exactly like the client loop same conditions and fundamentals applies.
+
+        Runs exactly like the client loop, same conditions and fundamentals applies.
         """
         frames = [frame.replace("\n", "", -1) for frame in frames]
         index = 0
@@ -341,7 +328,7 @@ class Window:
 
         window = self.platform_to_window[platform.system()]
         win_instance = window(
-            self.resolution, self.max_framerate, self._stop_time, False, False, False
+            self.resolution, self.fps_limiter, self._stop_time, False, False, False
         )
 
         if len(SCREENS) > 1:
@@ -354,7 +341,7 @@ class Window:
 
         return self._replay_loop(win_instance, frames, fps)
 
-    def run(self, debug=False, show_fps=False, sysdout=True, show_stopwatch=False):
+    def run(self, debug=False, show_fps=False, sysdout=True, timer=False):
         # type: (bool, bool, bool, bool) -> None
         """
         Runs the client loop that has been defined.
@@ -364,12 +351,12 @@ class Window:
         window = self.platform_to_window[platform.system()]
         win_instance = window(
             self.resolution,
-            self.max_framerate,
+            self.fps_limiter,
             self._stop_time,
             debug,
             show_fps,
             sysdout,
-            show_stopwatch,
+            timer,
         )
 
         if sysdout:

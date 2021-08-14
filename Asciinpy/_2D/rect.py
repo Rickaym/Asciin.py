@@ -6,7 +6,7 @@ except ImportError:
     pass
 
 
-class Rectable:
+class Rectable(object):
     """
     A simple parent class for all models that can be translated into a rect.
     """

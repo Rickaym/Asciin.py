@@ -2,7 +2,7 @@
 Simple collisions system with squares.
 """
 from Asciinpy import Displayable, Window, Resolutions
-from Asciinpy.twod import Square
+from Asciinpy._2D import Square
 
 try:
     from typing import Tuple

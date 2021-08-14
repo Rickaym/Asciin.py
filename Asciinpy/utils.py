@@ -12,9 +12,12 @@ def beautify(frame, screen):
     Maps an uncut frame into different pieces with newline characters to make it
     readable without perfect resolution.
 
-    Args:
-        frame (Union[str, List[str], Displayable]): The frame to be converted from newline characters to a straight line.
-        screen (Displayable): The screen where this frame is taken from.
+    :param frame:
+        The frame to be converted from newline characters to a straight line.
+    :type frame: Union[:class:`str`, List[:class:`str`]:
+    :param screen:
+        The screen where this screen is ideally implemented ~ just to get the sense of the resolution really.
+    :type screen: :class:`Displayable`
     """
     new_frame = list(frame)
     for h in range(screen.height):
@@ -22,30 +25,6 @@ def beautify(frame, screen):
         new_frame[dist] = new_frame[dist] + "\n"
 
     return "".join(new_frame)
-
-
-def reverse_beautify(frame, screen):
-    # type: (Union[str, List[str]], Any) -> str
-    """
-    Maps an newline oriented frame into a continuous frame with white spaces.
-
-    Args:
-        frame (Union[str, List[str], Displayable]): The frame to be converted from newline characters to a straight line.
-        screen (Displayable): The screen where this frame is taken from.
-
-    TODO: Newline detection isn't resolution friendly so it's broken
-    """
-
-    i = 0
-    new_frame = list(frame)
-    for char in frame:
-        if char == "\n":
-            padding = abs(screen.resolution.width - (i % screen.resolution.width))
-            new_frame[i] = " " * padding
-            i += padding
-        else:
-            i += 1
-    return new_frame
 
 
 def morph(initial_string, end_string, consume="end", loop=True):
@@ -89,13 +68,16 @@ def morph(initial_string, end_string, consume="end", loop=True):
 def deprecated(callable):
     # type: (Callable) -> Callable
     """
-    A decorator that raises a DeprecationWarning when the decorated function
-    is called.
+    A decorator that simply raises a DeprecationWarning when the decorated function is called.
+
+    This is just used around the package on demand.
     """
 
     def wrapper(*args, **kwargs):
         raise DeprecationWarning(
-            f"{callable.__name__} is deprecated, although fine for usage, consider other alternatives as this callable may be less optimized."
+            "{} is deprecated, although fine for usage, consider other alternatives as this callable may be less optimized.".format(
+                callable.__name__
+            )
         )
 
     return wrapper
@@ -106,10 +88,15 @@ def write_collision_state(screen, self_frame, other_frame):
     Helps tracking collision states by writing it onto a file IO.
     Uses a global flag to make sure it doesn't write a thousand times.
 
-    Args:
-        screen (Displayable): The screen where this is taking place.
-        self_frame (List[str]): The frame of itself.
-        other_frame (List[str]): The frame of the other model.
+    :param screen:
+        The screen where this is taking place.
+    :type screen: :class:`Displayable`:
+    :param self_frame:
+        The frame of itself.
+    :type self_frame: List[:class:`str`]
+    :param other_frame:
+        The frame of the other model.
+    :type other_frame: List[:class:`str`]
     """
     # type: (Displayable, List[str], List[str]) -> None
     global SINGLE_PRINT_FLAG

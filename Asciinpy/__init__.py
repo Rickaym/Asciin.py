@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from . import twod, threed, amath, utils, globals
+from . import _2D, _3D, amath, utils, globals
 from .screen import *
 from .values import *
 

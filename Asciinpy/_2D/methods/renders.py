@@ -34,7 +34,7 @@ def rect_and_charpos(model, screen, empty=False):
     frame = list(screen._frame) if not empty else list(screen.emptyframe)
 
     # gets the starting index of the image in a straight line screen
-    loc = round(model.rect.x) + (round(model.rect.y) * screen.resolution.width)
+    loc = int(round(model.rect.x) + (round(model.rect.y) * screen.resolution.width))
     max_loc = screen.resolution.width * screen.resolution.height
 
     x_depth = 0
@@ -83,7 +83,6 @@ def rect_and_modelen(model, screen, empty=False):
     Time Complexity of this method is O(n) where n is
     the total amount of characters in a model image."""
     frame = list(screen._frame) if not empty else list(screen.emptyframe)
-    pixels = list(model.image)
     occupancy = []
 
     for row in range(model.rect.dimension[1]):
@@ -113,11 +112,11 @@ def slice_fit(model, screen):
 
     Time Complexity: O(n) where n is len(TEXT)
     """
-    point = round(model.rect.x) + (screen.resolution.width * round(model.rect.y))
+    point = int(round(model.rect.x) + (screen.resolution.width * round(model.rect.y)))
     if point < 0:
         point = screen.resolution.width + point
 
-    frame = screen._frame[:point]
+    frame = list(screen._frame[:point])
     frame.extend(list(model.image))
     frame.extend(screen._frame[point + len(model.image) :])
 

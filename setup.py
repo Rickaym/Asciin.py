@@ -10,7 +10,7 @@ with open(f"{pkg_name}/__init__.py") as fp:
 
 with open(f"readme.md", encoding="utf-8") as f:
     long_description = f.read()
-packages = [pkg_name, "Asciinpy.methods"]
+packages = [pkg_name, "Asciinpy._2D", "Asciinpy._2D.methods","Asciinpy._3D"]
 
 setup(
     name=prj_name,
