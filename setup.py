@@ -10,12 +10,12 @@ with open(f"{pkg_name}/__init__.py") as fp:
 
 with open(f"readme.md", encoding="utf-8") as f:
     long_description = f.read()
-packages = [pkg_name, "Asciinpy._2D", "Asciinpy._2D.methods","Asciinpy._3D"]
+packages = [pkg_name, "Asciinpy._2D", "Asciinpy._2D.methods", "Asciinpy._3D"]
 
 setup(
     name=prj_name,
     version=version,
-    description="Featherweight 3D / 2D ascii game engine for Python 2.7+ with no external dependencies and written purely in Python.",
+    description="Featherweight 3D / 2D Ascii console game engine for Python 2.7+ with no external dependencies and in pure Python.",
     author="Rickaym",
     long_description=long_description,
     long_description_content_type="text/markdown",

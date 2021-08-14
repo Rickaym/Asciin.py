@@ -1,7 +1,7 @@
-![pipenv](https://img.shields.io/pypi/pyversions/Asciin.py.svg)
-![release](https://img.shields.io/pypi/v/Asciin.py.svg)
+[![pipenv](https://img.shields.io/pypi/pyversions/Asciin.py.svg)](https://www.python.org/)
+[![release](https://img.shields.io/pypi/v/Asciin.py.svg)](https://pypi.org/project/Asciin.py/)
 ![platform](https://img.shields.io/static/v1?label=platforms&message=Windows+|+Linux+|+OSX&color=informational)
-[![Documentation Status](https://readthedocs.org/projects/asciinpy/badge/?version=latest)](https://asciinpy.readthedocs.io/en/latest/?badge=latest)
+[![documentation status](https://readthedocs.org/projects/asciinpy/badge/?version=latest)](https://asciinpy.readthedocs.io/en/latest/?badge=latest)
 
 # Asciin.py
 
