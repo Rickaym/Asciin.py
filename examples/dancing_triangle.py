@@ -7,7 +7,7 @@ from Asciinpy._2D import Triangle
 from random import randint
 
 # Start by defining a screen object with the desired resolution
-window = Window(resolution=Resolutions._60c)
+window = Window(resolution=Resolutions._100c)
 
 # Define a user loop for the screen and accept a screen parameter, this is of type Displayable.
 @window.loop()

@@ -79,6 +79,7 @@ def imports(root, file):
                 continue
             else:
                 code.append(line)
+    code.append('\n')
     return code
 
 

@@ -1,8 +1,8 @@
 from .methods.renders import rect_and_charpos, rect_and_modelen, slice_fit
-from .methods.collisions import coord_collides_with as collide_check
+from .methods.collisions import coord_collides_with
 from .rect import Rectable, Rect
 
-from ..amath import Line
+from ..math import Line
 
 try:
     from typing import Tuple, List, str, Any, Dict
@@ -10,8 +10,8 @@ except ImportError:
     pass
 
 
-DEFAULT_BRICK = "#"
-
+DEFAULT_BRICK = "@"
+DEFAULT_FILL = "&"
 
 class Plane(Rectable):
     """
@@ -26,8 +26,8 @@ class Plane(Rectable):
     avoid this unless perfectly necessary.
     """
 
-    def __init__(self, path=None, image=None, rect=None, texture=None, coordinate=None):
-        # type: (str, str, Rect, str, Tuple[int, int]) -> None
+    def __init__(self, path=None, image=None, rect=None, texture=None, fill=None, coordinate=None):
+        # type: (str, str, Rect, str, str, Tuple[int, int]) -> None
         tmp_model = None
         if path is not None:
             with open(path, "r") as f:
@@ -47,7 +47,7 @@ class Plane(Rectable):
             tmp_model,
             key=lambda element: tmp_model.count(element) and element != " ",
         )  #: :class:`str`: The generalized texture of the entire model. It is the most common character from the image.
-
+        self.fill = fill
         self.rect = rect or self.get_rect(
             coordinate=coordinate, dimension=self.dimension
         )  #: :class:`Rect`: The rect boundary of the class.
@@ -66,7 +66,7 @@ class Plane(Rectable):
         :type model: :class:`Model`
         :returns: (:class:`bool`) Whether if the current model is in collision with the opposite model.
         """
-        return collide_check(self, model)
+        return coord_collides_with(self, model)
 
     def blit(self, screen, **kwargs):
         # type: (Displayable, Dict[str, Any]) -> None
@@ -130,38 +130,35 @@ class Triangle(Plane):
     :type p3: Tuple[:class:`int`, :class:`int`]
     """
 
-    def __init__(self, p1, p2, p3):
-        # type: (Tuple[int, int], Tuple[int, int], Tuple[int, int]) -> None
+    def __init__(self, p1, p2, p3, texture=None, fill=None):
+        # type: (Tuple[int, int], Tuple[int, int], Tuple[int, int], str, str) -> None
         self.p1 = p1
         self.p2 = p2
         self.p3 = p3
 
-    def blit(self, screen):
+        self.texture = texture or DEFAULT_BRICK
+        self.fill = fill or DEFAULT_FILL
         self.vertices = (
             Line(self.p1, self.p2),
-            Line(self.p1, self.p3),
             Line(self.p2, self.p3),
+            Line(self.p1, self.p3),
         )
+
+    def blit(self, screen):
         frame = list(screen._frame)
         for vert in self.vertices:
             for p in vert.points:
-                if (
-                    p[0] <= screen.width
-                    or p[1] >= screen.height
-                    or p[0] <= 0
-                    or p[1] <= 0
-                ):
-                    loc = screen.to_distance(p)
-                    try:
-                        frame[loc] = "&"
-                    except IndexError:
-                        pass
-                    except TypeError:
-                        raise TypeError(
-                            "list indices must be integers, not {} of value {}".format(
-                                type(loc), loc
-                            )
+                loc = screen.to_distance(p)
+                try:
+                    frame[loc] = self.texture
+                except IndexError:
+                    pass
+                except TypeError:
+                    raise TypeError(
+                        "list indices must be integers, not {} of value {}".format(
+                            type(loc), loc
                         )
+                    )
         return frame, [vert.points for vert in self.vertices]
 
 
@@ -187,12 +184,13 @@ class PixelPainter(Plane):
     def __init__(self, screen, coordinate=None, dimension=None):
         # type: (Displayable, Tuple(int, int), Tuple(int, int)) -> None
         self.coordinate = coordinate or 0, 0
+        self.screen = screen
         self.dimension = dimension or (screen.width, screen.height)
         self.rect = self.get_rect(coordinate=coordinate, dimension=dimension)
         self.image = [" "] * (self.dimension[0] * self.dimension[1])
 
-    def draw(self, pixels, xy=None, distance=None):
-        # type: (List(str), Tuple(int, int), int) -> None
+    def draw(self, pixels, coordinate):
+        # type: (List(str), Tuple(int, int)) -> None
         """
         A gateway to directly editing the pixels in the canvas based on the distance from the origin or
         through coordinates.
@@ -202,21 +200,14 @@ class PixelPainter(Plane):
         :param pixels:
             The pixels to be drawn.
         :type pixels: List[:class:`str`]
-        :param xy:
+        :param coordinate:
             The x and y position of the pixels to be drawn - Defaults to None.
-        :type xy: Optional[Tuple[:class:`int`, :class:`int`]]
-        :param distance:
-            The distance of the pixels relative to the origin - Defaults to None.
-        :type distance: Optional[:class:`int`]
+        :type coordinate: Tuple[:class:`int`, :class:`int`]
 
         :raises TypeError: Raised when neither xy or distance is passed in.
         :raises IndexError: Raised when the coordinate of the pixel is out of bounds.
         """
-        if xy is None and distance is None:
-            raise TypeError("draw needs either xy or distance point")
-        elif xy is not None:
-            x, y = xy
-            distance = int(round(x) + (round(y) * self.dimension[0]))
+        distance = self.screen.to_distance(coordinate[0], coordinate[1])
 
         for i, pix in enumerate(pixels):
             try:
@@ -249,36 +240,14 @@ class Square(Plane):
     :type texture: :class:`str`
     """
 
-    def __init__(self, coordinate, length, texture=DEFAULT_BRICK):
-        # type: (Tuple[int, int], int, str) -> None
+    def __init__(self, coordinate, length, texture=None, fill=None):
+        # type: (Tuple[int, int], int, str, str) -> None
         self.length = length
 
         super().__init__(
             image=(((texture * length) + "\n") * (length // 2)).strip(),
             rect=self.get_rect(coordinate, (length, length // 2)),
-            texture=texture,
+            texture=texture or DEFAULT_BRICK,
+            fill=fill or DEFAULT_FILL,
         )
 
-
-class Rectangle(Plane):
-    """
-    A Rectangle Model.
-
-    :param coordinate:
-        The top-left coordiante of the square.
-    :type coordinate: Tuple[:class:`int`, :class:`int`]
-    :param dimension:
-        The dimension of the rectangle in Width, Height.
-    :type dimension: Tuple[:class:`int`, :class:`int`]
-    :param texture:
-        The monotone texture of the square.
-    :type texture: :class:`str`
-    """
-
-    def __init__(self, coordinate, dimension, texture=DEFAULT_BRICK):
-        # type: (Tuple[int, int], Tuple[int, int], str) -> None
-        super().__init__(
-            image=(((texture * dimension[0]) + "\n") * (dimension[1])).strip(),
-            rect=self.get_rect(coordinate, dimension),
-            texture=texture,
-        )

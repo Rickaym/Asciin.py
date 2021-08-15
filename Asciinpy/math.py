@@ -1,9 +1,18 @@
 from __future__ import division
 
-GRADIENT = (
+from .utils import caches
+from math import cos, sin
+
+GRADIENT = caches(
     lambda P1, P2: None if P2[0] - P1[0] == 0 else (P2[1] - P1[1]) / (P2[0] - P1[0])
 )
 
+PROJE_MATRIX = caches(lambda a, f, q, near: M(
+    [a * f, 0, 0, 0],
+    [0, f, 0, 0],
+    [0, 0, q, 1],
+    [0, 0, -near * q, 0]
+))
 
 class Matrix:
     """
@@ -18,26 +27,17 @@ class Matrix:
     :type layers: Union[Tuple[:class:`int`], :class:`Matrix`]
     """
 
-    NAME_SPACE = ("x", "y", "z", "k", "a", "e", "i", "o", "u")
+    NAME_SPACE = ("x", "y", "z", "k", "w")
 
     def __init__(self, *layers):
-        self.dimension = dict(
-            zip(
-                self.NAME_SPACE,
-                (
-                    layer if not isinstance(layer, (tuple, list)) else Matrix(*layer)
-                    for layer in layers
-                ),
-            )
-        )
-        self.__dict__.update(self.dimension)
+        self.layers = [
+            layer if not isinstance(layer, (tuple, list)) else Matrix(*layer)
+            for layer in layers
+        ]
+        self.__dict__.update(dict(zip(self.NAME_SPACE, self.layers)))
 
     def __eq__(self, o):
-        to_cmpr = []
-        to_cmpr.extend(list(self.dimension.keys()))
-        to_cmpr.extend(list(o.dimension.keys()))
-        to_cmpr = set(to_cmpr)
-        return all(self.__dict__.get(attr) == o.__dict__.get(attr) for attr in to_cmpr)
+        return all(self.__dict__.get(attr) == o.__dict__.get(attr) for attr in self.NAME_SPACE)
 
     def __ne__(self, o):
         return not self.__eq__(o)
@@ -47,11 +47,11 @@ class Matrix:
             "["
             + " ".join(
                 (
-                    val
+                    str(val)
                     if not isinstance(val, Matrix)
                     else ("\n " if i != 0 else "") + val.__repr__()
                 )
-                for i, val in enumerate(self.dimension.values())
+                for i, val in enumerate(self.layers)
             )
             + "]"
         )
@@ -86,13 +86,56 @@ class Matrix:
             if len(self.dimension) != len(other.dimension["x"]):
                 raise TypeError("uncompatible to multiple these matrixes")
             else:
-                self_vals = list(self.dimension.values())
-                other_vals = list(other.dimension.values())
+                self_vals = list(self.layers)
+                other_vals = list(other.layers)
 
                 pass
         else:
             # scalar multiplication
             return M(*[val * other for val in list(self.dimension.values())])
+
+    def __getitem__(self, item):
+        try:
+            return self.layers[item]
+        except TypeError:
+            return self.layers[self.NAME_SPACE.index(item)]
+
+    def rounds(self):
+        for i, l in enumerate(self.layers):
+            if isinstance(l, Matrix):
+                self.layers[i] = l.rounds()
+            else:
+                self.layers[i] = roundi(l)
+        return self.layers
+
+    @staticmethod
+    def fast_4x4_mul(coord, other):
+        coord = [coord[0], coord[1], coord[2], 1]
+        res = [0, 0, 0, 0]
+
+        for i in range(len(coord)):
+            res[i] = (
+                coord[0] * other[0][i]
+                + coord[1] * other[1][i]
+                + coord[2] * other[2][i]
+                + coord[3] * other[3][i]
+            )
+
+        return M(res[0], res[1], res[2], res[3])
+
+    @staticmethod
+    def fast_3x3_mul(coord, other):
+        coord = [coord[0], coord[1], coord[2]]
+        res = [0, 0, 0]
+
+        for i in range(len(coord)):
+            res[i] = (
+                coord[0] * other[0][i]
+                + coord[1] * other[1][i]
+                + coord[2] * other[2][i]\
+            )
+
+        return M(res[0], res[1], res[2])
 
 
 class Line:
@@ -113,7 +156,7 @@ class Line:
 
         self.gradient = GRADIENT(
             p1, p2
-        )  #: Union[:class:`int`, :class:`int`]: The gradient of the line
+        )  #: Union[:class:`float`, :class:`int`]: The gradient of the line
         self.equation = (
             self._get_equation()
         )  #: Callable[[:class:`int`], Tuple[:class:`int`, :class:`int`]]: f(x) of the line that takes in x to return the (x,y) at that point
@@ -130,7 +173,7 @@ class Line:
         """
         The points that join p1 to p2.
 
-        :type: :class:`int`
+        :type: List[Tuple[:class:`int`, :class:`int`]]
         """
         if self._points is None or self._points[1] != [self.p1, self.p2]:
             self._points = self._get_points(), [self.p1[:], self.p2[:]]
@@ -194,3 +237,61 @@ class MatrixFactory:
 
 
 M = MatrixFactory()
+
+X_ROTO_MATRIX = caches(lambda l: M(
+    [1, 0       , 0],
+    [0, cos(l) , -sin(l)],
+    [0, sin(l), cos(l)]
+))
+Y_ROTO_MATRIX = caches(lambda l: M(
+    [cos(l) , 0, sin(l)],
+    [0      , 1, 0],
+    [-sin(l), 0, cos(l)]
+))
+Z_ROTO_MATRIX = caches(lambda l: M(
+    [cos(l), -sin(l), 0],
+    [sin(l), cos(l) , 0],
+    [0     , 0      , 1]
+))
+"""
+Input: [ x ]
+       | y |
+       [ z ]
+
+RoX: [1  0     0    ] RoY = [cos0  0  sin0] RoZ = [cos0  -sin0  0]
+     |0  cos0  -sin0|       |0     1  0   |       |sin0  cos0   0|
+     [0  sin0  cos0 ]       [-sin0 0  cos0]       [0     0      1]
+"""
+
+def project_3D(m, aspect_ratio, fov):
+    # type: (Matrix, int, int) -> Matrix
+    fnear = 0.1
+    ffar = 10000
+
+    q = ffar / (ffar - fnear)
+    m = [m[0], m[1], m[2], 1]
+    resultant = Matrix.fast_4x4_mul(m, PROJE_MATRIX(aspect_ratio, fov, q, fnear))
+
+    if resultant.k != 0:
+        resultant.x /= resultant.k
+        resultant.y /= resultant.k
+        resultant.z /= resultant.k
+
+    return resultant
+
+
+def rotate_3D(m, angle, axis):
+    roto_mat = (
+        X_ROTO_MATRIX
+        if axis.lower() == "x"
+        else Z_ROTO_MATRIX
+        if axis.lower() == "z"
+        else Y_ROTO_MATRIX
+    )
+    resultant = Matrix.fast_3x3_mul(m, roto_mat(angle))
+
+    return resultant.layers
+
+
+def roundi(num):
+    return int(round(num))

@@ -10,8 +10,9 @@ window = Window(resolution=Resolutions._60c)
 def my_loop(screen):
     # type: (Displayable) -> None
     text = SimpleText((10, 20), " ")
-    morphs = morph("You are my friend..", "You are not my enemy...")
-    morphs = morph("What the hell are you..?", "You you.. are a devil~")
+    morphs = morph(
+        "An example of the morph utils", "pretty simple and straight forward..."
+    )
     index = 0
     while True:
         screen.blit(text)
@@ -25,4 +26,4 @@ def my_loop(screen):
             return
 
 
-window.run(debug=True, show_fps=True)
+window.run(debug=True)

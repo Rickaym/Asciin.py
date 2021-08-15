@@ -1,9 +1,40 @@
-from .globals import SINGLE_PRINT_FLAG
+from platform import python_version
+from io import BytesIO, StringIO
+from cProfile import Profile
+from pstats import Stats
+from os import getcwd
+
+from .globals import SINGLE_PRINT_FLAG, SCOPE_CACHE
 
 try:
     from typing import Any, List, Union, Callable
 except ImportError:
     pass
+
+TargetIO = StringIO if python_version()[0] == "3" else BytesIO
+CWD = getcwd()
+
+
+class Profiler:
+    def __init__(self, path):
+        self.path = path
+
+    def __enter__(self):
+        self.start()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.stop()
+
+    def start(self):
+        self.cpf = Profile()
+        self.cpf.enable()
+
+    def stop(self):
+        self.cpf.disable()
+        redirect = TargetIO()
+        Stats(self.cpf, stream=redirect).sort_stats("time").print_stats()
+        with open(self.path, "w") as f:
+            f.write(redirect.getvalue().replace(CWD, "", -1))
 
 
 def beautify(frame, screen):
@@ -108,3 +139,15 @@ def write_collision_state(screen, self_frame, other_frame):
 
         with open("model_frame.txt", "w") as f:
             f.write(beautify(other_frame, screen))
+
+
+def caches(func):
+    def wrapper(*args, **kwargs):
+        if SCOPE_CACHE.get(func) is None or SCOPE_CACHE[func][0] != (args, kwargs):
+            global SCOPE_CACHE
+            retval = func(*args, **kwargs)
+            SCOPE_CACHE[func] = (args, kwargs), retval
+        else:
+            retval = SCOPE_CACHE[func][1]
+        return retval
+    return wrapper

@@ -3,17 +3,21 @@ from re import search, MULTILINE
 
 pkg_name = "Asciinpy"
 prj_name = "Asciin.py"
-with open(f"{pkg_name}/__init__.py") as fp:
+packages = [pkg_name, "Asciinpy._2D", "Asciinpy._2D.methods", "Asciinpy._3D"]
+descriptors = ["readme.md", "changelog.md"]
+long_description = ""
+
+with open("{}/__init__.py".format(pkg_name)) as fp:
     version = search(
         r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', fp.read(), MULTILINE
     ).group(1)
 
-with open(f"readme.md", encoding="utf-8") as f:
-    long_description = f.read()
-with open(f"changelog.md", encoding="utf-8") as f:
-    long_description += f.read()
-
-packages = [pkg_name, "Asciinpy._2D", "Asciinpy._2D.methods", "Asciinpy._3D"]
+for desc in descriptors:
+    try:
+        with open(desc) as f:
+            long_description += f.read()
+    except FileNotFoundError:
+        pass
 
 setup(
     name=prj_name,
@@ -22,10 +26,10 @@ setup(
     author="Rickaym",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url=f"https://github.com/Rickaym/{prj_name}",
+    url="https://github.com/Rickaym/{}".format(prj_name),
     project_urls={
         "Documentation": "https://asciipy.readthedocs.io/en/latest/",
-        "Issue tracker": f"https://github.com/Rickaym/{prj_name}/issues",
+        "Issue tracker": "https://github.com/Rickaym/{}/issues".format(prj_name),
     },
     license="MIT",
     python_requires=">=2.7",

@@ -3,6 +3,9 @@ Contains different definitions of blitting a model onto a frame with `model` and
 Different models can pick best fitting render methods circumstantially.
 """
 
+from ...math import roundi
+
+
 try:
     from typing import Any, Optional, Tuple, List, Set
 except ImportError:
@@ -34,7 +37,7 @@ def rect_and_charpos(model, screen, empty=False):
     frame = list(screen._frame) if not empty else list(screen.emptyframe)
 
     # gets the starting index of the image in a straight line screen
-    loc = int(round(model.rect.x) + (round(model.rect.y) * screen.resolution.width))
+    loc = roundi(model.rect.x) + (roundi(model.rect.y) * screen.resolution.width)
     max_loc = screen.resolution.width * screen.resolution.height
 
     x_depth = 0
@@ -55,6 +58,8 @@ def rect_and_charpos(model, screen, empty=False):
             loc += screen.resolution.width - x_depth
             x_depth = 0
             y_depth += 1
+            continue
+        elif char == " ":
             continue
 
         occupancy.append(loc)
@@ -81,7 +86,8 @@ def rect_and_modelen(model, screen, empty=False):
     The only time you would want to use this is if you somehow cannot have newline characters in your image.
 
     Time Complexity of this method is O(n) where n is
-    the total amount of characters in a model image."""
+    the total amount of characters in a model image.
+    """
     frame = list(screen._frame) if not empty else list(screen.emptyframe)
     occupancy = []
 
@@ -112,7 +118,7 @@ def slice_fit(model, screen):
 
     Time Complexity: O(n) where n is len(TEXT)
     """
-    point = int(round(model.rect.x) + (screen.resolution.width * round(model.rect.y)))
+    point = roundi(model.rect.x) + (screen.resolution.width * roundi(model.rect.y))
     if point < 0:
         point = screen.resolution.width + point
 

@@ -18,13 +18,15 @@ window = Window(resolution=Resolutions._60c)
 def my_loop(screen):
     # type: (Displayable) -> None
     # Create a PixelPainter class to keep a reference frame
-    canvas = PixelPainter(screen, (18, 4), (20, 20))
+    canvas = PixelPainter(screen)
     while True:
         # Randomly draw ascii letters onto the canvas
-        canvas.draw(
-            choice(ascii_letters),
-            xy=(random() * 19, random() * 19),
-        )
+        # canvas.draw(
+        #    choice(ascii_letters),
+        #    xy=(int(random() * screen.width), int(random() * screen.height)),
+        # )
+
+        canvas.draw("a", xy=(1, 9))
         # Blit the canvas onto the screen
         screen.blit(canvas)
         # Refresh the screen to render new blits

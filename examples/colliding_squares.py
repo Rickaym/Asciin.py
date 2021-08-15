@@ -3,6 +3,7 @@ Simple collisions system with squares.
 """
 from Asciinpy import Displayable, Window, Resolutions
 from Asciinpy._2D import Square
+from Asciinpy.amath import roundi
 
 try:
     from typing import Tuple
@@ -62,14 +63,14 @@ def my_loop(screen):
             square.rect.x += velocities[i][0]
             square.rect.y += velocities[i][1]
 
-            if round(square.rect.y) < 0:
+            if roundi(square.rect.y) < 0:
                 velocities[i][1] = -1 * velocities[i][1]
-            elif round(square.rect.y) + (square.length // 2) > screen.resolution.height:
+            elif roundi(square.rect.y) + (square.length // 2) > screen.resolution.height:
                 velocities[i][1] = -1 * velocities[i][1]
 
-            if round(square.rect.x) < 0:
+            if roundi(square.rect.x) < 0:
                 velocities[i][0] = -1 * velocities[i][0]
-            elif round(square.rect.x) + square.length > screen.resolution.width:
+            elif roundi(square.rect.x) + square.length > screen.resolution.width:
                 velocities[i][0] = -1 * velocities[i][0]
 
             velocities = manage_collisions(velocities, i, square, squares)

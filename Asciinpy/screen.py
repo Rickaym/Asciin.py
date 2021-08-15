@@ -1,15 +1,17 @@
-from __future__ import print_function
+from __future__ import print_function, division
 
 import platform
 import pydoc
 import re
+import sys
 
-from math import e
+from math import e, tan
 from functools import wraps
 from time import sleep, time
 from os import system
 
 from .values import Characters, Resolutions
+from .math import roundi
 from .globals import SCREENS
 
 try:
@@ -19,9 +21,6 @@ except ImportError:
 
 
 __all__ = ["Window", "Displayable"]
-
-
-SIGMOID = lambda x: 1 / (1 + e ** (-x))
 
 
 class Displayable:
@@ -39,12 +38,13 @@ class Displayable:
         resolution,
         fps_limiter,
         forcestop,
+        fov,
         debug,
         show_fps,
         sysdout,
         timer,
     ):
-        # type: (Resolutions, Optional[int], Optional[int], bool, bool, bool, bool) -> None
+        # type: (Resolutions, int, int, float, bool, bool, bool, bool) -> None
         self.resolution = resolution  #: :class:`Resolutions`: A conceptual enum of a the window resolution.
         self.width = resolution.width  #: :class:`int`: The width of the window.
         self.height = resolution.height  #: :class:`int`: The height of the window.
@@ -57,15 +57,17 @@ class Displayable:
             Characters.miniramp
         )  #: List[:class:`str`]: The default list of a characters for test printing and native menu styling. Any changes to it must be in references to the valid :class:`Characters` texture list.
 
-        self.emptyframe = [
-            " "
-        ] * self.resolution.pixels  #: List[:class:`str`]: A base frame with nothing on it.
-
+        self.fov = fov  #: :class:`float`: Fov of the current screen, must be in radians for 3D applicaions
+        self.aspect_ratio = resolution.height / resolution.width
+        self.emptyframe = [" "] * (
+            self.resolution.pixels
+        ) + ["\r"]  #: List[:class:`str`]: A base frame with nothing on it.
         self.show_fps = show_fps  #: :class:`bool`: Whether if the window has a menu indicating the fps.
         self.timer = timer  #: :class:`bool`: Whether the menu shows the timer before elimination when given.
         self.sysdout = sysdout  #: :class:`bool`: Whether the rendered frames are printed onto the window.
         self.debug = debug  #: :class:`bool`: Whether the window has debug mode enabled.
 
+        self._fov = 1 / tan(fov * 0.5)
         # pre-rendered
         self._infotext = (
             "||"
@@ -133,7 +135,7 @@ class Displayable:
 
         :type: :class:`int`
         """
-        return round(time() - self._started_at) % self.TPS
+        return roundi(time() - self._started_at) % self.TPS
 
     def _slice_fit(self, text, point):
         # type: (str, int) -> List[str]
@@ -161,12 +163,12 @@ class Displayable:
             self._frame = self._slice_fit(self._infotext % tuple(args), 0)
         if self._stop_at is not None and self.timer:
             self._frame = self._slice_fit(
-                "Stopwatch: " + str(self._stop_at - round(time() - self._started_at)),
+                "Stopwatch: " + str(self._stop_at - roundi(time() - self._started_at)),
                 20,
             )
 
     def to_distance(self, coordinate):
-        return int(round(coordinate[0]) + (round(coordinate[1]) * self.width))
+        return roundi(coordinate[0]) + (roundi(coordinate[1]) * self.width) -1
 
     def blit(self, object, *args, **kwargs):
         # type: (Model, Tuple[Any], Dict[str, Any]) -> None
@@ -196,7 +198,8 @@ class Displayable:
 
         current_frame = "".join(self._frame)
         if self.sysdout:
-            print(current_frame, end="\r")
+            sys.stdout.write(current_frame)
+            sys.stdout.flush()
 
         if log_frames and self._last_frame != current_frame:
             self._frame_log.append(current_frame)
@@ -237,7 +240,10 @@ class DispLinux(Displayable):
 
 
 class DispMacOS(Displayable):
-    pass
+    def _resize(self):
+        system(
+            "printf '\e[8;{};{}t'".format(self.resolution.height, self.resolution.width)
+        )
 
 
 class Window:
@@ -339,8 +345,10 @@ class Window:
 
         return self._replay_loop(win_instance, frames, fps)
 
-    def run(self, debug=False, show_fps=False, sysdout=True, timer=False):
-        # type: (bool, bool, bool, bool) -> None
+    def run(
+        self, fov=1.570796327, debug=False, show_fps=False, sysdout=True, timer=False
+    ):
+        # type: (int, bool, bool, bool, bool) -> None
         """
         Runs the client loop that has been defined.
         """
@@ -351,6 +359,7 @@ class Window:
             self.resolution,
             self.fps_limiter,
             self._stop_time,
+            fov,
             debug,
             show_fps,
             sysdout,
