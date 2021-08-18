@@ -41,11 +41,11 @@ Utilities
 Line and Matrixes
 -------------------
 
-.. autoclass:: Asciinpy.amath.Matrix
+.. autoclass:: Asciinpy.math.Matrix
     :members:
 
 
-.. autoclass:: Asciinpy.amath.Line
+.. autoclass:: Asciinpy.math.Line
     :members:
 
 

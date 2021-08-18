@@ -3,6 +3,7 @@ Contains different definitions of blitting a model onto a frame with `model` and
 Different models can pick best fitting render methods circumstantially.
 """
 
+from Asciinpy.screen import Color
 from ...math import roundi
 
 
@@ -45,15 +46,17 @@ def rect_and_charpos(model, screen, empty=False):
     occupancy = []
 
     for i, char in enumerate(pixels):
+        color = model.color
         if loc < 0 or loc > max_loc:
             continue
         if model.rect.texture:
             if char == "\n":
-                frame[loc - 1] = model.rect.texture
-            elif x_depth == 0 or y_depth == 0 or y_depth == (model.dimension[1] - 1):
+                color = model.rect.color
+                frame[loc - 1] = color + model.rect.texture + Color.FORE(255, 255, 255)
+            elif x_depth == 0 or y_depth == 0 or y_depth == (model.dimension[1] - 1) or i == (len(pixels) - 1):
+                color = model.rect.color
                 char = model.rect.texture
-            elif i == (len(pixels) - 1):
-                char = model.rect.texture
+                
         if char == "\n":
             loc += screen.resolution.width - x_depth
             x_depth = 0
@@ -62,14 +65,16 @@ def rect_and_charpos(model, screen, empty=False):
         elif char == " ":
             continue
 
-        occupancy.append(loc)
         try:
-            frame[loc] = char
+            frame[loc] = color + char + Color.FORE(255, 255, 255)
         except IndexError:
             continue
         else:
+            occupancy.append(loc)
+            
             x_depth += 1
             loc += 1
+
 
     if model.rect.texture:
         frame[-1] = model.rect.texture

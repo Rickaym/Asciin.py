@@ -12,9 +12,11 @@ The changelog only keeps track of updates post version **0.1.4**
 ## [0.2.0] - 2021-08-30
 
 ### Changed
-
 - `amath` module is renamed to `math`
 - `math.Matrix` classes now supports attribute and index fetching `m.x` or `m[0]` or `m["x"]` as part of the `__getitem__` routine.
+- `screen` module is completely re-written, rendering models used to be a simple high-level operation of printing with a carriage return but it is extremely error-prone, so now it is much more low level.
+- `screen.DispWindow` renamed to `screen.WindowsControl`, `screen.DispMacOS` and `screen.DispLinux` is generalized to `screen.UnixControl`
+- Built-in render and collision methods provided acquires color from `object.color` and acquires texture from `object.texture`
 
 ### Added
 
@@ -22,6 +24,10 @@ The changelog only keeps track of updates post version **0.1.4**
 - `utils.caches` - a rudimentary caching mech that keeps track of func calls for functions that it wraps. If the arguments and keyword arguments are the same, it simply returns a value from cache, if not, it calls the function, returns the value and saves it as well. The cache can be found in `globals.SCOPE_CACHE`.
 - `math.roundi` - rounds a number to the given decimal point and returns it after being casted into an integer ~ because in python 2 this doesn't seem to be the case
 - Projection and rotational matrixes, `math.X_ROTO_MATRIX`, `math.Y_ROTO_MATRIX`, `math.Z_ROTO_MATRIX`, `math.PROJE_MATRIX`. these are further implemented by `math.project_3D` and `math.rotate_3D`
+- `screen.Color` - general means of coloring components of the console
+- `screen.Window.listen` - listens for various signals for window events, currently inclusive of **on_terminate** and **on_create_**
+- `screen.Displayable.refresh` - works in a different way as to writing directly in a low level operation onto stdout with cursor at the origin (the frame system remains the same)
+- `values.ANSI` - provides variou ANSI escape code as hex code for chaning escape sequences to will
 
 ### Removed
 

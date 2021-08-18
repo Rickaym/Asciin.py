@@ -1,0 +1,59 @@
+         243022 function calls in 5.749 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    12461    3.674    0.000    3.674    0.000 {built-in method posix.write}
+     6230    0.589    0.000    0.590    0.000 /Asciinpy/screen.py:143(_slice_fit)
+    18691    0.536    0.000    0.536    0.000 {method 'join' of 'str' objects}
+     6230    0.320    0.000    5.310    0.001 /Asciinpy/screen.py:206(refresh)
+     6230    0.214    0.000    0.428    0.000 /Asciinpy/screen.py:194(blit)
+     6230    0.190    0.000    0.208    0.000 /Asciinpy/_2D/methods/renders.py:27(rect_and_charpos)
+     6230    0.151    0.000    0.748    0.000 /Asciinpy/screen.py:153(_infograph)
+    12461    0.014    0.000    3.695    0.000 /Asciinpy/screen.py:140(_puts)
+        1    0.009    0.009    5.748    5.748 test.py:10(my_loop)
+     6230    0.009    0.000    0.040    0.000 /Asciinpy/screen.py:177(_cursor)
+    12461    0.006    0.000    0.006    0.000 {method 'encode' of 'str' objects}
+     6230    0.006    0.000    0.214    0.000 /Asciinpy/_2D/planes.py:71(blit)
+    62300    0.006    0.000    0.006    0.000 {method 'append' of 'list' objects}
+    12460    0.005    0.000    0.005    0.000 {built-in method builtins.round}
+    12460    0.004    0.000    0.009    0.000 /Asciinpy/math.py:324(roundi)
+     6230    0.004    0.000    0.006    0.000 /Asciinpy/screen.py:103(fps)
+     6229    0.003    0.000    0.537    0.000 /Asciinpy/screen.py:93(frame)
+    18695    0.003    0.000    0.003    0.000 /Asciinpy/values.py:56(width)
+     6232    0.002    0.000    0.002    0.000 {built-in method time.time}
+     6230    0.002    0.000    0.002    0.000 {method 'rjust' of 'str' objects}
+     6235    0.001    0.000    0.001    0.000 {built-in method builtins.len}
+     6234    0.001    0.000    0.001    0.000 /Asciinpy/values.py:66(height)
+        1    0.001    0.001    0.001    0.001 {built-in method posix.system}
+        1    0.000    0.000    0.000    0.000 /Asciinpy/screen.py:36(__init__)
+        1    0.000    0.000    0.000    0.000 {built-in method math.tan}
+        1    0.000    0.000    5.749    5.749 /Asciinpy/screen.py:356(run)
+        1    0.000    0.000    0.000    0.000 /usr/lib/python3.8/uuid.py:132(__init__)
+        1    0.000    0.000    0.000    0.000 /Asciinpy/_2D/planes.py:245(__init__)
+        1    0.000    0.000    0.000    0.000 /Asciinpy/utils.py:32(stop)
+        1    0.000    0.000    0.000    0.000 /Asciinpy/_2D/rect.py:71(__init__)
+        1    0.000    0.000    0.000    0.000 /Asciinpy/screen.py:302(_terminate)
+        1    0.000    0.000    0.000    0.000 /Asciinpy/_2D/planes.py:29(__init__)
+        1    0.000    0.000    0.000    0.000 /usr/lib/python3.8/uuid.py:273(__str__)
+        1    0.000    0.000    0.000    0.000 {built-in method from_bytes}
+        1    0.000    0.000    0.000    0.000 {built-in method posix.urandom}
+        1    0.000    0.000    0.001    0.001 /Asciinpy/screen.py:246(_resize)
+        1    0.000    0.000    0.000    0.000 /usr/lib/python3.8/uuid.py:780(uuid4)
+        1    0.000    0.000    0.000    0.000 /Asciinpy/_2D/rect.py:14(get_rect)
+        2    0.000    0.000    0.000    0.000 /Asciinpy/screen.py:281(_emit)
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.max}
+        1    0.000    0.000    0.000    0.000 /Asciinpy/utils.py:25(__exit__)
+        1    0.000    0.000    0.000    0.000 {method 'format' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 /usr/lib/python3.8/platform.py:885(system)
+        2    0.000    0.000    0.000    0.000 /Asciinpy/_2D/planes.py:41(<lambda>)
+        1    0.000    0.000    0.000    0.000 {method 'split' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 /usr/lib/python3.8/platform.py:747(uname)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        1    0.000    0.000    0.000    0.000 /Asciinpy/values.py:76(pixels)
+        1    0.000    0.000    0.000    0.000 {method 'count' of 'list' objects}
+        1    0.000    0.000    0.000    0.000 {method 'strip' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.isinstance}
+        1    0.000    0.000    0.000    0.000 {method 'get' of 'dict' objects}
+
+

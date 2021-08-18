@@ -1,8 +1,26 @@
+from functools import wraps
+
+class ABCEnum:
+    """
+    Simple enum constructor written for version compatibility
+    """
+    def __init__(self, cls):
+        wraps(cls)
+        self.cls = cls
+        for attr in self.cls.__dict__:
+            value = getattr(self.cls, attr)
+            if not isinstance(value, (property)) and not attr.startswith("__"):
+                inst = self.cls(value)
+                setattr(self.cls, attr, inst)
+
+    def __call__(self, *args, **kwargs):
+        return self.cls(*args, **kwargs)
+
 class Characters:
     ramp = r"""$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?<>i!lI;:-_+~,"^`'. """
     miniramp = r"""@%#*+=-:. """
 
-
+@ABCEnum
 class Resolutions:
     """
     The preset resolutions class that contains static variable for usage and transformation.
@@ -32,11 +50,8 @@ class Resolutions:
     _768c = (1366, 768)
     _1080c = (1980, 1080)
 
-    def __init__(self, dimension):
-        if not isinstance(dimension, (type(self))):
-            self.value = dimension
-        else:
-            self.value = dimension.value
+    def __init__(self, val):
+        self.value = val
 
     @property
     def width(self):
@@ -67,3 +82,14 @@ class Resolutions:
         :type: :class:`int`
         """
         return self.value[0] * self.value[1]
+
+class ANSI:
+    BEL = '\x07' # bell
+    BS = '\x08' # backspace
+    HT = '\x09' # horizontal tab
+    LF = '\x0A' # line feed
+    VT = '\x0B' # vertical tab
+    FF = '\x0C' # formfeed
+    CR = '\x0D' # carriage return
+    ESC = '\x1B' # escape char ^[
+    CSI = ESC+'[' # Control Sequence Initiator

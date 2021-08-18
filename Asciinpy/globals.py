@@ -1,4 +1,3 @@
 SINGLE_PRINT_FLAG = False
 
-SCREENS = []
 SCOPE_CACHE = {}

@@ -1,3 +1,4 @@
+from Asciinpy.screen import Color
 from uuid import uuid4
 
 try:
@@ -82,7 +83,7 @@ class Rect:
             parent  #: :class:`Model`: A Parent object that the rect is assigned under.
         )
         self.texture = ""  #: :class:`str`: The outline texture of the rect.
-
+        self.color = Color.FORE(255, 255, 255)
         self._id = str(uuid4())[:5]
 
     @property

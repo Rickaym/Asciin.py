@@ -1,16 +1,14 @@
 from __future__ import print_function, division
 
 import platform
-import pydoc
-import re
-import sys
+import os
+import signal
 
-from math import e, tan
-from functools import wraps
+from math import tan
 from time import sleep, time
 from os import system
 
-from .values import Characters, Resolutions
+from .values import Characters, Resolutions, ANSI
 from .math import roundi
 from .globals import SCREENS
 
@@ -21,6 +19,27 @@ except ImportError:
 
 
 __all__ = ["Window", "Displayable"]
+
+
+class Color:
+    def FOREGROUND(id): return ANSI.CSI + "38;5;{}m".format(id)
+    def BACKGROUND(id): return ANSI.CSI + "48;5;{}m".format(id)
+
+    @staticmethod
+    def RGB_FOREGROUND(r, g, b): return ANSI.CSI + \
+        "38;2;{};{};{}m".format(r, g, b)
+
+    @staticmethod
+    def RGB_BACKGROUND(r, g, b): return ANSI.CSI + \
+        "48;2;{};{};{}}m".format(r, g, b)
+
+    @staticmethod
+    def FORE(r, g, b):
+        return Color.RGB_FOREGROUND(r, g, b)
+
+    @staticmethod
+    def BACK(r, g, b):
+        return Color.RGB_BACKGROUND(r, g, b)
 
 
 class Displayable:
@@ -45,14 +64,18 @@ class Displayable:
         timer,
     ):
         # type: (Resolutions, int, int, float, bool, bool, bool, bool) -> None
-        self.resolution = resolution  #: :class:`Resolutions`: A conceptual enum of a the window resolution.
-        self.width = resolution.width  #: :class:`int`: The width of the window.
-        self.height = resolution.height  #: :class:`int`: The height of the window.
+        #: :class:`Resolutions`: A conceptual enum of a the window resolution.
+        self.resolution = resolution
+        #: :class:`int`: The width of the window.
+        self.width = resolution.width
+        #: :class:`int`: The height of the window.
+        self.height = resolution.height
         self.debug_area = [
             0,
             self.resolution.height * 0.8,
         ]  #: Tuple[:class:`int`, :class:`int`]: Approximated area of a debug prompt on the terminal.
-        self.fps_limiter = fps_limiter  #: Optional[:class:`int`]: The specified FPS limit of the window.
+        #: Optional[:class:`int`]: The specified FPS limit of the window.
+        self.fps_limiter = fps_limiter
         self.palette = (
             Characters.miniramp
         )  #: List[:class:`str`]: The default list of a characters for test printing and native menu styling. Any changes to it must be in references to the valid :class:`Characters` texture list.
@@ -61,11 +84,15 @@ class Displayable:
         self.aspect_ratio = resolution.height / resolution.width
         self.emptyframe = [" "] * (
             self.resolution.pixels
-        ) + ["\r"]  #: List[:class:`str`]: A base frame with nothing on it.
-        self.show_fps = show_fps  #: :class:`bool`: Whether if the window has a menu indicating the fps.
-        self.timer = timer  #: :class:`bool`: Whether the menu shows the timer before elimination when given.
-        self.sysdout = sysdout  #: :class:`bool`: Whether the rendered frames are printed onto the window.
-        self.debug = debug  #: :class:`bool`: Whether the window has debug mode enabled.
+        )  # : List[:class:`str`]: A base frame with nothing on it.
+        #: :class:`bool`: Whether if the window has a menu indicating the fps.
+        self.show_fps = show_fps
+        #: :class:`bool`: Whether the menu shows the timer before elimination when given.
+        self.timer = timer
+        #: :class:`bool`: Whether the rendered frames are printed onto the window.
+        self.sysdout = sysdout
+        #: :class:`bool`: Whether the window has debug mode enabled.
+        self.debug = debug
 
         self._fov = 1 / tan(fov * 0.5)
         # pre-rendered
@@ -137,6 +164,13 @@ class Displayable:
         """
         return roundi(time() - self._started_at) % self.TPS
 
+    def _puts(self, *sequence):
+        # type: (List[str]) -> None
+        """
+        Writes out sys stdout directly in bytes
+        """
+        os.write(1, "".join(sequence).encode())
+
     def _slice_fit(self, text, point):
         # type: (str, int) -> List[str]
         """
@@ -145,7 +179,7 @@ class Displayable:
         """
         if point < 0:
             point = self.resolution.width + point
-        return self._frame[:point] + list(text) + self._frame[point + len(text) :]
+        return self._frame[:point] + list(text) + self._frame[point + len(text):]
 
     def _infograph(self):
         """
@@ -154,24 +188,41 @@ class Displayable:
         This menu is pre-rendered before-hand and the values are formatted
         in to maintain a max slice-fit of one per render.
         """
-        args = []
         if self.show_fps:
-            args.append(str(self.fps).rjust(4))
-        if self.debug:
-            args.append("True")
-        if args:
-            self._frame = self._slice_fit(self._infotext % tuple(args), 0)
-        if self._stop_at is not None and self.timer:
             self._frame = self._slice_fit(
-                "Stopwatch: " + str(self._stop_at - roundi(time() - self._started_at)),
-                20,
-            )
+                self._infotext % str(self.fps).rjust(4), 0)
+
+    def _resize(self):
+        """
+        Abstract method in resizing a powershell or a command prompt to the given resolution, this does not actually
+        care about the size of the screen - also removes scroll wheel.
+        """
+
+    def _new(self):
+        """
+        Creates an accessible powershell or a command prompt to the given resolution.
+        """
+
+    def _clear(self):
+        """
+        Clears the current visible terminal
+        """
+        self._puts(ANSI.CSI, "2J")
+
+    def _cursor(self, goto=None, visibility=None):
+        if goto is not None:
+            self._puts(ANSI.CSI, "%d;%dH" % goto)
+        if visibility is not None:
+            if visibility is True:
+                self._puts(ANSI.CSI, "?25h")
+            else:
+                self._puts(ANSI.CSI, "?25l")
 
     def to_distance(self, coordinate):
-        return roundi(coordinate[0]) + (roundi(coordinate[1]) * self.width) -1
+        return roundi(coordinate[0]) + (roundi(coordinate[1]) * self.width) - 1
 
     def blit(self, object, *args, **kwargs):
-        # type: (Model, Tuple[Any], Dict[str, Any]) -> None
+        # type: (object, Tuple[Any], Dict[str, Any]) -> None
         """
         Simply calls the object's internal blit method onto itself and does necessary
         records.
@@ -196,10 +247,10 @@ class Displayable:
 
         self._infograph()
 
-        current_frame = "".join(self._frame)
+        current_frame = self.frame
         if self.sysdout:
-            sys.stdout.write(current_frame)
-            sys.stdout.flush()
+            self._cursor((0, 0))
+            self._puts(current_frame)
 
         if log_frames and self._last_frame != current_frame:
             self._frame_log.append(current_frame)
@@ -208,19 +259,8 @@ class Displayable:
         self._frames_displayed += 1
         self._frame = self.emptyframe[:]
 
-    def _resize(self):
-        """
-        Abstract method in resizing a powershell or a command prompt to the given resolution, this does not actually
-        care about the size of the screen - also removes scroll wheel.
-        """
 
-    def _new(self):
-        """
-        Creates an accessible powershell or a command prompt to the given resolution.
-        """
-
-
-class DispWindow(Displayable):
+class WindowsControl(Displayable):
     def _resize(self):
         system(
             "mode con cols={} lines={}".format(
@@ -232,30 +272,26 @@ class DispWindow(Displayable):
         pass
 
 
-class DispLinux(Displayable):
+class UnixControl(Displayable):
     def _resize(self):
         system(
-            "printf '\e[8;{};{}t'".format(self.resolution.height, self.resolution.width)
-        )
-
-
-class DispMacOS(Displayable):
-    def _resize(self):
-        system(
-            "printf '\e[8;{};{}t'".format(self.resolution.height, self.resolution.width)
+            "printf '\e[8;{};{}t'".format(
+                self.resolution.height, self.resolution.width)
         )
 
 
 class Window:
     """
     An abstract representation of a window, the class handles the internal loops for different kinds of uses.
-    This isn't the screen parameter passed into the client loop. See Displayable for that.
     """
 
+    ON_TERMINATE = "on_terminate"
+    ON_CREATE = "on_start"
+
     platform_to_window = {
-        "Windows": DispWindow,
-        "Linux": DispLinux,
-        "Darwin": DispMacOS,
+        "Windows": WindowsControl,
+        "Linux": UnixControl,
+        "Darwin": UnixControl,
     }  # type: Dict[str, Displayable]
 
     def __init__(self, resolution, fps_limiter=None):
@@ -264,12 +300,19 @@ class Window:
             resolution
         )  #: :class:`Resolutions`: The respective resolution of the window.
         # format: off
-        self.fps_limiter = fps_limiter  #: Optional[:class:`int`]: A simple FPS lock.
-        self._window = None
+        #: Optional[:class:`int`]: A simple FPS lock.
+        self.fps_limiter = fps_limiter
+
+        self._screen = None
         self._client_loop = None  # type: Callable
         self._system_loop = None  # type: Callable
-
         self._stop_time = None
+        self._event_handlers = {self.ON_TERMINATE: [], self.ON_CREATE: []}
+        signal.signal(signal.SIGINT, self._terminate)
+
+    def _emit(self, event):
+        for handlers in self._event_handlers[event]:
+            handlers()
 
     def _replay_loop(self, win_instance, frames, fps):
         # type: (Displayable, Tuple[List[str]], int) -> None
@@ -288,18 +331,24 @@ class Window:
             win_instance.refresh()
             sleep(60 / (fps * 60))
 
-    def _check_func_sig(self, function):
-        # type: (Callable) -> Dict[str, Any]
-        """
-        Simply checks if the provided function has a single arg to pass the screen parameter into.
-        """
-        spec = pydoc.render_doc(function)
-        signature = re.compile(r"\((?: *)(.*)\)")
+    def _terminate(self, *traces):
+        self._emit(self.ON_TERMINATE)
 
-        if len(signature.findall(spec)) > 0:
-            return True
-        else:
-            return False
+        self._screen._cursor(visibility=False)
+        self._screen._puts(ANSI.CSI, "?47l")
+        self._screen._puts(ANSI.CSI, "0m")
+
+        raise RuntimeError(traces)
+
+    def listen(self, event):
+        # type: (str) -> None
+        """
+        Registers possible types of signals emitted by the window and the subprocesses.
+        """
+        def wrapper(func):
+            self._event_handlers[event].append(func)
+            return func
+        return wrapper
 
     def loop(self, forcestop=None):
         # type: (Optional[int]) -> Callable[[Displayable], None]
@@ -312,12 +361,6 @@ class Window:
 
         def wrapper(function):
             # type: (Callable) -> Callable[[Displayable], None]
-            wraps(function)
-            if self._check_func_sig(function) is False:
-                raise TypeError(
-                    "you need to accept at least one argument for type Displayable in your loop"
-                )
-
             self._client_loop = function
             return function
 
@@ -341,7 +384,7 @@ class Window:
             win_instance._resize()
 
         SCREENS.append(win_instance)
-        self._window = win_instance
+        self._screen = win_instance
 
         return self._replay_loop(win_instance, frames, fps)
 
@@ -352,10 +395,8 @@ class Window:
         """
         Runs the client loop that has been defined.
         """
-        global SCREENS
-
         window = self.platform_to_window[platform.system()]
-        win_instance = window(
+        self._screen = window(
             self.resolution,
             self.fps_limiter,
             self._stop_time,
@@ -365,12 +406,10 @@ class Window:
             sysdout,
             timer,
         )
+        self._emit(self.ON_CREATE)
+        if sysdout and not debug:
+            self._screen._resize()
+        self._screen._clear()
+        self._screen._cursor(visibility=False)
 
-        if sysdout:
-            if len(SCREENS) > 1:
-                win_instance._new()
-            else:
-                win_instance._resize()
-        SCREENS.append(win_instance)
-        self._window = win_instance
-        return self._client_loop(win_instance)
+        return self._client_loop(self._screen)

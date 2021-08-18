@@ -1,5 +1,6 @@
 from __future__ import division
 
+from itertools import chain
 from .utils import caches
 from math import cos, sin
 
@@ -7,12 +8,12 @@ GRADIENT = caches(
     lambda P1, P2: None if P2[0] - P1[0] == 0 else (P2[1] - P1[1]) / (P2[0] - P1[0])
 )
 
-PROJE_MATRIX = caches(lambda a, f, q, near: M(
-    [a * f, 0, 0, 0],
-    [0, f, 0, 0],
-    [0, 0, q, 1],
-    [0, 0, -near * q, 0]
-))
+PROJE_MATRIX = caches(
+    lambda a, f, q, near: M(
+        [a * f, 0, 0, 0], [0, f, 0, 0], [0, 0, q, 1], [0, 0, -near * q, 0]
+    )
+)
+
 
 class Matrix:
     """
@@ -28,6 +29,7 @@ class Matrix:
     """
 
     NAME_SPACE = ("x", "y", "z", "k", "w")
+    NAME_MAP = dict(zip(NAME_SPACE, range(len(NAME_SPACE))))
 
     def __init__(self, *layers):
         self.layers = [
@@ -37,7 +39,9 @@ class Matrix:
         self.__dict__.update(dict(zip(self.NAME_SPACE, self.layers)))
 
     def __eq__(self, o):
-        return all(self.__dict__.get(attr) == o.__dict__.get(attr) for attr in self.NAME_SPACE)
+        return all(
+            self.__dict__.get(attr) == o.__dict__.get(attr) for attr in self.NAME_SPACE
+        )
 
     def __ne__(self, o):
         return not self.__eq__(o)
@@ -98,7 +102,7 @@ class Matrix:
         try:
             return self.layers[item]
         except TypeError:
-            return self.layers[self.NAME_SPACE.index(item)]
+            return self.layers[self.NAME_MAP[item]]
 
     def rounds(self):
         for i, l in enumerate(self.layers):
@@ -130,9 +134,7 @@ class Matrix:
 
         for i in range(len(coord)):
             res[i] = (
-                coord[0] * other[0][i]
-                + coord[1] * other[1][i]
-                + coord[2] * other[2][i]\
+                coord[0] * other[0][i] + coord[1] * other[1][i] + coord[2] * other[2][i]
             )
 
         return M(res[0], res[1], res[2])
@@ -140,7 +142,7 @@ class Matrix:
 
 class Line:
     """
-    A conceptual line class with simple properties.
+    A conceptual line class with simple properties. Basic properties are calculated and recalculated if and when they are needed.
 
     :param p1:
         Starting point
@@ -154,19 +156,52 @@ class Line:
         self.p1 = p1
         self.p2 = p2
 
-        self.gradient = GRADIENT(
+        self._gradient = GRADIENT(
             p1, p2
-        )  #: Union[:class:`float`, :class:`int`]: The gradient of the line
-        self.equation = (
+        ), (p1, p2)
+        self._equation = (
             self._get_equation()
-        )  #: Callable[[:class:`int`], Tuple[:class:`int`, :class:`int`]]: f(x) of the line that takes in x to return the (x,y) at that point
-        self.inverse_equation = (
+        ), (p1, p2)
+        self._inverse_equation = (
             self._get_inverse_equation()
-        )  #: Callable[[:class:`int`], Tuple[:class:`int`, :class:`int`]]: inverse f(x) of the line that takes in y to return the (x,y) at that point
+        ), (p1, p2)
         self._points = None
 
     def __getitem__(self, x):
         return self.equation(x)
+
+    @property
+    def gradient(self):
+        """
+        Gradient of the line
+
+        :type class:`float`:
+        """
+        if (self.p1, self.p2) != self._gradient[1]:
+            self._gradient = GRADIENT(self.p1, self.p2), (self.p1[:], self.p2[:])
+        return self._gradient[0]
+
+    @property
+    def equation(self):
+        """
+        f(x) of the line that takes in x to return the (x,y) at that point
+
+        :type Callable[[:class:`int`], Tuple[:class:`int`, :class:`int`]]:
+        """
+        if (self.p1, self.p2) != self._equation[1]:
+            self._equation = self._get_equation(), (self.p1[:], self.p2[:])
+        return self._equation[0]
+
+    @property
+    def inverse_equation(self):
+        """
+        inverse f(x) of the line that takes in y to return the (x,y) at that point
+
+        :type Callable[[:class:`int`], Tuple[:class:`int`, :class:`int`]]:
+        """
+        if (self.p1, self.p2) != self._inverse_equation[1]:
+            self._inverse_equation = self._get_inverse_equation(), (self.p1[:], self.p2[:])
+        return self._inverse_equation[0]
 
     @property
     def points(self):
@@ -180,35 +215,33 @@ class Line:
         return self._points[0]
 
     def _get_points(self):
-        points_set = []
+        maps_inverse = []
         if self.gradient is not None:
-            points_set.extend(
-                [
-                    self.equation(x)
-                    for x in range(
-                        *(
-                            (self.p1[0], self.p2[0] + 1)
-                            if self.p1[0] - self.p2[0] < 0
-                            else (self.p2[0], self.p1[0] + 1)
-                        )
-                    )
-                ]
-            )
-
-        points_set.extend(
-            [
-                self.inverse_equation(y)
-                for y in range(
+            maps_inverse = map(
+                self.equation,
+                range(
                     *(
-                        (self.p1[1], self.p2[1] + 1)
-                        if self.p1[1] - self.p2[1] < 0
-                        else (self.p2[1], self.p1[1] + 1)
+                        (self.p1[0], self.p2[0] + 1)
+                        if self.p1[0] - self.p2[0] < 0
+                        else (self.p2[0], self.p1[0] + 1)
                     )
+                ),
+            )
+        return chain(
+            maps_inverse,
+            (
+                map(
+                    self.inverse_equation,
+                    range(
+                        *(
+                            (self.p1[1], self.p2[1] + 1)
+                            if self.p1[1] - self.p2[1] < 0
+                            else (self.p2[1], self.p1[1] + 1)
+                        )
+                    ),
                 )
-            ]
+            ),
         )
-
-        return set(points_set)
 
     def _get_equation(self):
         if self.p1[1] - self.p2[1] == 0:
@@ -238,21 +271,15 @@ class MatrixFactory:
 
 M = MatrixFactory()
 
-X_ROTO_MATRIX = caches(lambda l: M(
-    [1, 0       , 0],
-    [0, cos(l) , -sin(l)],
-    [0, sin(l), cos(l)]
-))
-Y_ROTO_MATRIX = caches(lambda l: M(
-    [cos(l) , 0, sin(l)],
-    [0      , 1, 0],
-    [-sin(l), 0, cos(l)]
-))
-Z_ROTO_MATRIX = caches(lambda l: M(
-    [cos(l), -sin(l), 0],
-    [sin(l), cos(l) , 0],
-    [0     , 0      , 1]
-))
+X_ROTO_MATRIX = caches(
+    lambda l: M([1, 0, 0], [0, cos(l), -sin(l)], [0, sin(l), cos(l)])
+)
+Y_ROTO_MATRIX = caches(
+    lambda l: M([cos(l), 0, sin(l)], [0, 1, 0], [-sin(l), 0, cos(l)])
+)
+Z_ROTO_MATRIX = caches(
+    lambda l: M([cos(l), -sin(l), 0], [sin(l), cos(l), 0], [0, 0, 1])
+)
 """
 Input: [ x ]
        | y |
@@ -262,6 +289,7 @@ RoX: [1  0     0    ] RoY = [cos0  0  sin0] RoZ = [cos0  -sin0  0]
      |0  cos0  -sin0|       |0     1  0   |       |sin0  cos0   0|
      [0  sin0  cos0 ]       [-sin0 0  cos0]       [0     0      1]
 """
+
 
 def project_3D(m, aspect_ratio, fov):
     # type: (Matrix, int, int) -> Matrix
@@ -293,5 +321,11 @@ def rotate_3D(m, angle, axis):
     return resultant.layers
 
 
-def roundi(num):
-    return int(round(num))
+def roundi(num, ndigits=0):
+    return int(round(num, ndigits))
+    coeff = 10 ** ndigits
+    try:
+        norm = num / num * (0.5 / coeff)
+    except ZeroDivisionError:
+        norm = 0.5 / coeff
+    return int(((num + norm) * coeff) / coeff)

@@ -143,8 +143,8 @@ def write_collision_state(screen, self_frame, other_frame):
 
 def caches(func):
     def wrapper(*args, **kwargs):
+        global SCOPE_CACHE
         if SCOPE_CACHE.get(func) is None or SCOPE_CACHE[func][0] != (args, kwargs):
-            global SCOPE_CACHE
             retval = func(*args, **kwargs)
             SCOPE_CACHE[func] = (args, kwargs), retval
         else:

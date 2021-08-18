@@ -1,3 +1,4 @@
+from Asciinpy.screen import Color
 from .methods.renders import rect_and_charpos, rect_and_modelen, slice_fit
 from .methods.collisions import coord_collides_with
 from .rect import Rectable, Rect
@@ -5,7 +6,7 @@ from .rect import Rectable, Rect
 from ..math import Line
 
 try:
-    from typing import Tuple, List, str, Any, Dict
+    from typing import Tuple, List, Any, Dict
 except ImportError:
     pass
 
@@ -26,8 +27,8 @@ class Plane(Rectable):
     avoid this unless perfectly necessary.
     """
 
-    def __init__(self, path=None, image=None, rect=None, texture=None, fill=None, coordinate=None):
-        # type: (str, str, Rect, str, str, Tuple[int, int]) -> None
+    def __init__(self, path=None, coordinate=None, image=None, rect=None, texture=None, color=None):
+        # type: (str, Tuple[int, int], str, Rect, str, str, Color) -> None
         tmp_model = None
         if path is not None:
             with open(path, "r") as f:
@@ -37,17 +38,17 @@ class Plane(Rectable):
         else:
             return
         split_model = tmp_model.split("\n")
+
         self.dimension = (
             len(max(split_model, key=lambda e: len(e))),
             len(split_model),
         )  #: Tuple[:class:`int`, :class:`int`]: The dimensions of the model. (Width, Height)
         self.image = str(tmp_model)  #: :class:`str`: The model's image/structure/shape.
-
+        self.color = color or Color.FORE(255, 255, 255)
         self.texture = texture or max(
             tmp_model,
             key=lambda element: tmp_model.count(element) and element != " ",
-        )  #: :class:`str`: The generalized texture of the entire model. It is the most common character from the image.
-        self.fill = fill
+        ) #: :class:`str`: The generalized texture of the entire model. It is the most common character from the image.
         self.rect = rect or self.get_rect(
             coordinate=coordinate, dimension=self.dimension
         )  #: :class:`Rect`: The rect boundary of the class.
@@ -146,9 +147,11 @@ class Triangle(Plane):
 
     def blit(self, screen):
         frame = list(screen._frame)
+        blitted = []
         for vert in self.vertices:
             for p in vert.points:
                 loc = screen.to_distance(p)
+                blitted.append(p)
                 try:
                     frame[loc] = self.texture
                 except IndexError:
@@ -159,7 +162,7 @@ class Triangle(Plane):
                             type(loc), loc
                         )
                     )
-        return frame, [vert.points for vert in self.vertices]
+        return frame, set(blitted)
 
 
 class PixelPainter(Plane):
