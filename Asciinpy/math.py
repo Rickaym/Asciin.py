@@ -1,8 +1,9 @@
 from __future__ import division
 
 from itertools import chain
-from .utils import caches
 from math import cos, sin
+
+from .utils import caches
 
 GRADIENT = caches(
     lambda P1, P2: None if P2[0] - P1[0] == 0 else (P2[1] - P1[1]) / (P2[0] - P1[0])
@@ -175,7 +176,7 @@ class Line:
         """
         Gradient of the line
 
-        :type class:`float`:
+        :type: class:`float`
         """
         if (self.p1, self.p2) != self._gradient[1]:
             self._gradient = GRADIENT(self.p1, self.p2), (self.p1[:], self.p2[:])
@@ -186,7 +187,7 @@ class Line:
         """
         f(x) of the line that takes in x to return the (x,y) at that point
 
-        :type Callable[[:class:`int`], Tuple[:class:`int`, :class:`int`]]:
+        :type: Callable[[:class:`int`], Tuple[:class:`int`, :class:`int`]]
         """
         if (self.p1, self.p2) != self._equation[1]:
             self._equation = self._get_equation(), (self.p1[:], self.p2[:])
@@ -197,7 +198,7 @@ class Line:
         """
         inverse f(x) of the line that takes in y to return the (x,y) at that point
 
-        :type Callable[[:class:`int`], Tuple[:class:`int`, :class:`int`]]:
+        :type: Callable[[:class:`int`], Tuple[:class:`int`, :class:`int`]]
         """
         if (self.p1, self.p2) != self._inverse_equation[1]:
             self._inverse_equation = self._get_inverse_equation(), (self.p1[:], self.p2[:])

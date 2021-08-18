@@ -14,10 +14,10 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath("../"))
-sys.path.append("AsciiPy")
+sys.path.append("Asciinpy")
 # -- Project information -----------------------------------------------------
 
-project = "Ascii.py"
+project = "Asciin.py"
 copyright = "2021, Rickaym"
 author = "Rickaym"
 

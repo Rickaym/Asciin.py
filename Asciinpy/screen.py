@@ -10,7 +10,6 @@ from os import system
 
 from .values import Characters, Resolutions, ANSI
 from .math import roundi
-from .globals import SCREENS
 
 try:
     from typing import Callable, Tuple, Union, Optional, Dict, List, Any
@@ -371,19 +370,11 @@ class Window:
         """
         Runs the replay loop with the given frames and fps limit.
         """
-        global SCREENS
-
         window = self.platform_to_window[platform.system()]
         win_instance = window(
             self.resolution, self.fps_limiter, self._stop_time, False, False, False
         )
-
-        if len(SCREENS) > 1:
-            win_instance._new()
-        else:
-            win_instance._resize()
-
-        SCREENS.append(win_instance)
+        win_instance._resize()
         self._screen = win_instance
 
         return self._replay_loop(win_instance, frames, fps)
