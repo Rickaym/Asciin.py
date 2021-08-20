@@ -12,6 +12,7 @@ Asciin.py.egg-info
 
 # utilities
 publish.bat
+rm_pyc.bat
 
 # tests
 tests
