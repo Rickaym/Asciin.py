@@ -1,3 +1,2 @@
 REM Just a little script to remove .pyc files
-
-del "./Asciinpy"
+del ".\Asciinpy\*.pyc" /f /s /q
