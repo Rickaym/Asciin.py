@@ -2,7 +2,6 @@ class Characters:
     ramp = r"""$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?<>i!lI;:-_+~,"^`'. """
     miniramp = r"""@%#*+=-:. """
 
-
 class Resolutions:
     """
     The preset resolutions class that contains static variable for usage and transformation.
@@ -35,27 +34,8 @@ class Resolutions:
     def __init__(self, val):
         self.value = val
         self.pixels = val[0] * val[1]
-
-    @property
-    def width(self):
-        # type: () -> int
-        """
-        The width of the resolution
-
-        :type: :class:`int`
-        """
-        return self.value[0]
-
-    @property
-    def height(self):
-        # type: () -> int
-        """
-        The height of the resolution.
-
-        :type: :class:`int`
-        """
-        return self.value[1]
-
+        self.width = val[0]
+        self.height = val[1]
 
 class ANSI:
     BEL = '\x07' # bell

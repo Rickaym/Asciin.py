@@ -17,6 +17,9 @@ except ImportError:
     pass
 
 
+"""
+TODO: https://superuser.com/questions/1442941/windows-10-console-stops-running-if-i-click-in-the-console-window/1443042
+"""
 __all__ = ["Window", "Screen"]
 
 

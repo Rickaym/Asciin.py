@@ -30,6 +30,7 @@ The changelog only keeps track of updates post version **0.1.4**
 - `screen.Window.listen` - listens for various signals for window events, currently inclusive of **on_terminate** and **on_create_**
 - `screen.Displayable.refresh` - works in a different way as to writing directly in a low level operation onto stdout with cursor at the origin (the frame system remains the same)
 - `values.ANSI` - provides variou ANSI escape code as hex code for chaning escape sequences to will
+- `io_devices` module, this is for handling input and output
 
 ### Removed
 
