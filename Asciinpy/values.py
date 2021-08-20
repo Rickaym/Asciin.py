@@ -1,26 +1,8 @@
-from functools import wraps
-
-class ABCEnum:
-    """
-    Simple enum constructor written for version compatibility
-    """
-    def __init__(self, cls):
-        wraps(cls)
-        self.cls = cls
-        for attr in self.cls.__dict__:
-            value = getattr(self.cls, attr)
-            if not isinstance(value, (property)) and not attr.startswith("__"):
-                inst = self.cls(value)
-                setattr(self.cls, attr, inst)
-
-    def __call__(self, *args, **kwargs):
-        return self.cls(*args, **kwargs)
-
 class Characters:
     ramp = r"""$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?<>i!lI;:-_+~,"^`'. """
     miniramp = r"""@%#*+=-:. """
 
-@ABCEnum
+
 class Resolutions:
     """
     The preset resolutions class that contains static variable for usage and transformation.
@@ -52,6 +34,7 @@ class Resolutions:
 
     def __init__(self, val):
         self.value = val
+        self.pixels = val[0] * val[1]
 
     @property
     def width(self):
@@ -73,15 +56,6 @@ class Resolutions:
         """
         return self.value[1]
 
-    @property
-    def pixels(self):
-        # type: () -> int
-        """
-        The sum of pixels present in a resolution configuration.
-
-        :type: :class:`int`
-        """
-        return self.value[0] * self.value[1]
 
 class ANSI:
     BEL = '\x07' # bell
@@ -93,3 +67,4 @@ class ANSI:
     CR = '\x0D' # carriage return
     ESC = '\x1B' # escape char ^[
     CSI = ESC+'[' # Control Sequence Initiator
+    RESET = CSI+"0m"

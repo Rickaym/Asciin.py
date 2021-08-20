@@ -1,9 +1,11 @@
-from Asciinpy.screen import Color
-from .methods.renders import rect_and_charpos, rect_and_modelen, slice_fit
-from .methods.collisions import coord_collides_with
+from Asciinpy.utils import caches
+from Asciinpy.values import ANSI
+from os import name as platform
+
 from .rect import Rectable, Rect
 
-from ..math import Line
+from ..geometry import Line, roundi
+from ..screen import Color
 
 try:
     from typing import Tuple, List, Any, Dict
@@ -11,8 +13,8 @@ except ImportError:
     pass
 
 
-DEFAULT_BRICK = "@"
-DEFAULT_FILL = "&"
+DEFAULT_BRICK = "\u2588" if platform != "nt" else "#"
+DEFAULT_FILL = "\u2588" if platform != "nt" else "#"
 
 class Plane(Rectable):
     """
@@ -44,7 +46,7 @@ class Plane(Rectable):
             len(split_model),
         )  #: Tuple[:class:`int`, :class:`int`]: The dimensions of the model. (Width, Height)
         self.image = str(tmp_model)  #: :class:`str`: The model's image/structure/shape.
-        self.color = color or Color.FORE(255, 255, 255)
+        self.color = color #: :class:`Color`: The color of the plane
         self.texture = texture or max(
             tmp_model,
             key=lambda element: tmp_model.count(element) and element != " ",
@@ -57,7 +59,7 @@ class Plane(Rectable):
         )  #: List[:class:`int`]: A list of coordinates that the image would be at when blitted. This is used for collision detection.
 
     def collides_with(self, model):
-        # type: (Model) -> bool
+        # type: (Plane) -> bool
         """
         Checks whether if the current model is in collision with the provided
         model.
@@ -67,22 +69,95 @@ class Plane(Rectable):
         :type model: :class:`Model`
         :returns: (:class:`bool`) Whether if the current model is in collision with the opposite model.
         """
-        return coord_collides_with(self, model)
+        if model is self:
+            return False
+        intersections = []
+        intersections.extend(model.occupancy)
+        intersections.extend(self.occupancy)
+        if len(set(intersections)) < (
+            len(model.occupancy) + len(self.occupancy)
+        ):
+            return True
+        else:
+            return False
 
     def blit(self, screen, **kwargs):
-        # type: (Displayable, Dict[str, Any]) -> None
+        # type: (Screen, Dict[str, Any]) -> None
         """
-        The inner blitting method of the model. You should not use this yourself.
+        Figures out the position of the characters based on the temporal position and
+        the position of the character in the model image.
+
+        Time Complexity of this method is O(n) where n is
+        the total amount of characters in a model image.
 
         :param screen:
-            This is passed in the subsystem call inside the :obj:`Displayable.blit`.
-        :type screen: :class:`Displayable`
+            This is passed in the subsystem call inside the :obj:`Screen.blit`.
+        :type screen: :class:`Screen`
         """
-        return (
-            rect_and_charpos(self, screen, **kwargs)
-            if "\n" in self.image
-            else rect_and_modelen(self, screen, **kwargs)
-        )
+        pixels = list(self.image)
+        frame = list(screen._frame)
+
+        # gets the starting index of the image in a straight line screen
+        loc = roundi(self.rect.x) + (roundi(self.rect.y) * screen.resolution.width)
+
+        # the real depth of any pixel in time relative to the image
+        x_depth = 0
+        y_depth = 0
+
+        # Smart coloring, we don't really want the console to color each and ever character without necessity
+        is_coloring = False # this is used to track whether if we need to add a color code in front of our character
+        texture_resets = True # a one time flag that helps keep track of reseting color mode after newlines (only relevant to outlines)
+        occupancy = [] # the occupancy of this image
+
+        for i, char in enumerate(pixels):
+            color = self.color
+            if loc < 0 or loc > screen.pixels:
+                continue
+
+            # rects don't have their own rasterizing methods so we have to do it as a part
+            # of the model rendering routine if a texture is present
+            if self.rect.texture:
+                # because this is the "rect's rasterizing" method, we only do it on edges and verticies
+                if char == '\n':
+                    # this is a one time flag so that texture and coloring is reset every newline
+                    texture_resets = True
+                elif self.is_margin(x_depth, y_depth, i, pixels):
+                    char = self.rect.texture
+                    color = self.rect.color
+                else:
+                    if is_coloring is True and texture_resets:
+                        is_coloring = False
+                        texture_resets = False
+
+            if char == '\n':
+                frame[loc-1] += ANSI.RESET
+                loc += screen.width - x_depth
+                is_coloring = False
+                x_depth = 0
+                y_depth += 1
+                continue
+            elif char == ' ':
+                continue
+
+            if color is not None:
+                if is_coloring is False:
+                    char = ''.join((color, char))
+                    is_coloring = True
+                elif i+1 == len(pixels) or pixels[i+1] == ' ' or (self.rect.texture is not None and self.is_margin(x_depth+1, y_depth, i, pixels) and not self.is_y_margin(y_depth)):
+                    char += ANSI.RESET
+                    is_coloring = False
+            try:
+                frame[loc] = char
+            except IndexError:
+                continue
+            else:
+                occupancy.append(loc)
+                loc += 1
+                x_depth += 1
+
+        if False:
+            raise KeyboardInterrupt(repr(''.join(frame)[:-1].strip().replace("\x1b[38;2;0;255;0m", "G", -1).replace("\x1b[38;2;255;0;0m", "R", -1).replace("\x1b[0m", "T", -1)))
+        return frame, set(occupancy)
 
 
 class SimpleText(Plane):
@@ -105,7 +180,23 @@ class SimpleText(Plane):
         super(SimpleText, self).__init__(image=str(text), coordinate=coordinate)
 
     def blit(self, screen):
-        return slice_fit(self, screen)
+        """
+        Fits text onto the current frame.
+        An adaptation of how the screen blits it's menubar etc natively.
+
+        Extremely optimized.
+
+        Time Complexity: O(n) where n is len(TEXT)
+        """
+        point = roundi(self.rect.x) + (screen.resolution.width * roundi(self.rect.y))
+        if point < 0:
+            point = screen.resolution.width + point
+
+        frame = list(screen._frame[:point])
+        frame.extend(list(self.image))
+        frame.extend(screen._frame[point + len(self.image) :])
+
+        return frame, set(range(point, point + len(self.image)))
 
 
 class AsciiText(Plane):
@@ -175,7 +266,7 @@ class PixelPainter(Plane):
 
     :param screen:
         The screen of which the PixelPainter is attached to.
-    :type screen: :class:`Displayable`
+    :type screen: :class:`Screen`
     :param coordinate:
         The (x, y) coordinates that defines the top right of the canvas relative to the screen.
     :type coordinate: Tuple[:class:`int`, :class:`int`]
@@ -185,7 +276,7 @@ class PixelPainter(Plane):
     """
 
     def __init__(self, screen, coordinate=None, dimension=None):
-        # type: (Displayable, Tuple(int, int), Tuple(int, int)) -> None
+        # type: (Screen, Tuple(int, int), Tuple(int, int)) -> None
         self.coordinate = coordinate or 0, 0
         self.screen = screen
         self.dimension = dimension or (screen.width, screen.height)
@@ -210,7 +301,7 @@ class PixelPainter(Plane):
         :raises TypeError: Raised when neither xy or distance is passed in.
         :raises IndexError: Raised when the coordinate of the pixel is out of bounds.
         """
-        distance = self.screen.to_distance(coordinate[0], coordinate[1])
+        distance = self.screen.to_distance(coordinate)
 
         for i, pix in enumerate(pixels):
             try:
@@ -223,9 +314,6 @@ class PixelPainter(Plane):
                         type(distance), distance
                     )
                 )
-
-    def blit(self, screen, **kwargs):
-        return rect_and_charpos(self, screen, **kwargs)
 
 
 class Square(Plane):
@@ -243,14 +331,55 @@ class Square(Plane):
     :type texture: :class:`str`
     """
 
-    def __init__(self, coordinate, length, texture=None, fill=None):
+    def __init__(self, coordinate, length, texture=None, color=None):
         # type: (Tuple[int, int], int, str, str) -> None
+        super(Square, self).__init__(color=color)
+        self.texture = texture or DEFAULT_BRICK
+        self.occupancy = []
+        self.dimension = (length, length//2)
+        image = ((( self.texture * length) + "\n") * (length // 2)).strip()
+        if color is not None:
+            pass
+            #image = color + image + ANSI.RESET
+        self.image = image
+        self.rect = self.get_rect(coordinate, (length, length // 2))
         self.length = length
+        self.color = color
 
-        super().__init__(
-            image=(((texture * length) + "\n") * (length // 2)).strip(),
-            rect=self.get_rect(coordinate, (length, length // 2)),
-            texture=texture or DEFAULT_BRICK,
-            fill=fill or DEFAULT_FILL,
-        )
+        self.is_y_margin = caches(lambda y: y == 0 or y == (self.dimension[1]-1))
+        self.is_x_margin = caches(lambda x: x == 0 or  x == (self.dimension[0]-1))
+        self.is_lst_margin = caches(lambda count, pixels: count == (len(pixels) - 1))
+        self.is_margin = caches(lambda x, y, count, pixels: self.is_x_margin(x) or self.is_y_margin(y) or self.is_lst_margin(count, pixels))
 
+
+def rect_and_modelen(model, screen, empty=False):
+    # type: (Plane, Screen, bool) -> Tuple[List[str], Set[int]]
+    """
+    Figures out the positions of characters by using the position of the character in the model
+    image and it's desired dimensions to guess where it is on the screen.
+
+    The only time you would want to use this is if you somehow cannot have newline characters in your image.
+
+    Time Complexity of this method is O(n) where n is
+    the total amount of characters in a model image.
+
+    Kept for referencing purposes.
+    """
+    frame = list(screen._frame) if not empty else list(screen.emptyframe)
+    occupancy = []
+
+    for row in range(model.rect.dimension[1]):
+        for col in range(model.rect.dimension[0]):
+            loc = (
+                round(model.rect.x)
+                + col
+                + (screen.resolution.width * row)
+                + round(model.rect.y) * screen.resolution.width
+            )
+            occupancy.append(loc)
+            try:
+                frame[loc] = model.texture
+            except IndexError:
+                pass
+
+    return frame, set(occupancy)

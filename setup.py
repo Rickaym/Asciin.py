@@ -3,7 +3,7 @@ from re import search, MULTILINE
 
 pkg_name = "Asciinpy"
 prj_name = "Asciin.py"
-packages = [pkg_name, "Asciinpy._2D", "Asciinpy._2D.methods", "Asciinpy._3D"]
+packages = [pkg_name, "Asciinpy._2D", "Asciinpy._3D"]
 descriptors = ["readme.md", "changelog.md"]
 long_description = ""
 

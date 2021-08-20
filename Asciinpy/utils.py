@@ -48,7 +48,7 @@ def beautify(frame, screen):
     :type frame: Union[:class:`str`, List[:class:`str`]:
     :param screen:
         The screen where this screen is ideally implemented ~ just to get the sense of the resolution really.
-    :type screen: :class:`Displayable`
+    :type screen: :class:`Screen`
     """
     new_frame = list(frame)
     for h in range(screen.height):
@@ -121,7 +121,7 @@ def write_collision_state(screen, self_frame, other_frame):
 
     :param screen:
         The screen where this is taking place.
-    :type screen: :class:`Displayable`:
+    :type screen: :class:`Screen`:
     :param self_frame:
         The frame of itself.
     :type self_frame: List[:class:`str`]
@@ -129,7 +129,7 @@ def write_collision_state(screen, self_frame, other_frame):
         The frame of the other model.
     :type other_frame: List[:class:`str`]
     """
-    # type: (Displayable, List[str], List[str]) -> None
+    # type: (Screen, List[str], List[str]) -> None
     global SINGLE_PRINT_FLAG
     if SINGLE_PRINT_FLAG is False:
 

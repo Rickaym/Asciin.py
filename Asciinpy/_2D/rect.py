@@ -1,5 +1,6 @@
-from Asciinpy.screen import Color
 from uuid import uuid4
+
+from ..screen import Color
 
 try:
     from typing import Tuple, Any
@@ -80,10 +81,10 @@ class Rect:
             1
         ]  #: :class:`int`: The height of the rect (or length) this is the vertical difference.
         self.parent = (
-            parent  #: :class:`Model`: A Parent object that the rect is assigned under.
-        )
-        self.texture = ""  #: :class:`str`: The outline texture of the rect.
-        self.color = Color.FORE(255, 255, 255)
+            parent
+        ) #: :class:`Model`: A Parent object that the rect is assigned under.
+        self.texture = ""  #: :class:`str`: The outline texture of the rect. None by default.
+        self.color = Color.FORE(255, 255, 255) #: :class:`Color`: The color of the plane
         self._id = str(uuid4())[:5]
 
     @property

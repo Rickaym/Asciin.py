@@ -1,14 +1,14 @@
 from Asciinpy.utils import morph
-from Asciinpy import Window, Resolutions, Displayable
+from Asciinpy import Window, Resolutions, Screen
 from Asciinpy._2D import SimpleText
 
 # Start by defining a screen object with the desired resolution
 window = Window(resolution=Resolutions._60c)
 
-# Define a user loop for the screen and accept a screen parameter, this is of type Displayable.
+# Define a user loop for the screen and accept a screen parameter, this is of type Screen.
 @window.loop()
 def my_loop(screen):
-    # type: (Displayable) -> None
+    # type: (Screen) -> None
     text = SimpleText((10, 20), " ")
     morphs = morph(
         "An example of the morph utils", "pretty simple and straight forward..."
