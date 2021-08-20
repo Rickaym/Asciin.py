@@ -44,21 +44,21 @@ python -m pip install -U asciin.py
 
 1. Instantiate a `Asciinpy.Window` class with the desired values.
 
-2. Define your game loop and decorate it with the `Asciinpy.Window.loop` decorator that should accept one parameter of type `Displayable`.
+2. Define your game loop and decorate it with the `Asciinpy.Window.loop` decorator that should accept one parameter of type `Screen`.
 
 3. Write some fancy code with or without built-in models to render.
 
 4. Call the `Asciinpy.Window.run` method!
 
 ```py
-from Asciinpy import Displayable, Window, Resolutions
+from Asciinpy import Screen, Window, Resolutions
 from Asciinpy._2D import Square
 # Define a window
 
 window = Window(resolution=Resolutions._60c)
 
 @window.loop()
-def game_loop(screen): # type: (Displayable) -> None
+def game_loop(screen): # type: (Screen) -> None
    coordinate = (0, 0)
    length = 8
    texture = "%"
