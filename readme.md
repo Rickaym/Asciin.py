@@ -71,5 +71,3 @@ def game_loop(screen): # type: (Screen) -> None
 
 window.run()
 ```
-
-Contact me at Neo#1844 for inquiries.
