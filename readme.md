@@ -28,7 +28,7 @@ Supports Python versions starting from 2.7 to 3.9.
 2. **Colors and Collisions** *NEW in 0.2.0 unreleased*
    <br> An Example in working with `Color` and `collides_with` for basic 2D planes.
 
-![demo](https://raw.githubusercontent.com/Rickaym/Asciin.py/main/assets/colors_and_collisions.gif)
+![demo](https://i.gyazo.com/e3a410a475b2b2a81ad40c3426d75e26.gif)
 
 ### Installing
 
