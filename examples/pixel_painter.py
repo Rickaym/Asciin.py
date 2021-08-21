@@ -21,12 +21,10 @@ def my_loop(screen):
     canvas = PixelPainter(screen)
     while True:
         # Randomly draw ascii letters onto the canvas
-        # canvas.draw(
-        #    choice(ascii_letters),
-        #    xy=(int(random() * screen.width), int(random() * screen.height)),
-        # )
-
-        canvas.draw("a", xy=(1, 9))
+        canvas.draw(
+           choice(ascii_letters),
+           (int(random() * screen.width), int(random() * screen.height)),
+        )
         # Blit the canvas onto the screen
         screen.blit(canvas)
         # Refresh the screen to render new blits
@@ -34,4 +32,4 @@ def my_loop(screen):
 
 
 # Runs the window
-window.run(show_fps=True)
+window.run()

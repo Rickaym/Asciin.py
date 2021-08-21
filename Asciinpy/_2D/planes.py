@@ -121,7 +121,7 @@ class Plane(Rectable, Pixels):
         pixels = self.colored_pixels
         frame = list(screen._frame)
         # gets the starting index of the image in a straight line screen
-        loc = screen.to_distance(self.rect.x, self.rect.y)
+        loc = screen._to_distance(self.rect.x, self.rect.y)
         occupancy = [] # the occupancy of this image, used for basic collision checking
 
         for char in pixels:
@@ -137,7 +137,7 @@ class Plane(Rectable, Pixels):
             except IndexError:
                 continue
             else:
-                occupancy.append(screen.to_coordinate(loc))
+                occupancy.append(screen._to_coordinate(loc))
                 loc += 1
         #raise KeyboardInterrupt(occupancy)
         return frame, set(occupancy)
@@ -266,6 +266,7 @@ class PixelPainter(Plane):
 
     def __init__(self, screen, coordinate=None, dimension=None):
         # type: (Screen, Tuple(int, int), Tuple(int, int)) -> None
+        super(PixelPainter, self).__init__()
         self.coordinate = coordinate or 0, 0
         self.screen = screen
         self.dimension = dimension or (screen.width, screen.height)
@@ -290,7 +291,7 @@ class PixelPainter(Plane):
         :raises TypeError: Raised when neither xy or distance is passed in.
         :raises IndexError: Raised when the coordinate of the pixel is out of bounds.
         """
-        distance = self.screen.to_distance(coordinate)
+        distance = self.screen._to_distance(coordinate[0], coordinate[1])
 
         for i, pix in enumerate(pixels):
             try:

@@ -7,7 +7,8 @@
 
 ![logo](https://raw.githubusercontent.com/Rickaym/Asciin.py/main/assets/inverted_logo.png)
 
-A 2D and 3D Ascii game engine written for performance (still under development).
+A 2D and 3D Ascii Game Engine written purely in Python from ground up with zero external dependencies.
+Supports Python versions starting from 2.7 to 3.9.
 
 ---
 
@@ -20,13 +21,14 @@ A 2D and 3D Ascii game engine written for performance (still under development).
 ### Status Demo
 
 1. **Matrixes Patterns**
-   <br> An example in working with PixelPainters.
+   <br> An example in working with `PixelPainters`.
 
 ![demo](https://raw.githubusercontent.com/Rickaym/Asciin.py/main/assets/LuckyDevStuff_render.gif)
 
-Credits to LuckyDevStuff for the examples ~
+2. **Colors and Collisions** *NEW in 0.2.0 unreleased*
+   <br> An Example in working with `Color` and `collides_with` for basic 2D planes.
 
-More examples [here](https://github.com/Rickaym/Asciin.py/tree/main/examples/).
+![demo](https://raw.githubusercontent.com/Rickaym/Asciin.py/main/assets/colors_and_collisions.gif)
 
 ### Installing
 

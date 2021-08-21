@@ -22,7 +22,7 @@ for desc in descriptors:
 setup(
     name=prj_name,
     version=version,
-    description="Featherweight 3D / 2D Ascii console game engine for Python 2.7+ with no external dependencies and in pure Python.",
+    description="Featherweight 3D / 2D Ascii console game engine for Python 2.7+ written in pure Python with Zero external dependencies.",
     author="Rickaym",
     long_description=long_description,
     long_description_content_type="text/markdown",
