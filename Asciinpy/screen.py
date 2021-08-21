@@ -1,15 +1,16 @@
 from __future__ import print_function, division
 
 import os
+import sys
 import signal
 
 from math import tan
-import sys
 from time import sleep, time
 from functools import partial
 
 from .values import Characters, Resolutions, ANSI
 from .geometry import roundi
+from .utils import beautify, only_once, save_frame
 
 try:
     from typing import Callable, Tuple, Union, Optional, Dict, List, Any
@@ -23,7 +24,7 @@ TODO: https://superuser.com/questions/1442941/windows-10-console-stops-running-i
 __all__ = ["Window", "Screen"]
 
 
-class Color:
+class Color(object):
     def FOREGROUND(id): return ANSI.CSI + "38;5;{}m".format(id)
     def BACKGROUND(id): return ANSI.CSI + "48;5;{}m".format(id)
 
@@ -44,7 +45,7 @@ class Color:
         return Color.RGB_BACKGROUND(r, g, b)
 
 
-class Screen:
+class Screen(object):
     """
     Defines the integral structure of a console screen generalized for different OS terminals.
 
@@ -70,10 +71,6 @@ class Screen:
         self.width = resolution.width #: :class:`int`: The width of the window.
         self.height = resolution.height #: :class:`int`: The height of the window.
 
-        self.debug_area = [
-            0,
-            self.resolution.height * 0.8,
-        ]  #: Tuple[:class:`int`, :class:`int`]: Approximated area of a debug prompt on the terminal.
         self.fps_limiter = fps_limiter #: Optional[:class:`int`]: The specified FPS limit of the window.
         self.palette = (
             Characters.miniramp
@@ -219,8 +216,11 @@ class Screen:
             else:
                 Screen._puts(ANSI.CSI, "?25l")
 
-    def to_distance(self, coordinate):
-        return roundi(coordinate[0]) + (roundi(coordinate[1]) * self.width) - 1
+    def _to_distance(self, x, y):
+        return roundi(x) + (roundi(y) * self.width)
+
+    def _to_coordinate(self, distance):
+        return divmod(distance, self.width)[::-1]
 
     def blit(self, object, *args, **kwargs):
         # type: (object, Tuple[Any], Dict[str, Any]) -> None
@@ -282,6 +282,7 @@ class WindowsControl(Screen):
 
         os.system("""start cmd /{} py {}""".format(mode, caller))
 
+
 class UnixControl(Screen):
     def _resize(self):
         os.system(
@@ -292,7 +293,8 @@ class UnixControl(Screen):
     def _new(self):
         pass
 
-class Window:
+
+class Window(object):
     """
     An abstract representation of a window, the class handles the internal loops for different kinds of uses.
     """

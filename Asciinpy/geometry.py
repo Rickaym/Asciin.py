@@ -159,13 +159,13 @@ class Line:
 
         self._gradient = GRADIENT(
             p1, p2
-        ), (p1, p2)
+        ), (self.p1[:], self.p2[:])
         self._equation = (
             self._get_equation()
-        ), (p1, p2)
+        ), (self.p1[:], self.p2[:])
         self._inverse_equation = (
             self._get_inverse_equation()
-        ), (p1, p2)
+        ), (self.p1[:], self.p2[:])
         self._points = None
 
     def __getitem__(self, x):
@@ -180,6 +180,7 @@ class Line:
         """
         if (self.p1, self.p2) != self._gradient[1]:
             self._gradient = GRADIENT(self.p1, self.p2), (self.p1[:], self.p2[:])
+
         return self._gradient[0]
 
     @property
@@ -211,12 +212,11 @@ class Line:
 
         :type: List[Tuple[:class:`int`, :class:`int`]]
         """
-        if self._points is None or self._points[1] != [self.p1, self.p2]:
-            self._points = self._get_points(), [self.p1[:], self.p2[:]]
+        if self._points is None or self._points[1] != (self.p1, self.p2):
+            self._points = self._get_points(), (self.p1[:], self.p2[:])
         return self._points[0]
 
     def _get_points(self):
-        maps_inverse = []
         if self.gradient is not None:
             maps_inverse = map(
                 self.equation,
@@ -228,10 +228,10 @@ class Line:
                     )
                 ),
             )
-        return chain(
-            maps_inverse,
-            (
-                map(
+        else:
+            maps_inverse = []
+
+        maps = map(
                     self.inverse_equation,
                     range(
                         *(
@@ -241,8 +241,8 @@ class Line:
                         )
                     ),
                 )
-            ),
-        )
+
+        return set(chain(maps_inverse, maps))
 
     def _get_equation(self):
         if self.p1[1] - self.p2[1] == 0:

@@ -2,9 +2,10 @@ from platform import python_version
 from io import BytesIO, StringIO
 from cProfile import Profile
 from pstats import Stats
+from copy import deepcopy
 from os import getcwd
 
-from .globals import SINGLE_PRINT_FLAG, SCOPE_CACHE
+from .globals import FINISHED_ONCE_TASKS, SINGLE_PRINT_FLAG, SCOPE_CACHE
 
 try:
     from typing import Any, List, Union, Callable
@@ -37,25 +38,25 @@ class Profiler:
             f.write(redirect.getvalue().replace(CWD, "", -1))
 
 
-def beautify(frame, screen):
+def beautify(dimension, frame):
     # type: (Union[str, List[str]], Any) -> str
     """
     Maps an uncut frame into different pieces with newline characters to make it
-    readable without perfect resolution.
+    readable in a given context of dimension.
 
+    :param dimension:
+        The bordering dimension of this line frame.
+    :type dimension: Tuple[:class:`int`, :class:`int`]
     :param frame:
         The frame to be converted from newline characters to a straight line.
     :type frame: Union[:class:`str`, List[:class:`str`]:
-    :param screen:
-        The screen where this screen is ideally implemented ~ just to get the sense of the resolution really.
-    :type screen: :class:`Screen`
     """
-    new_frame = list(frame)
-    for h in range(screen.height):
-        dist = h * screen.width
-        new_frame[dist] = new_frame[dist] + "\n"
+    nw_frame = list(frame)
+    for h in range(dimension[1]):
+        nw_frame[h * dimension[0]] += "\n"
+        raise KeyboardInterrupt(nw_frame)
 
-    return "".join(new_frame)
+    return "".join(nw_frame)
 
 
 def morph(initial_string, end_string, consume="end", loop=True):
@@ -114,31 +115,20 @@ def deprecated(callable):
     return wrapper
 
 
-def write_collision_state(screen, self_frame, other_frame):
-    """
-    Helps tracking collision states by writing it onto a file IO.
-    Uses a global flag to make sure it doesn't write a thousand times.
+def save_frame(frame, path):
+    with open(path, "w") as f:
+        f.write(frame)
 
-    :param screen:
-        The screen where this is taking place.
-    :type screen: :class:`Screen`:
-    :param self_frame:
-        The frame of itself.
-    :type self_frame: List[:class:`str`]
-    :param other_frame:
-        The frame of the other model.
-    :type other_frame: List[:class:`str`]
-    """
-    # type: (Screen, List[str], List[str]) -> None
-    global SINGLE_PRINT_FLAG
-    if SINGLE_PRINT_FLAG is False:
 
-        SINGLE_PRINT_FLAG = True
-        with open("self_frame.txt", "w") as f:
-            f.write(beautify(self_frame, screen))
-
-        with open("model_frame.txt", "w") as f:
-            f.write(beautify(other_frame, screen))
+def only_once(func):
+    def wrapper(*args, **kwargs):
+        global FINISHED_ONCE_TASKS
+        if func not in FINISHED_ONCE_TASKS:
+            FINISHED_ONCE_TASKS.append(func)
+            return func(*args, **kwargs)
+        else:
+            return None
+    return wrapper
 
 
 def caches(func):
@@ -146,7 +136,7 @@ def caches(func):
         global SCOPE_CACHE
         if SCOPE_CACHE.get(func) is None or SCOPE_CACHE[func][0] != (args, kwargs):
             retval = func(*args, **kwargs)
-            SCOPE_CACHE[func] = (args, kwargs), retval
+            SCOPE_CACHE[func] = (deepcopy(args), deepcopy(kwargs)), deepcopy(retval)
         else:
             retval = SCOPE_CACHE[func][1]
         return retval

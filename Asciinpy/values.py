@@ -46,5 +46,5 @@ class ANSI:
     FF = '\x0C' # formfeed
     CR = '\x0D' # carriage return
     ESC = '\x1B' # escape char ^[
-    CSI = ESC+'[' # Control Sequence Initiator
-    RESET = CSI+"0m"
+    CSI = '\x1B[' # Control Sequence Initiator
+    RESET = '\x1B[0m'
