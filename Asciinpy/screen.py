@@ -1,6 +1,7 @@
 from __future__ import print_function, division
 
 import os
+from random import randint
 import sys
 import signal
 
@@ -43,6 +44,9 @@ class Color(object):
     @staticmethod
     def BACK(r, g, b):
         return Color.RGB_BACKGROUND(r, g, b)
+
+Color.FORE.random = lambda: Color.FORE(randint(0, 255), randint(0, 255), randint(0, 255))
+Color.BACK.random = lambda: Color.BACK(randint(0, 255), randint(0, 255), randint(0, 255))
 
 
 class Screen(object):

@@ -5,9 +5,14 @@ PixelPainter doesn't directly create an imprint onto the frame. It keeps a refer
 itself that the user draw onto. Only when it is blitted that the pixel painter localizes it's
 canvas onto the screen frame. Even then, it is rendered like every other Model.
 """
+import sys
+
+from Asciinpy.utils import Profiler
+from Asciinpy.screen import Color
 from Asciinpy import Screen, Resolutions, Window
 from Asciinpy._2D import PixelPainter
-from random import random, choice
+
+from random import random, choice, randint
 from string import ascii_letters
 
 # Start by defining a screen object with the desired resolution
@@ -24,12 +29,15 @@ def my_loop(screen):
         canvas.draw(
            choice(ascii_letters),
            (int(random() * screen.width), int(random() * screen.height)),
+           color=Color.FORE(randint(0, 255), randint(0, 255), randint(0, 255))
         )
         # Blit the canvas onto the screen
         screen.blit(canvas)
         # Refresh the screen to render new blits
         screen.refresh()
 
-
-# Runs the window
-window.run()
+if __name__ == "__main__":
+    # Runs the window
+    with Profiler("stats.txt"):
+        window.run(show_fps=True)
+        sys.exit(0)

@@ -273,8 +273,8 @@ class PixelPainter(Plane):
         self.rect = self.get_rect(coordinate=coordinate, dimension=dimension)
         self.image = [" "] * (self.dimension[0] * self.dimension[1])
 
-    def draw(self, pixels, coordinate):
-        # type: (List(str), Tuple(int, int)) -> None
+    def draw(self, pixels, coordinate, color=None):
+        # type: (List(str), Tuple(int, int), Color) -> None
         """
         A gateway to directly editing the pixels in the canvas based on the distance from the origin or
         through coordinates.
@@ -287,6 +287,9 @@ class PixelPainter(Plane):
         :param coordinate:
             The x and y position of the pixels to be drawn - Defaults to None.
         :type coordinate: Tuple[:class:`int`, :class:`int`]
+        :param color:
+            The color of the pixel.
+        :type color: :class:`Color`
 
         :raises TypeError: Raised when neither xy or distance is passed in.
         :raises IndexError: Raised when the coordinate of the pixel is out of bounds.
@@ -295,7 +298,7 @@ class PixelPainter(Plane):
 
         for i, pix in enumerate(pixels):
             try:
-                self.image[distance + i] = pix
+                self.image[distance + i] = pix if color is None else ''.join((color, pix, ANSI.RESET))
             except IndexError:
                 raise IndexError("list index {} is out of range".format(distance))
             except TypeError:

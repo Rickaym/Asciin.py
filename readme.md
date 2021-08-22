@@ -20,15 +20,21 @@ Supports Python versions starting from 2.7 to 3.9.
 
 ### Status Demo
 
-1. **Matrixes Patterns**
-   <br> An example in working with `PixelPainters`.
-
-![demo](https://raw.githubusercontent.com/Rickaym/Asciin.py/main/assets/LuckyDevStuff_render.gif)
+1. **Matrix Patterns**
+   <br> Uses `PixelPainters` and `Matrix`.
+<sup>**[code](https://github.com/Rickaym/Asciin.py/tree/main/examples/matrix_patterns.py)**</sup>
+<img src="https://raw.githubusercontent.com/Rickaym/Asciin.py/main/assets/LuckyDevStuff_render.gif" data-canonical-src="https://raw.githubusercontent.com/Rickaym/Asciin.py/main/assets/LuckyDevStuff_render.gif" width="300" height="400" />
 
 2. **Colors and Collisions** *NEW in 0.2.0 unreleased*
-   <br> An Example in working with `Color` and `collides_with` for basic 2D planes.
+   <br> Uses `Color`, `Square` and `collides_with` for basic 2D planes.
+<sup>**[code](https://github.com/Rickaym/Asciin.py/tree/main/examples/colors_and_collisions.py)**</sup>
+<img src="https://i.gyazo.com/e3a410a475b2b2a81ad40c3426d75e26.gif" data-canonical-src="https://i.gyazo.com/e3a410a475b2b2a81ad40c3426d75e26.gif" width="300" height="400" />
 
-![demo](https://i.gyazo.com/e3a410a475b2b2a81ad40c3426d75e26.gif)
+3. **Screen Saver** *NEW in 0.2.0 unreleased*
+   <br> Makes a DVD Logo model from scratch and uses `Color`.
+<sup>**[code](https://github.com/Rickaym/Asciin.py/tree/main/examples/screen_saver.py)**</sup>
+<img src="https://i.gyazo.com/2c457fe5057bfa71559b8cbe96747b28.gif" data-canonical-src="https://i.gyazo.com/2c457fe5057bfa71559b8cbe96747b28.gif" width="300" height="400" />
+
 
 ### Installing
 

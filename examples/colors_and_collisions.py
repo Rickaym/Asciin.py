@@ -1,6 +1,8 @@
 """
 Simple collisions system with squares.
 """
+import sys
+
 from Asciinpy.screen import Color
 from Asciinpy import Screen, Window, Resolutions
 from Asciinpy._2D import Square
@@ -45,7 +47,7 @@ def manage_collisions(velocities, i, square, other_squares):
 
 
 # Define a user loop for the screen and accept a screen parameter, this is of type Screen.
-@window.loop()
+@window.loop(forcestop=2)
 def my_loop(screen):
     # type: (Screen) -> None
     # Make a bunch of squares to simulate collisions
@@ -82,8 +84,11 @@ def my_loop(screen):
 
             # Blit the current square in iteration
             screen.blit(square)
+
         # Refresh the screen to render new blits
         screen.refresh()
 
-# Runs the window
-window.run()
+if __name__ == "__main__":
+    # Runs the window
+    window.run()
+    sys.exit(0)
