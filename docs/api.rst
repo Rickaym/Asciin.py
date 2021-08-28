@@ -13,7 +13,7 @@ Screens
 
 |
 
-.. autoclass:: Displayable
+.. autoclass:: Screen
     :members:
 
 |
@@ -35,17 +35,15 @@ Utilities
 .. automethod:: utils.morph
 
 
-.. automethod:: utils.write_collision_state
-
 
 Line and Matrixes
 -------------------
 
-.. autoclass:: Asciinpy.math.Matrix
+.. autoclass:: Asciinpy.geometry.Matrix
     :members:
 
 
-.. autoclass:: Asciinpy.math.Line
+.. autoclass:: Asciinpy.geometry.Line
     :members:
 
 

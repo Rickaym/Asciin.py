@@ -288,7 +288,7 @@ class UnixControl(Screen):
 
 
 class Window(EventListener):
-    """
+    r"""
     An abstract representation of a window, the class handles the internal loops.
 
     Subclasses of Window must implement :obj:`Window.loop` as it's client loop.
@@ -310,6 +310,7 @@ class Window(EventListener):
        def callback():
            # event callback
            ...
+
 
     OOP:
     .. code:: py

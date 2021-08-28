@@ -46,7 +46,7 @@ Models and subsequent classes
 
 |
 
-.. autoclass:: PixelPainter
+.. autoclass:: Mask
     :show-inheritance:
     :inherited-members:
     :members:
