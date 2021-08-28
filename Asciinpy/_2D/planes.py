@@ -1,27 +1,29 @@
 import itertools
 
+from Asciinpy.screen import Screen
 from os import name as platform
 
 from .rect import Rectable, Rect
 
-from ..geometry import Line, roundi
-from ..screen import Color
-from ..utils import beautify, caches
+from ..geometry import Line
+from ..utils import Color, caches
 from ..values import ANSI
 
-try:
-    from typing import Tuple, List, Any, Dict
-except ImportError:
-    pass
+from typing import Tuple, List
 
 
 DEFAULT_BRICK = "\u2588" if platform != "nt" else "#"
 
-class Pixels(object):
+
+class Rasterizer:
     """
-    Assumes children classes to inherit from :class:`Plane` for rasterization of colored pixels.
+    Capable of single handedly rasterizing any rectangular image of a plane to be colorized.
     """
-    def __init__(self):
+    def __init__(self, image: str=None, color: Color = None):
+        self.image = image
+        self.color = color
+
+        # artifacts
         self._color_artf = None
         self._image_artf = None
         self._raster_cache = None
@@ -31,18 +33,14 @@ class Pixels(object):
         """
         Re-rasterize when color or image is changed or altered in any way.
         """
-        if self._color_artf is None:
+        if self._color_artf is None or (self.color, self.image) != (self._color_artf, self._image_artf):
             self._color_artf = self.color
             self._image_artf = self.image
-
-            self._raster_cache = self._rasterize(self.image, self.color)
-
-        if (self.color, self.image) != (self._color_artf, self._image_artf):
             self._raster_cache = self._rasterize(self.image, self.color)
 
         return self._raster_cache
 
-    def _rasterize(self, image, color):
+    def _rasterize(self, image: str, color: Color):
         mended_pixels = list(image)
         if color is not None:
             is_coloring = False # this is used to track whether if we need to add a color code in front of our character
@@ -59,40 +57,22 @@ class Pixels(object):
         return mended_pixels
 
 
-class Plane(Rectable, Pixels):
+class Collidable:
     """
-    Defines the integral structure for a model on a 2D plane.
-
-    It is used to provide basic inheritance for prerequisites in subsystem interactions.
-    For example the model's texture attribute is accessed in a certain
-    rendering method and the image attribute is used to analyze it's dimension when none is provided etc..
-
-    When subclassing, overidding the defined methods are operable - so long as it is in awareness of their consequences.
-    Overidding those methods require you to follow a strict format as provided by the abstract methods - it is encouraged to
-    avoid this unless perfectly necessary.
+    An abstract 2D object that is known to occupy an area in space, collisions are based on the
+    overlaps between the occupations.
     """
+    def __init__(self, occupancy: List[Tuple[int, int]]=[]):
+        self.occupancy = occupancy
 
-    def __init__(self, coordinate=None, dimension=None, image=None, rect=None, texture=None, color=None):
-        # type: (str, Tuple[int, int], str, Rect, str, str, Color) -> None
-        super(Plane, self).__init__()
-
-        self.dimension = dimension  #: Tuple[:class:`int`, :class:`int`]: The dimensions of the model. (Width, Height)
-        self.coordinate = coordinate
-        self.image = image  #: :class:`str`: The model's image/structure/shape.
-        self.color = color #: :class:`Color`: The color of the plane
-        self.texture = texture #: :class:`str`: The generalized texture of the entire model. It is the most common character from the image.
-        self.rect = rect  #: :class:`Rect`: The rect boundary of the class.
-        self.occupancy = []  #: List[:class:`int`]: A list of coordinates that the image would be at when blitted. This is used for collision detection.
-
-    def collides_with(self, model):
-        # type: (Plane) -> bool
+    def collides_with(self, model: "Collidable") -> bool:
         """
         Checks whether if the current model is in collision with the provided
         model.
 
         :param model:
             The opposing model.
-        :type model: :class:`Model`
+        :type model: :class:`Collidable`
         :returns: (:class:`bool`) Whether if the current model is in collision with the opposite model.
         """
         if model is self: # colliding to itself?
@@ -105,8 +85,36 @@ class Plane(Rectable, Pixels):
         else:
             return False
 
-    def blit(self, screen, **kwargs):
-        # type: (Screen, Dict[str, Any]) -> None
+
+class Plane(Rectable, Collidable, Rasterizer):
+    """
+    Defines the integral structure for a model on a 2D plane.
+
+    It is used to provide basic inheritance for prerequisites in subsystem interactions.
+    For example the model's texture attribute is accessed in a certain
+    rendering method and the image attribute is used to analyze it's dimension when none is provided etc..
+
+    When subclassing, overidding the defined methods are operable - so long as it is in awareness of their consequences.
+    Overidding those methods require you to follow a strict format as provided by the abstract methods - it is encouraged to
+    avoid this unless perfectly necessary.
+    """
+
+    __slots__ = ("dimension", "coordinate", "image", "color", "text", "rect", "occupancy")
+
+    def __init__(self, coordinate: Tuple[int, int]=None, dimension: Tuple[int, int]=None, image: str=None, rect: Rect=None, texture: str=None, color: Color=None):
+        Rectable.__init__(self)
+        Collidable.__init__(self)
+        Rasterizer.__init__(self)
+
+        self.dimension = dimension  #: Tuple[:class:`int`, :class:`int`]: The dimensions of the model. (Width, Height)
+        self.coordinate = coordinate
+        self.image = image  #: :class:`str`: The model's image/structure/shape.
+        self.color = color #: :class:`Color`: The color of the plane
+        self.texture = texture #: :class:`str`: The generalized texture of the entire model. It is the most common character from the image.
+        self.rect = rect  #: :class:`Rect`: The rect boundary of the class.
+        self.occupancy = []  #: List[:class:`int`]: A list of coordinates that the image would be at when blitted. This is used for collision detection.
+
+    def blit(self, screen: Screen, **kwargs) -> Tuple[List[str], List[Tuple[int, int]]]:
         """
         Figures out the position of the characters based on the temporal position and
         the position of the character in the model image.
@@ -120,25 +128,22 @@ class Plane(Rectable, Pixels):
         """
         pixels = self.colored_pixels
         frame = list(screen._frame)
-        # gets the starting index of the image in a straight line screen
-        loc = screen._to_distance(self.rect.x, self.rect.y)
-        occupancy = [] # the occupancy of this image, used for basic collision checking
 
+        x, y = self.rect.x, self.rect.y
+        # gets the starting index of the image in a straight line screen
+        occupancy = [] # the occupancy of this image, used for basic collision checking
         for char in pixels:
-            if loc < 0 or loc > screen.resolution.pixels:
-                continue
+            loc = screen._to_distance(x, y)
 
             if char == '\n':
-                loc += screen.width - self.dimension[0]
+                x = self.rect.x
+                y += 1
                 continue
 
-            try:
+            if x >= 0 and x < screen.width and y >= 0 and y < screen.height:
                 frame[loc] = char
-            except IndexError:
-                continue
-            else:
-                occupancy.append(screen._to_coordinate(loc))
-                loc += 1
+                occupancy.append((x, y))
+            x += 1
         #raise KeyboardInterrupt(occupancy)
         return frame, set(occupancy)
 
@@ -159,10 +164,10 @@ class SimpleText(Plane):
     :type text: :class:`str`
     """
 
-    def __init__(self, coordinate, text):
+    def __init__(self, coordinate: Tuple[int, int], text: str):
         super(SimpleText, self).__init__(image=str(text), coordinate=coordinate, rect=self.get_rect(coordinate, (len(text), 1)))
 
-    def blit(self, screen):
+    def blit(self, screen: Screen):
         """
         Fits text onto the current frame.
         An adaptation of how the screen blits it's menubar etc natively.
@@ -171,7 +176,7 @@ class SimpleText(Plane):
 
         Time Complexity: O(n) where n is len(TEXT)
         """
-        point = roundi(self.rect.x) + (screen.resolution.width * roundi(self.rect.y))
+        point = round(self.rect.x) + (screen.resolution.width * round(self.rect.y))
 
         frame = list(screen._frame)
         for char in self.image:
@@ -235,7 +240,7 @@ class Triangle(Plane):
                 loc = abs(p[0]-min_grp[0]) + (abs(p[1]-min_grp[1])*self.dimension[0])
                 # TODO: triangle image is either terrible or the rasterize method is broken
                 raise KeyboardInterrupt(loc, p)
-                self.image[roundi(loc)] = self.texture
+                self.image[round(loc)] = self.texture
 
         raise KeyboardInterrupt("".join(self.colored_pixels))
         return super(Triangle, self).blit(screen)
@@ -245,7 +250,7 @@ class Triangle(Plane):
         return (min((p1, p2, p3), key=lambda e: e[0])[0], min((p1, p2, p3), key=lambda e: e[1])[1]), (max((p1, p2, p3), key=lambda e: e[0])[0], max((p1, p2, p3), key=lambda e: e[1])[1])
 
 
-class PixelPainter(Plane):
+class Mask(Plane):
     """
     A model that takes in a coordinate and a dimension to create an empty canvas that is imprinted
     onto the frame at the exact coordinate when blitted onto screen.
@@ -326,24 +331,18 @@ class Square(Plane):
 
     def __init__(self, coordinate, length, texture=None, color=None):
         # type: (Tuple[int, int], int, str, str) -> None
-        super(Square, self).__init__(color=color)
+        super().__init__()
         self.texture = texture or DEFAULT_BRICK
         self.occupancy = []
-        self.dimension = (length, length//2)
-        image = ((( self.texture * length) + "\n") * (length // 2)).strip()
+        self.dimension = (length, length//2) if isinstance(length, int) else length
+        image = (((self.texture * self.dimension[0]) + "\n") * (self.dimension[1])).strip()
         if color is not None:
             pass
             #image = color + image + ANSI.RESET
         self.color = color
         self.image = image
-        self.rect = self.get_rect(coordinate, (length, length // 2))
+        self.rect = self.get_rect(coordinate, self.dimension)
         self.length = length
-
-        self.is_y_margin = caches(lambda y: y == 0 or y == (self.dimension[1]-1))
-        self.is_x_margin = caches(lambda x: x == 0 or  x == (self.dimension[0]-1))
-        self.is_lst_margin = caches(lambda count, pixels: count == (len(pixels) - 1))
-        self.is_margin = caches(lambda x, y, count, pixels: self.is_x_margin(x) or self.is_y_margin(y) or self.is_lst_margin(count, pixels))
-
 
 def rect_and_modelen(model, screen, empty=False):
     # type: (Plane, Screen, bool) -> Tuple[List[str], Set[int]]

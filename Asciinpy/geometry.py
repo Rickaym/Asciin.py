@@ -18,7 +18,7 @@ PROJE_MATRIX = caches(
 
 class Matrix:
     """
-    A matrix class that supports up to 10x10 matrixes.
+    A matrix class that supports up to 5x5 matrixes.
 
     Supports scalar multiplication, pretty printing, equality checks,
     matrix multiplication and alias references such as x for element 0 and
@@ -110,7 +110,7 @@ class Matrix:
             if isinstance(l, Matrix):
                 self.layers[i] = l.rounds()
             else:
-                self.layers[i] = roundi(l)
+                self.layers[i] = round(l)
         return self.layers
 
     @staticmethod
@@ -153,57 +153,17 @@ class Line:
     :type p2: List[:class:`int`, :class:`int`]
     """
 
+    p1: int
+    p2: int
+
     def __init__(self, p1, p2):
         self.p1 = p1
         self.p2 = p2
 
-        self._gradient = GRADIENT(
-            p1, p2
-        ), (self.p1[:], self.p2[:])
-        self._equation = (
-            self._get_equation()
-        ), (self.p1[:], self.p2[:])
-        self._inverse_equation = (
-            self._get_inverse_equation()
-        ), (self.p1[:], self.p2[:])
         self._points = None
 
     def __getitem__(self, x):
         return self.equation(x)
-
-    @property
-    def gradient(self):
-        """
-        Gradient of the line
-
-        :type: class:`float`
-        """
-        if (self.p1, self.p2) != self._gradient[1]:
-            self._gradient = GRADIENT(self.p1, self.p2), (self.p1[:], self.p2[:])
-
-        return self._gradient[0]
-
-    @property
-    def equation(self):
-        """
-        f(x) of the line that takes in x to return the (x,y) at that point
-
-        :type: Callable[[:class:`int`], Tuple[:class:`int`, :class:`int`]]
-        """
-        if (self.p1, self.p2) != self._equation[1]:
-            self._equation = self._get_equation(), (self.p1[:], self.p2[:])
-        return self._equation[0]
-
-    @property
-    def inverse_equation(self):
-        """
-        inverse f(x) of the line that takes in y to return the (x,y) at that point
-
-        :type: Callable[[:class:`int`], Tuple[:class:`int`, :class:`int`]]
-        """
-        if (self.p1, self.p2) != self._inverse_equation[1]:
-            self._inverse_equation = self._get_inverse_equation(), (self.p1[:], self.p2[:])
-        return self._inverse_equation[0]
 
     @property
     def points(self):
@@ -217,9 +177,10 @@ class Line:
         return self._points[0]
 
     def _get_points(self):
-        if self.gradient is not None:
+        gradient = GRADIENT(self.p1, self.p2)
+        if gradient is not None:
             maps_inverse = map(
-                self.equation,
+                self._get_equation(gradient),
                 range(
                     *(
                         (self.p1[0], self.p2[0] + 1)
@@ -232,7 +193,7 @@ class Line:
             maps_inverse = []
 
         maps = map(
-                    self.inverse_equation,
+                    self._get_inverse_equation(gradient),
                     range(
                         *(
                             (self.p1[1], self.p2[1] + 1)
@@ -244,22 +205,23 @@ class Line:
 
         return set(chain(maps_inverse, maps))
 
-    def _get_equation(self):
+
+    def _get_equation(self, gradient):
         if self.p1[1] - self.p2[1] == 0:
             return lambda x: (x, self.p1[1])
-        elif self.gradient is None or self.gradient == 0:
+        elif gradient is None or gradient == 0:
             return lambda y: (self.p1[0], y)
         else:
             return lambda x: (
                 x,
-                (self.gradient * x) - (self.gradient * self.p1[0]) + self.p1[1],
+                (gradient * x) - (gradient * self.p1[0]) + self.p1[1],
             )
 
-    def _get_inverse_equation(self):
-        if self.gradient is None or self.gradient == 0:
+    def _get_inverse_equation(self, gradient):
+        if gradient is None or gradient == 0:
             return lambda y: (self.p1[0], y)
         else:
-            return lambda y: (((y - self.p1[1]) / self.gradient) + self.p1[0], y)
+            return lambda y: (((y - self.p1[1]) / gradient) + self.p1[0], y)
 
 
 class MatrixFactory:
@@ -320,13 +282,3 @@ def rotate_3D(m, angle, axis):
     resultant = Matrix.fast_3x3_mul(m, roto_mat(angle))
 
     return resultant.layers
-
-
-def roundi(num, ndigits=0):
-    return int(round(num, ndigits))
-    coeff = 10 ** ndigits
-    try:
-        norm = num / num * (0.5 / coeff)
-    except ZeroDivisionError:
-        norm = 0.5 / coeff
-    return int(((num + norm) * coeff) / coeff)

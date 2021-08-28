@@ -11,6 +11,10 @@ The changelog only keeps track of updates post version **0.1.4**
 
 ## [0.2.0] - 2021-08-30
 
+### Major
+- Dropped python `2.7` support as there is no further reason to with a complete rewrite of annotations and typehints
+
+
 ### Changed
 - `amath` module is renamed to `geometry`
 - `geometry.Matrix` classes now supports attribute and index fetching `m.x` or `m[0]` or `m["x"]` as part of the `__getitem__` routine.

@@ -1,19 +1,14 @@
 from uuid import uuid4
 
-from ..screen import Color
-
-try:
-    from typing import Tuple, Any
-except ImportError:
-    pass
-
+from ..utils import Color
+from typing import Tuple, Any
 
 class Rectable(object):
     """
     A simple parent class for all models that can be translated into a rect.
     """
 
-    def get_rect(self, coordinate=None, dimension=None):
+    def get_rect(self, coordinate=None, dimension=[0, 0]):
         # type: (Tuple[int, int], Tuple[int, int]) -> Rect
         """
         Builds a rect object from scratch. If neither coordinate or dimension

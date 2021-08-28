@@ -1,6 +1,7 @@
 class Characters:
-    ramp = r"""$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?<>i!lI;:-_+~,"^`'. """
+    ramp = r"""$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?<>i!lI;:-_+~,"^`". """
     miniramp = r"""@%#*+=-:. """
+
 
 class Resolutions:
     """
@@ -37,14 +38,17 @@ class Resolutions:
         self.width = val[0]
         self.height = val[1]
 
+
 class ANSI:
-    BEL = '\x07' # bell
-    BS = '\x08' # backspace
-    HT = '\x09' # horizontal tab
-    LF = '\x0A' # line feed
-    VT = '\x0B' # vertical tab
-    FF = '\x0C' # formfeed
-    CR = '\x0D' # carriage return
-    ESC = '\x1B' # escape char ^[
-    CSI = '\x1B[' # Control Sequence Initiator
-    RESET = '\x1B[0m'
+    # these are intended to be sent to the stdout so they are strings
+    BEL = "\x07" # bell
+    BS = "\x08" # backspace
+    HT = "\x09" # horizontal tab
+    LF = "\x0A" # line feed
+    VT = "\x0B" # vertical tab
+    FF = "\x0C" # formfeed
+    CR = "\x0D" # carriage return
+    ESC = "\x1B" # escape char ^[
+    CSI = "\x1B[" # Control Sequence Initiator
+    WIN_INTERUPT = "\x03"
+    RESET = "\x1B[0m"

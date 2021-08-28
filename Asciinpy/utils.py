@@ -2,22 +2,52 @@ from platform import python_version
 from io import BytesIO, StringIO
 from cProfile import Profile
 from pstats import Stats
+from random import randint
 from copy import deepcopy
 from os import getcwd
+from typing import Literal, Tuple, List, Union, Callable
 
-from .globals import FINISHED_ONCE_TASKS, SINGLE_PRINT_FLAG, SCOPE_CACHE
-
-try:
-    from typing import Any, List, Union, Callable
-except ImportError:
-    pass
+from .values import ANSI
+from .globals import FINISHED_ONCE_TASKS, SCOPE_CACHE
 
 TargetIO = StringIO if python_version()[0] == "3" else BytesIO
 CWD = getcwd()
 
+class Color(object):
+    def FOREGROUND(id):
+        return ANSI.CSI + "38;5;{}m".format(id)
+
+    def BACKGROUND(id):
+        return ANSI.CSI + "48;5;{}m".format(id)
+
+    @staticmethod
+    def RGB_FOREGROUND(r, g, b):
+        return ANSI.CSI + "38;2;{};{};{}m".format(r, g, b)
+
+    @staticmethod
+    def RGB_BACKGROUND(r, g, b):
+        return ANSI.CSI + "48;2;{};{};{}m".format(r, g, b)
+
+    @staticmethod
+    def FORE(r, g, b):
+        return Color.RGB_FOREGROUND(r, g, b)
+
+    @staticmethod
+    def BACK(r, g, b):
+        return Color.RGB_BACKGROUND(r, g, b)
+
+
+Color.FORE.random = lambda: Color.FORE(
+    randint(0, 255), randint(0, 255), randint(0, 255)
+)
+Color.BACK.random = lambda: Color.BACK(
+    randint(0, 255), randint(0, 255), randint(0, 255)
+)
+
+
 
 class Profiler:
-    def __init__(self, path):
+    def __init__(self, path: str):
         self.path = path
 
     def __enter__(self):
@@ -38,9 +68,8 @@ class Profiler:
             f.write(redirect.getvalue().replace(CWD, "", -1))
 
 
-def beautify(dimension, frame):
-    # type: (Union[str, List[str]], Any) -> str
-    """
+def beautify(dimension: Tuple[int, int], frame: Union[str, List[str]]) -> str:
+    r"""
     Maps an uncut frame into different pieces with newline characters to make it
     readable in a given context of dimension.
 
@@ -59,9 +88,8 @@ def beautify(dimension, frame):
     return "".join(nw_frame)
 
 
-def morph(initial_string, end_string, consume="end", loop=True):
-    # type: (str, str, str, bool) -> List[str]
-    """
+def morph(initial_string: str, end_string: str, consume: Literal["start", "end"]="end", loop: bool=True) -> List[str]:
+    r"""
     Morphs one string onto another and return a string array
     of all the frames needed to be displayed.
 
@@ -97,12 +125,9 @@ def morph(initial_string, end_string, consume="end", loop=True):
     return stages
 
 
-def deprecated(callable):
-    # type: (Callable) -> Callable
-    """
-    A decorator that simply raises a DeprecationWarning when the decorated function is called.
-
-    This is just used around the package on demand.
+def deprecated(callable: Callable):
+    r"""
+    Simply raises a DeprecationWarning when the decorated function is called.
     """
 
     def wrapper(*args, **kwargs):
@@ -115,12 +140,12 @@ def deprecated(callable):
     return wrapper
 
 
-def save_frame(frame, path):
+def save_frame(frame: str, path: str):
     with open(path, "w") as f:
         f.write(frame)
 
 
-def only_once(func):
+def only_once(func: Callable) -> Callable:
     def wrapper(*args, **kwargs):
         global FINISHED_ONCE_TASKS
         if func not in FINISHED_ONCE_TASKS:
@@ -131,7 +156,7 @@ def only_once(func):
     return wrapper
 
 
-def caches(func):
+def caches(func: Callable) -> Callable:
     def wrapper(*args, **kwargs):
         global SCOPE_CACHE
         if SCOPE_CACHE.get(func) is None or SCOPE_CACHE[func][0] != (args, kwargs):

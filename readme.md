@@ -8,7 +8,7 @@
 ![logo](https://raw.githubusercontent.com/Rickaym/Asciin.py/main/assets/inverted_logo.png)
 
 A 2D and 3D Ascii Game Engine written purely in Python from ground up with zero external dependencies.
-Supports Python versions starting from 2.7 to 3.9.
+Supports Python versions starting from 3.5.3.
 
 ---
 
@@ -38,7 +38,7 @@ Supports Python versions starting from 2.7 to 3.9.
 
 ### Installing
 
-**Python 2.7 or higher is required**
+**Python 3.5.3 or higher is required**
 
 ```js
 // Windows
@@ -66,10 +66,11 @@ from Asciinpy._2D import Square
 window = Window(resolution=Resolutions._60c)
 
 @window.loop()
-def game_loop(screen): # type: (Screen) -> None
+def game(screen: Screen):
    coordinate = (0, 0)
    length = 8
    texture = "%"
+
    Square = Square(coordinate, length, texture)
    while True:
       screen.blit(Square)
