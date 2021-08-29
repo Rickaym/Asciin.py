@@ -1,11 +1,17 @@
 import signal
 import os
 
+from multiprocessing import Process
+import sys
 from typing import Any, Callable, Union, List
+
+from .utils import isinstancemethod
 
 # A consumer is marked as a method that does or doesn't take a self reference and returns nothing.
 Consumer = Union[Callable[[Any], None], Callable[[object], None]]
 
+# restrict internal events importation that can arise non lifecycle emissions
+__all__ = ["Event", "EventListener"]
 
 class Event:
     __slots__ = ("callbacks")
@@ -13,61 +19,55 @@ class Event:
     def __init__(self):
         self.callbacks: List[Consumer] = []
 
-    def on_emit(self, func: Consumer):
-        r"""
-        This is the same with :obj:`Event.listen` but it doesn't require finding events in
-        the global scope as it registers the callable onto itself.
-
-        Decorated function must be a staticmethod.
-        """
-        # this attribute is later checked on class initiation
-        func.__subscribes_to__ = self
-        return func
-
     def emit(self, *args, **kwargs):
         r"""
-        Event emitter that consumes all args and kwargs it is called against.
+        Event emitter that passes on all args and kwargs it is called against and calls listeners on subprocesses.
         Bound callbacks should be partialized if they need extra data.
         """
         if len(self.callbacks) != 0:
+            procs = []
             for cb in self.callbacks:
-                cb(*args, **kwargs)
+                p = Process(target=cb, args=args, kwargs=kwargs)
+                p.start()
+                procs.append(p)
+            for p in procs:
+                p.join()
+
 
     @staticmethod
-    def register(event: "Event"):
+    def listen(event: Union[str, "Event"]=None):
         r"""
-        Connects a user event into the global registery (injection to the globals for events module).
-        Do not give your events conflicting names.
+        A decorator that registers a callable as a callback under an event.
+        Decorated function can be of any type with the only exception that bound methods must subclass under :class:`EventListener`.
         """
-        globals().update({event.__name__: event})
-
-    @staticmethod
-    def listen(name: str):
-        r"""
-        A decorator that registers the callable as a callback under the event with a maching name.
-        The given name is searched inside the module level events which exists in the global scope of
-        the `events` module.
-
-        If you're making your own events use the instance method :obj:`Event.on_emit` directly or connect
-        into the internal runtime event registeries with :obj:`Event.register`:
-        Decorated function can be of any type.
-        """
+        if isinstance(event, str):
+            target_event = globals().get(event.upper(), None)
+            if target_event is None or not isinstance(target_event, Event):
+                raise AttributeError(f"cannot find event with name {event}")
+        else:
+            target_event = event
         def wrapper(func: Consumer):
-            target_event = globals().get(name.upper(), None)
-            if target_event is None:
-                raise AttributeError(f"cannot find event with name {name}")
-            else:
+            if isinstancemethod(func):
                 func.__subscribes_to__ = target_event
+            else:
+                target_event.callbacks.append(func)
             return func
         return wrapper
 
 # Window events
-ON_TERMINATE = Event()
+class ON_TERMINATE_EVENT(Event):
+    def emit(self, *args, **kwargs):
+        super().emit()
+        sys.exit(0)
+
+ON_TERMINATE = ON_TERMINATE_EVENT()
 ON_START = Event()
 ON_RESIZE = Event()
+# IO
 ON_KEY_PRESS = Event()
 ON_MOUSE_CLICK = Event()
 
+del ON_TERMINATE_EVENT
 
 # Sigint and sigterm signals will start a system termination call
 signal.signal(signal.SIGINT, ON_TERMINATE.emit)
@@ -75,14 +75,13 @@ signal.signal(signal.SIGTERM, ON_TERMINATE.emit)
 
 # more available unix signals for termination and terminal resize
 if os.name == "posix":
-    signal.signal(signal.SIGKILL, self.ON_TERMINATE.emit)
-    signal.signal(signal.SIGWINCH, self.ON_RESIZE.emit)
-
+    signal.signal(signal.SIGKILL, ON_TERMINATE.emit)
+    signal.signal(signal.SIGWINCH, ON_TERMINATE.emit)
 
 class EventListener:
     def __new__(cls, *args, **kwargs):
         r"""
-        Filters callables that are marked a subscriber of events to be registered as the event callback.
+        Filters callables that are marked a subscriber of an event to be registered as the callback.
         """
         obj = super().__new__(cls)
         for item_name in dir(obj):

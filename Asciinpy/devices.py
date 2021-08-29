@@ -1,12 +1,11 @@
-from Asciinpy.utils import deprecated
-import enum
-from Asciinpy.events import ON_KEY_PRESS
 import io
 import sys
 
 from typing import Optional
 from threading import Thread
 
+from .utils import deprecated
+from .events import ON_KEY_PRESS
 from .values import ANSI
 
 
@@ -246,9 +245,3 @@ class Audio:
 class Mouse:
     pass
 
-
-if __name__ == "__main__":
-    while True:
-        Keyboard.getch()
-        if Keyboard.pressed is not None:
-            print(Keyboard.pressed, Keyboard.pressed == Keys.SPACE)

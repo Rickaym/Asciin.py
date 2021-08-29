@@ -1,4 +1,6 @@
+from weakref import WeakKeyDictionary
+
 SINGLE_PRINT_FLAG = False
 
-SCOPE_CACHE = {}
+ASSET_CACHE = WeakKeyDictionary()
 FINISHED_ONCE_TASKS = []

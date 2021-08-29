@@ -1,23 +1,16 @@
-from __future__ import division
-
-from math import cos, sin
 from itertools import chain
+from functools import lru_cache
 
-from .utils import caches
+from .utils import AssetCached, asset
 
-GRADIENT = caches(
+
+GRADIENT = lru_cache(maxsize=64)(
     lambda P1, P2: None if P2[0] - P1[0] == 0 else (P2[1] - P1[1]) / (P2[0] - P1[0])
-)
-
-PROJE_MATRIX = caches(
-    lambda a, f, q, near: M(
-        [a * f, 0, 0, 0], [0, f, 0, 0], [0, 0, q, 1], [0, 0, -near * q, 0]
-    )
 )
 
 
 class Matrix:
-    """
+    r"""
     A matrix class that supports up to 5x5 matrixes.
 
     Supports scalar multiplication, pretty printing, equality checks,
@@ -141,7 +134,7 @@ class Matrix:
         return M(res[0], res[1], res[2])
 
 
-class Line:
+class Line(AssetCached):
     """
     A conceptual line class with simple properties. Basic properties are calculated and recalculated if and when they are needed.
 
@@ -152,30 +145,23 @@ class Line:
         Endpoint
     :type p2: List[:class:`int`, :class:`int`]
     """
-
-    p1: int
-    p2: int
-
     def __init__(self, p1, p2):
         self.p1 = p1
         self.p2 = p2
-
-        self._points = None
 
     def __getitem__(self, x):
         return self.equation(x)
 
     @property
     def points(self):
-        """
+        r"""
         The points that join p1 to p2.
 
         :type: List[Tuple[:class:`int`, :class:`int`]]
         """
-        if self._points is None or self._points[1] != (self.p1, self.p2):
-            self._points = self._get_points(), (self.p1[:], self.p2[:])
-        return self._points[0]
+        return self._get_points()
 
+    @asset(lambda: ("p1", "p2"))
     def _get_points(self):
         gradient = GRADIENT(self.p1, self.p2)
         if gradient is not None:
@@ -223,62 +209,3 @@ class Line:
         else:
             return lambda y: (((y - self.p1[1]) / gradient) + self.p1[0], y)
 
-
-class MatrixFactory:
-    def __getitem__(self, layers):
-        return Matrix(*layers)
-
-    def __call__(self, *layers):
-        return Matrix(*layers)
-
-
-M = MatrixFactory()
-
-X_ROTO_MATRIX = caches(
-    lambda l: M([1, 0, 0], [0, cos(l), -sin(l)], [0, sin(l), cos(l)])
-)
-Y_ROTO_MATRIX = caches(
-    lambda l: M([cos(l), 0, sin(l)], [0, 1, 0], [-sin(l), 0, cos(l)])
-)
-Z_ROTO_MATRIX = caches(
-    lambda l: M([cos(l), -sin(l), 0], [sin(l), cos(l), 0], [0, 0, 1])
-)
-"""
-Input: [ x ]
-       | y |
-       [ z ]
-
-RoX: [1  0     0    ] RoY = [cos0  0  sin0] RoZ = [cos0  -sin0  0]
-     |0  cos0  -sin0|       |0     1  0   |       |sin0  cos0   0|
-     [0  sin0  cos0 ]       [-sin0 0  cos0]       [0     0      1]
-"""
-
-
-def project_3D(m, aspect_ratio, fov):
-    # type: (Matrix, int, int) -> Matrix
-    fnear = 0.1
-    ffar = 10000
-
-    q = ffar / (ffar - fnear)
-    m = [m[0], m[1], m[2], 1]
-    resultant = Matrix.fast_4x4_mul(m, PROJE_MATRIX(aspect_ratio, fov, q, fnear))
-
-    if resultant.k != 0:
-        resultant.x /= resultant.k
-        resultant.y /= resultant.k
-        resultant.z /= resultant.k
-
-    return resultant
-
-
-def rotate_3D(m, angle, axis):
-    roto_mat = (
-        X_ROTO_MATRIX
-        if axis.lower() == "x"
-        else Z_ROTO_MATRIX
-        if axis.lower() == "z"
-        else Y_ROTO_MATRIX
-    )
-    resultant = Matrix.fast_3x3_mul(m, roto_mat(angle))
-
-    return resultant.layers

@@ -1,19 +1,22 @@
+import inspect
+import os
+
 from platform import python_version
+from functools import wraps
 from io import BytesIO, StringIO
 from cProfile import Profile
 from pstats import Stats
 from random import randint
-from copy import deepcopy
-from os import getcwd
-from typing import Literal, Tuple, List, Union, Callable
+from typing import Any, Literal, Tuple, List, Union, Callable
 
 from .values import ANSI
-from .globals import FINISHED_ONCE_TASKS, SCOPE_CACHE
+from .globals import FINISHED_ONCE_TASKS, ASSET_CACHE
 
 TargetIO = StringIO if python_version()[0] == "3" else BytesIO
-CWD = getcwd()
+CWD = os.getcwd()
+Supplier = Callable[[None], Any]
 
-class Color(object):
+class Color:
     def FOREGROUND(id):
         return ANSI.CSI + "38;5;{}m".format(id)
 
@@ -43,7 +46,6 @@ Color.FORE.random = lambda: Color.FORE(
 Color.BACK.random = lambda: Color.BACK(
     randint(0, 255), randint(0, 255), randint(0, 255)
 )
-
 
 
 class Profiler:
@@ -141,11 +143,18 @@ def deprecated(callable: Callable):
 
 
 def save_frame(frame: str, path: str):
+    r"""
+    Helper function to save a string frame onto a text file.
+    """
     with open(path, "w") as f:
         f.write(frame)
 
 
 def only_once(func: Callable) -> Callable:
+    r"""
+    Executes the given function only once.
+    """
+    @wraps(func)
     def wrapper(*args, **kwargs):
         global FINISHED_ONCE_TASKS
         if func not in FINISHED_ONCE_TASKS:
@@ -156,13 +165,104 @@ def only_once(func: Callable) -> Callable:
     return wrapper
 
 
-def caches(func: Callable) -> Callable:
-    def wrapper(*args, **kwargs):
-        global SCOPE_CACHE
-        if SCOPE_CACHE.get(func) is None or SCOPE_CACHE[func][0] != (args, kwargs):
-            retval = func(*args, **kwargs)
-            SCOPE_CACHE[func] = (deepcopy(args), deepcopy(kwargs)), deepcopy(retval)
-        else:
-            retval = SCOPE_CACHE[func][1]
-        return retval
+def isinstancemethod(func: Callable) -> bool:
+    r"""
+    Returns whether if a given function is a staticmethod or an instancemethod/classmethod.
+    """
+    return "self" in inspect.getfullargspec(func)[0]
+
+
+def asset(getlibt):
+    r"""
+    A decorator that marks a methods to be only re-evaulated on first call and necessary liability changes ignorant
+    towards arguments.
+
+    Where as LRU caching etc.. is oriented by arguments, liabilites are oriented by a supplier.
+    A supplier is a function that takes no arguments but returns some.
+    Consider this simple supplier -> lambda: 2
+
+    The supplier is called and save and whenever the output of the supplier changes, the function return value will be re-evaluated,
+    if not the function is only called once and the results are returned from cache.
+
+    .. code:: py
+
+       a = 21
+
+       @asset(lambda: a)
+       def a_mutate():
+           return a // 23 ** 24 - 245
+
+       # all of this will only call `a_mutate` once
+       a_mutate() and a_mutate() and a_mutate()
+       # unless a is changed, the function is re-evaluated
+       a = 55
+       a_mutate() and a_mutate()
+
+    Instance attributes can also be used within the supplier but it isn't straight forward.
+    Classes that want to use asset caching must be subclassed under AssetCached and reference it's
+    instance variables in strings.
+
+    .. code::py
+
+       class Klazz(AssetCached):
+           def __init__(self, bomb):
+               self.bomb = bomb
+
+           @asset(lambda: "bomb")
+           def get_bomb(self):
+               return self.bomb.upper().strip().replace(' ', "KAPOW")
+
+    The string liability names provided will be looked up on initialization time and will be resolved
+    automically.
+    """
+    ret = getlibt()
+    # tuplize single string
+    if isinstance(ret, str):
+        def wrapped_getlibt():
+            return (ret,)
+        getlibt = wrapped_getlibt
+
+    def wrapper(func: Callable) -> Callable:
+        func.__getliables__ = getlibt
+        func.__libt__ = getlibt()
+        # staticmethods are predicated immediately
+        if not isinstancemethod(func):
+            func = AssetCached.__predicate__(func)
+        return func
     return wrapper
+
+
+class AssetCached:
+    def __new__(cls, *args, **kwargs):
+        r"""
+        Check attributes on object creation to predicate asset caching function.
+
+        This must be done in order to resolve string names and cache dict occupation based
+        on instances and not type based.
+
+        If we don't do this, the calls from different instances of the same type will
+        be convoluted into a singular name space.
+        """
+        obj = super().__new__(cls)
+        for item_name in dir(obj):
+            item = getattr(obj, item_name, None)
+            if callable(item):
+                # __getliables__ is a marker that this function is decorated
+                is_liable = getattr(item, '__getliables__', False)
+                if is_liable is not False:
+                    primer = item.__getliables__()
+                    setattr(obj, item_name, AssetCached.__predicate__(item, __getliables__ = lambda: [getattr(obj, name) if isinstance(name, str) else name for name in primer]))
+        return obj
+
+    @staticmethod
+    def __predicate__(func, __getliables__: Supplier=None):
+        @wraps(func)
+        def wrapped(*args, **kwargs):
+            if ASSET_CACHE.get(func) is None or wrapped.__libt__ != wrapped.__getliables__():
+                ASSET_CACHE[func] = func(*args, **kwargs)
+                wrapped.__libt__ = wrapped.__getliables__()
+            return ASSET_CACHE[func]
+        wrapped.__getliables__ = __getliables__ or func.__getliables__
+        wrapped.__libt__ = func.__libt__
+        return wrapped
+

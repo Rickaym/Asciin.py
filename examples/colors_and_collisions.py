@@ -3,10 +3,9 @@ Simple collisions system with squares.
 """
 import sys
 
-from Asciinpy.screen import Color
+from Asciinpy.utils import Color
 from Asciinpy import Screen, Window, Resolutions
 from Asciinpy._2D import Square
-from Asciinpy.geometry import roundi
 
 from random import randint
 
@@ -18,8 +17,7 @@ except ImportError:
 # Start by defining a screen object with the desired resolution
 window = Window(resolution=Resolutions._60c)
 
-def manage_collisions(velocities, i, square, other_squares):
-    # type: (Tuple[int, int], int, Square, Square) -> Tuple[int, int]
+def manage_collisions(velocities: Tuple[int, int], i: int, square: Square, other_squares: Square) -> Tuple[int, int]:
     for other in other_squares:
         # Squares or any Subclass of `Model` has a `collides_with` method, this can be
         # overidden when making your own model or making a model out of scratch.
@@ -47,9 +45,8 @@ def manage_collisions(velocities, i, square, other_squares):
 
 
 # Define a user loop for the screen and accept a screen parameter, this is of type Screen.
-@window.loop(forcestop=2)
-def my_loop(screen):
-    # type: (Screen) -> None
+@window.loop()
+def my_loop(screen: Screen):
     # Make a bunch of squares to simulate collisions
     squares = (
         Square((2, 4), 10, color=Color.FORE(255, 0, 0), texture="#"),
@@ -66,17 +63,17 @@ def my_loop(screen):
             square.rect.y += velocities[i][1]
             square.color=Color.FORE(randint(0, 255), randint(0, 255), randint(0, 255))
 
-            if roundi(square.rect.y) < 0:
+            if round(square.rect.y) < 0:
                 velocities[i][1] = -1 * velocities[i][1]
                 square.rect.y = 0
-            elif roundi(square.rect.y) + (square.length // 2) > screen.resolution.height:
+            elif round(square.rect.y) + (square.length // 2) > screen.resolution.height:
                 velocities[i][1] = -1 * velocities[i][1]
                 square.rect.y = screen.resolution.height - (square.length // 2)
 
-            if roundi(square.rect.x) < 0:
+            if round(square.rect.x) < 0:
                 velocities[i][0] = -1 * velocities[i][0]
                 square.rect.x = 0
-            elif roundi(square.rect.x) + square.length > screen.resolution.width:
+            elif round(square.rect.x) + square.length > screen.resolution.width:
                 velocities[i][0] = -1 * velocities[i][0]
                 square.rect.x = screen.resolution.width - square.length
 
@@ -88,7 +85,8 @@ def my_loop(screen):
         # Refresh the screen to render new blits
         screen.refresh()
 
+window.enable_debug()
 if __name__ == "__main__":
     # Runs the window
-    window.run()
+    window.run(show_fps=True)
     sys.exit(0)

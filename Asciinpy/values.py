@@ -40,7 +40,7 @@ class Resolutions:
 
 
 class ANSI:
-    # these are intended to be sent to the stdout so they are strings
+    # these are intended to be sent to the stdout so they are strings, encode when necessary
     BEL = "\x07" # bell
     BS = "\x08" # backspace
     HT = "\x09" # horizontal tab

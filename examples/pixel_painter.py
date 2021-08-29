@@ -7,10 +7,9 @@ canvas onto the screen frame. Even then, it is rendered like every other Model.
 """
 import sys
 
-from Asciinpy.utils import Profiler
-from Asciinpy.screen import Color
+from Asciinpy.utils import Profiler, Color
 from Asciinpy import Screen, Resolutions, Window
-from Asciinpy._2D import PixelPainter
+from Asciinpy._2D import Mask
 
 from random import random, choice, randint
 from string import ascii_letters
@@ -20,10 +19,9 @@ window = Window(resolution=Resolutions._60c)
 
 # Define a user loop for the screen and accept a screen parameter, this is of type Screen.
 @window.loop()
-def my_loop(screen):
-    # type: (Screen) -> None
+def my_loop(screen: Screen):
     # Create a PixelPainter class to keep a reference frame
-    canvas = PixelPainter(screen)
+    canvas = Mask(screen)
     while True:
         # Randomly draw ascii letters onto the canvas
         canvas.draw(
@@ -38,6 +36,5 @@ def my_loop(screen):
 
 if __name__ == "__main__":
     # Runs the window
-    with Profiler("stats.txt"):
-        window.run(show_fps=True)
-        sys.exit(0)
+    window.run(show_fps=True)
+    sys.exit(0)

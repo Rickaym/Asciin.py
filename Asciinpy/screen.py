@@ -296,6 +296,7 @@ class Window(EventListener):
     Below is an example on the different approaches you can take.
 
     In functional programming:
+
     .. code:: py
 
        app = Window(resolution, max_fps)
@@ -311,8 +312,8 @@ class Window(EventListener):
            # event callback
            ...
 
-
     OOP:
+
     .. code:: py
 
        class App(Window):
@@ -346,24 +347,26 @@ class Window(EventListener):
         max_fps: Optional[int] = None,
     ):
         self.screen: Screen = None
-        self._stop_time: int = None
 
+        self._stop_time: int = None
         self._new_win_mode: Literal["k", "c"]
         self._origin_depth: int
+        self._debug = False
 
         self.fov = 1.53
         self.resolution = Resolutions(resolution)
         self.max_fps = max_fps
 
-        self._debug = False
+        self.sysdout = None
 
     @Event.listen("on_terminate")
     def _terminate(self):
         Screen._puts(ANSI.BEL)
-        Screen._puts(ANSI.RESET)
-        Screen._cursor((0, 0), visibility=True)
-        Screen._clear()
-        sys.exit(0)
+        if self.sysdout is True:
+            Screen._puts(ANSI.RESET)
+            Screen._cursor((0, 0), visibility=True)
+            Screen._clear()
+
 
     def enable_debug(self, mode: Literal["k", "c"] = "k", origin_depth: int = 5):
         r"""
@@ -424,7 +427,7 @@ class Window(EventListener):
             self.screen.refresh()
             sleep(60 / (fps * 60))
 
-    def get_screen(self, *args, **kwargs):
+    def get_screen(self, *args, **kwargs) -> Screen:
         r"""
         Makes a screen based on the OS if none is present.
         """
@@ -465,9 +468,8 @@ class Window(EventListener):
 
         :param fov:
             FOV of the screen, only relevant to 3D.
-
         """
-
+        self.sysdout = sysdout
         self.screen = self.get_screen(
             self.resolution,
             self.max_fps,
@@ -489,8 +491,8 @@ class Window(EventListener):
 
         if sysdout is True:
             self.screen._resize()
-        Screen._clear()
-        Screen._cursor(visibility=False)
+            Screen._clear()
+            Screen._cursor(visibility=False)
 
         ON_START.emit()
         return self.loop(self.screen)
