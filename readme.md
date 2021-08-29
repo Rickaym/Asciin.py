@@ -38,6 +38,8 @@ Supports Python versions starting from 3.5.3.
 
 ### Installing
 
+I highly discourage using version `0.1.7`, please wait for `0.2.0`!
+
 **Python 3.5.3 or higher is required**
 
 ```js
