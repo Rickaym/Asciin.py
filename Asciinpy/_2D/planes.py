@@ -1,18 +1,22 @@
 import itertools
 
-from os import name as platform
-
 from .rect import Rectable, Rect
-
 from ..geometry import Line
-from ..utils import AssetCached, Color, asset
+from ..utils import AssetCached, Color, asset, beautify
 from ..screen import Screen
 from ..values import ANSI
+from ..globals import PLATFORM
 
-from typing import Tuple, List
+from typing import Set, Tuple, List, Union
 
+"""
+TODO: Fix triangle blitting
+      Add 2D rotation and scaling
+      Make a :class:`Polygon` for n amount of vertices
+      Filter out type comments
+"""
 
-DEFAULT_BRICK = "\u2588" if platform != "nt" else "#"
+DEFAULT_BRICK = "\u2588" if PLATFORM != "Windows" else "#"
 
 
 class Rasterizer(AssetCached):
@@ -25,23 +29,25 @@ class Rasterizer(AssetCached):
 
     @property
     def colored_pixels(self):
-        return self._get_rasterized()
-
-    @asset(lambda: ("image", "color"))
-    def _get_rasterized(self):
-        mended_pixels = list(self.image)
         if self.color is not None:
-            is_coloring = False # this is used to track whether if we need to add a color code in front of our character
-            for i, char in enumerate(self.image):
-                if char == '\n':
-                    continue
+            return self._get_rasterized()
+        else:
+            return self.image
 
-                if is_coloring is False:
-                    mended_pixels[i] = ''.join((self.color, char))
-                    is_coloring = True
-                elif i+1 == len(self.image) or self.image[i+1] in (' ', '\n'):
-                    mended_pixels[i] += ANSI.RESET
-                    is_coloring = False
+    @asset(lambda: ("self.image", "self.color"))
+    def _get_rasterized(self) -> List[str]:
+        mended_pixels = list(self.image)
+        is_coloring = False # this is used to track whether if we need to add a color code in front of our character
+        for i, char in enumerate(self.image):
+            if char == '\n':
+                continue
+
+            if is_coloring is False:
+                mended_pixels[i] = ''.join((self.color, char))
+                is_coloring = True
+            elif i+1 == len(self.image) or self.image[i+1] in (' ', '\n'):
+                mended_pixels[i] += ANSI.RESET
+                is_coloring = False
         return mended_pixels
 
 
@@ -98,7 +104,7 @@ class Plane(Rectable, Collidable, Rasterizer):
         self.rect = rect  #: :class:`Rect`: The rect boundary of the class.
         self.occupancy = []  #: List[:class:`int`]: A list of coordinates that the image would be at when blitted. This is used for collision detection.
 
-    def blit(self, screen: Screen, **kwargs) -> Tuple[List[str], List[Tuple[int, int]]]:
+    def blit(self, screen: Screen, **kwargs) -> Set[Tuple[Union[float, int], Union[float, int]]]:
         r"""
         Figures out the position of the characters based on the temporal position and
         the position of the character in the model image.
@@ -111,25 +117,24 @@ class Plane(Rectable, Collidable, Rasterizer):
         :type screen: :class:`Screen`
         """
         pixels = self.colored_pixels
-        frame = list(screen._frame)
 
         x, y = self.rect.x, self.rect.y
-        # gets the starting index of the image in a straight line screen
-        occupancy = [] # the occupancy of this image, used for basic collision checking
+        occupancy = []
         for char in pixels:
-            loc = screen._to_distance(x, y)
-
             if char == '\n':
                 x = self.rect.x
                 y += 1
                 continue
 
-            if x >= 0 and x < screen.width and y >= 0 and y < screen.height:
-                frame[loc] = char
+            if isinstance(x, float) or isinstance(y, float):
+                x, y = round(x), round(y)
+
+            if x >= 0 and x <= screen.width and y >= 0 and y <= screen.height:
+                # frame is type CartesianList therefore cartesian coordinates are oll korrect
+                screen.draw((x, y), char)
                 occupancy.append((x, y))
             x += 1
-        #raise KeyboardInterrupt(occupancy)
-        return frame, set(occupancy)
+        return set(occupancy)
 
 
 class SimpleText(Plane):
@@ -168,6 +173,19 @@ class SimpleText(Plane):
             point += 1
 
         return frame, set(range(point, point + len(self.image)))
+
+
+class Polygon(Plane):
+    __slots__ = ("vertices")
+    def __init__(self, edges: int, coordinates: List[Tuple[int, int]]):
+        if edges != len(coordinates):
+            raise TypeError("lengths and coordinates must have the size equal to it's edges")
+        self.vertices = []
+        c = 0
+        while c > edges:
+            self.vertices.append(Line(coordinates[c], coordinates[c+1]))
+            c += 2
+        self.vertices.append(Line(coordinates[0], coordinates[-1]))
 
 
 class AsciiText(Plane):
@@ -218,16 +236,16 @@ class Triangle(Plane):
         min_grp, max_grp = self._get_square_dimension(self.p1, self.p2, self.p3)
         self.dimension = max_grp[0]-min_grp[0], max_grp[1]-min_grp[1]
         self.rect.x, self.rect.y = min_grp
-        self.image = ([' '] * (self.dimension[0] * self.dimension[1]))
+        self.image = [[' ']* (self.dimension[0]+1)] * (self.dimension[1]+1)
         for vert in self.vertices:
             for p in vert.points:
-                loc = abs(p[0]-min_grp[0]) + (abs(p[1]-min_grp[1])*self.dimension[0])
-                # TODO: triangle image is either terrible or the rasterize method is broken
-                raise KeyboardInterrupt(loc, p)
-                self.image[round(loc)] = self.texture
-
-        raise KeyboardInterrupt("".join(self.colored_pixels))
-        return super(Triangle, self).blit(screen)
+                p = round(p[0] - min_grp[0]), round(p[1] - min_grp[1])
+                try:
+                    self.image[p[1]][p[0]] = self.texture
+                except IndexError:
+                    raise IndexError(p, min_grp, max_grp)
+        raise KeyboardInterrupt(beautify(self.dimension, itertools.chain.from_iterable(self.image)))
+        return super().blit(screen)
 
     def _get_square_dimension(self, p1, p2, p3):
         return (min((p1, p2, p3), key=lambda e: e[0])[0], min((p1, p2, p3), key=lambda e: e[1])[1]), (max((p1, p2, p3), key=lambda e: e[0])[0], max((p1, p2, p3), key=lambda e: e[1])[1])

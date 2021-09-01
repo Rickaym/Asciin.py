@@ -161,9 +161,9 @@ class Line(AssetCached):
         """
         return self._get_points()
 
-    @asset(lambda: ("p1", "p2"))
+    @asset(lambda: ("self.p1", "self.p2"))
     def _get_points(self):
-        gradient = GRADIENT(self.p1, self.p2)
+        gradient = GRADIENT(tuple(self.p1), tuple(self.p2))
         if gradient is not None:
             maps_inverse = map(
                 self._get_equation(gradient),

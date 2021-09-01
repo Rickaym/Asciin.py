@@ -1,19 +1,18 @@
 import inspect
-import os
 
-from platform import python_version
 from functools import wraps
-from io import BytesIO, StringIO
+from io import StringIO
 from cProfile import Profile
 from pstats import Stats
+from itertools import chain
 from random import randint
-from typing import Any, Literal, Tuple, List, Union, Callable
+from copy import deepcopy
+from types import LambdaType
+from typing import Any, Iterator, Literal, Tuple, List, Union, Callable
 
 from .values import ANSI
-from .globals import FINISHED_ONCE_TASKS, ASSET_CACHE
+from .globals import FINISHED_ONCE_TASKS, ASSET_CACHE, CWD
 
-TargetIO = StringIO if python_version()[0] == "3" else BytesIO
-CWD = os.getcwd()
 Supplier = Callable[[None], Any]
 
 class Color:
@@ -64,13 +63,45 @@ class Profiler:
 
     def stop(self):
         self.cpf.disable()
-        redirect = TargetIO()
+        redirect = StringIO()
         Stats(self.cpf, stream=redirect).sort_stats("time").print_stats()
         with open(self.path, "w") as f:
             f.write(redirect.getvalue().replace(CWD, "", -1))
 
 
-def beautify(dimension: Tuple[int, int], frame: Union[str, List[str]]) -> str:
+class CartesianList(list):
+    r"""
+    A subclass of list to translates coordinate notation (1, 2) to [y][x] notation and starting from 1.
+
+    Supports:
+        CartList[1, 2]      equals   list[1][0]
+        CartList[1, 2] = 2  equals   list[1][0] = 2
+        CartList.flatten()  equals   chain.from_iterable(2DList)
+        CartList.copy()     equals   deepcopy(CartList)
+    """
+    __ignore_oob__ = True
+
+    def __getitem__(self, key) -> Any:
+        if isinstance(key, (tuple, list)):
+            return super().__getitem__(key[1]-1).__getitem__(key[0]-1)
+        else:
+            return super().__getitem__(key)
+
+    def __setitem__(self, key, value) -> Any:
+        if isinstance(key, (tuple, list)):
+            if not (key[1]-1 >= super().__len__() or key[0]-1 >= super().__getitem__(0).__len__() or key[1] <= 0 or key[0] <= 0):
+                return super().__getitem__(key[1]-1).__setitem__(key[0]-1, value)
+        else:
+            return super().__setitem__(key, value)
+
+    def flatten(self) -> Iterator:
+        return chain.from_iterable(super().__iter__())
+
+    def copy(self) -> "CartesianList":
+        return deepcopy(self)
+
+
+def beautify(dimension: Tuple[int, int], frame: List[str]) -> str:
     r"""
     Maps an uncut frame into different pieces with newline characters to make it
     readable in a given context of dimension.
@@ -85,7 +116,6 @@ def beautify(dimension: Tuple[int, int], frame: Union[str, List[str]]) -> str:
     nw_frame = list(frame)
     for h in range(dimension[1]):
         nw_frame[h * dimension[0]] += "\n"
-        raise KeyboardInterrupt(nw_frame)
 
     return "".join(nw_frame)
 
@@ -127,7 +157,7 @@ def morph(initial_string: str, end_string: str, consume: Literal["start", "end"]
     return stages
 
 
-def deprecated(callable: Callable):
+def deprecated(callable: Callable) -> Callable:
     r"""
     Simply raises a DeprecationWarning when the decorated function is called.
     """
@@ -172,7 +202,7 @@ def isinstancemethod(func: Callable) -> bool:
     return "self" in inspect.getfullargspec(func)[0]
 
 
-def asset(getlibt):
+def asset(getlibt: LambdaType) -> Callable:
     r"""
     A decorator that marks a methods to be only re-evaulated on first call and necessary liability changes ignorant
     towards arguments.
@@ -251,7 +281,7 @@ class AssetCached:
                 is_liable = getattr(item, '__getliables__', False)
                 if is_liable is not False:
                     primer = item.__getliables__()
-                    setattr(obj, item_name, AssetCached.__predicate__(item, __getliables__ = lambda: [getattr(obj, name) if isinstance(name, str) else name for name in primer]))
+                    setattr(obj, item_name, AssetCached.__predicate__(item, __getliables__ = lambda: [eval(src, {"self": obj}) if isinstance(src, str) else src for src in primer]))
         return obj
 
     @staticmethod

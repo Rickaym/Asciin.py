@@ -1,23 +1,31 @@
 import signal
-import os
 
-from multiprocessing import Process
-import sys
-from typing import Any, Callable, Union, List
+from threading import Thread
+from typing import Any, Callable, Protocol, Union, List
 
+from .globals import PLATFORM
 from .utils import isinstancemethod
 
-# A consumer is marked as a method that does or doesn't take a self reference and returns nothing.
-Consumer = Union[Callable[[Any], None], Callable[[object], None]]
-
-# restrict internal events importation that can arise non lifecycle emissions
 __all__ = ["Event", "EventListener"]
+
+#
+# Types
+#
+
+Consumer = Callable[[Any], None]
+BoundConsumer = Callable[[object], None]
+
+class ListeningFunc(Protocol):
+    __threaded__: bool
+    __subscribes_to__: "Event"
+
+# ---
 
 class Event:
     __slots__ = ("callbacks")
 
     def __init__(self):
-        self.callbacks: List[Consumer] = []
+        self.callbacks: List[ListeningFunc] = []
 
     def emit(self, *args, **kwargs):
         r"""
@@ -25,17 +33,14 @@ class Event:
         Bound callbacks should be partialized if they need extra data.
         """
         if len(self.callbacks) != 0:
-            procs = []
             for cb in self.callbacks:
-                p = Process(target=cb, args=args, kwargs=kwargs)
-                p.start()
-                procs.append(p)
-            for p in procs:
-                p.join()
-
+                if cb.__threaded__ is True:
+                    Thread(target=cb, args=args, kwargs=kwargs).start()
+                else:
+                    cb(*args, *kwargs)
 
     @staticmethod
-    def listen(event: Union[str, "Event"]=None):
+    def listen(event: Union[str, "Event"]=None, threaded: bool=True):
         r"""
         A decorator that registers a callable as a callback under an event.
         Decorated function can be of any type with the only exception that bound methods must subclass under :class:`EventListener`.
@@ -46,9 +51,10 @@ class Event:
                 raise AttributeError(f"cannot find event with name {event}")
         else:
             target_event = event
-        def wrapper(func: Consumer):
+        def wrapper(func: Consumer) -> ListeningFunc:
             if isinstancemethod(func):
                 func.__subscribes_to__ = target_event
+                func.__threaded__ = threaded
             else:
                 target_event.callbacks.append(func)
             return func
@@ -58,7 +64,7 @@ class Event:
 class ON_TERMINATE_EVENT(Event):
     def emit(self, *args, **kwargs):
         super().emit()
-        sys.exit(0)
+        exit(0)
 
 ON_TERMINATE = ON_TERMINATE_EVENT()
 ON_START = Event()
@@ -74,7 +80,7 @@ signal.signal(signal.SIGINT, ON_TERMINATE.emit)
 signal.signal(signal.SIGTERM, ON_TERMINATE.emit)
 
 # more available unix signals for termination and terminal resize
-if os.name == "posix":
+if PLATFORM != "Windows":
     signal.signal(signal.SIGKILL, ON_TERMINATE.emit)
     signal.signal(signal.SIGWINCH, ON_TERMINATE.emit)
 
@@ -90,6 +96,5 @@ class EventListener:
                 is_subscriber = getattr(item, '__subscribes_to__', False)
                 if is_subscriber is not False:
                     # the event itself is attached to __subscribes_to__ so we just need to append onto its callbacks
-                    # this is necessary so that methods don't come unbounded
                     item.__subscribes_to__.callbacks.append(item)
         return obj

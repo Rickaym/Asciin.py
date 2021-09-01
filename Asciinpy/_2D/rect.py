@@ -1,16 +1,16 @@
-from uuid import uuid4
+from typing import Tuple, Union
 
 from ..utils import Color
-from typing import Tuple, Any
 
-class Rectable(object):
-    """
+AnyInt = Union[int, float]
+
+class Rectable:
+    r"""
     A simple parent class for all models that can be translated into a rect.
     """
 
-    def get_rect(self, coordinate=None, dimension=[0, 0]):
-        # type: (Tuple[int, int], Tuple[int, int]) -> Rect
-        """
+    def get_rect(self, coordinate: Tuple[int, int]=None, dimension: Tuple[int, int]=[0, 0]) -> "Rect":
+        r"""
         Builds a rect object from scratch. If neither coordinate or dimension
         is given, the coordinate is assumed to be the origin and the dimension is fetched
         from the parent Object.
@@ -33,27 +33,6 @@ class Rectable(object):
             self.rect = Rect(coordinate, dimension, self)
         return self.rect
 
-    @staticmethod
-    def make_rect(self, coordinate, dimension):
-        # type: (Tuple[int, int], Tuple[int, int], str) -> Rect
-        """
-        Builds a rect object from the given arguments.
-
-        :param coordinate:
-            The top left coordinate of the rect.
-        :type coordinate: Tuple[:class:`int`, :class:`int`]
-        :param dimension:
-            A tuple width it's width and height.
-        :type dimension: Tuple[:class:`int`, :class:`int`]
-
-        :return: (:class:`Rect`) The rectangle made or acquired.
-        """
-        if self.__dict__.get("rect") is None:
-            coordinate = coordinate or (0, 0)
-            dimension = dimension or self.dimension
-            self.rect = Rect(coordinate, dimension, self)
-        return self.rect
-
 
 class Rect:
     """
@@ -65,10 +44,9 @@ class Rect:
     exceeds the given boundary or an object is moving extremely fast.
     """
 
-    def __init__(self, coordinate, dimension, parent):
-        # type: (Tuple[int, int], Tuple[int, int], Any) -> None
-        self.x = coordinate[0]  #: :class:`int`: Top left x position
-        self.y = coordinate[1]  #: :class:`int`: Top left y position
+    def __init__(self, coordinate: Tuple[AnyInt, AnyInt], dimension: Tuple[int, int], parent):
+        self._x = coordinate[0]  #: :class:`int`: Top left x position
+        self._y = coordinate[1]  #: :class:`int`: Top left y position
         self.width = dimension[
             0
         ]  #: :class:`int`: The width of the rect. This is the horizontal difference.
@@ -80,11 +58,10 @@ class Rect:
         ) #: :class:`Model`: A Parent object that the rect is assigned under.
         self.texture = ""  #: :class:`str`: The outline texture of the rect. None by default.
         self.color = Color.FORE(255, 255, 255) #: :class:`Color`: The color of the plane
-        self._id = str(uuid4())[:5]
+        self.degree = 0
 
     @property
-    def top(self):
-        # type: () -> int
+    def top(self) -> int:
         """
         Uppermost y value.
 
@@ -93,8 +70,7 @@ class Rect:
         return self.y
 
     @property
-    def bottom(self):
-        # type: () -> int
+    def bottom(self) -> int:
         """
         Bottomost y value.
 
@@ -103,8 +79,7 @@ class Rect:
         return self.y + self.height
 
     @property
-    def right(self):
-        # type: () -> int
+    def right(self) -> int:
         """
         Right-most x value.
 
@@ -113,8 +88,7 @@ class Rect:
         return self.x + self.width
 
     @property
-    def left(self):
-        # type: () -> int
+    def left(self) -> int:
         """
         Left-most x value.
 

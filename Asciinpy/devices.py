@@ -1,6 +1,6 @@
-import io
 import sys
 
+from io import BytesIO
 from typing import Optional
 from threading import Thread
 
@@ -15,10 +15,8 @@ class RawMouseInput:
 
 class RawKeyInput:
     # these buffers only allow one sequential occupation any given time
-    cmd_buffer: Optional[io.BytesIO] = None  # keeps track of any escape sequences
-    line_buffer: Optional[
-        io.BytesIO
-    ] = None  # keeps track of a record until return is pressed
+    cmd_buffer: Optional[BytesIO] = None  # keeps track of any escape sequences
+    line_buffer: Optional[BytesIO] = None  # keeps track of a record until return is pressed
 
     @staticmethod
     def is_alphanumeric(bytes):
@@ -77,7 +75,7 @@ class RawKeyInput:
                 return past + ch
             elif not RawKeyInput.is_alphanumeric(ch):  # must be some escape sequence
                 if RawKeyInput.cmd_buffer is None:
-                    RawKeyInput.cmd_buffer = io.BytesIO()
+                    RawKeyInput.cmd_buffer = BytesIO()
                     RawKeyInput.cmd_buffer.write(ch)
                 return
 
@@ -89,7 +87,7 @@ class RawKeyInput:
                     RawKeyInput.line_buffer = None
                     return l_buf
             elif RawKeyInput.line_buffer is None:  # start a line buffer
-                RawKeyInput.line_buffer = io.BytesIO()
+                RawKeyInput.line_buffer = BytesIO()
                 RawKeyInput.line_buffer.write(ch)
             return ch
 

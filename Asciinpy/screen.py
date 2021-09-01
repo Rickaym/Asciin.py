@@ -1,24 +1,24 @@
 import os
 import sys
 
-from typing import Callable, Literal, Tuple, Union, Optional, Dict, List, Any
+from typing import Callable, Literal, Tuple, Union, Optional, List
 from abc import ABC, abstractmethod
-
 from math import tan
 from time import sleep, time
 
 from .values import Characters, Resolutions, ANSI
 from .devices import Keyboard
 from .events import ON_START, Event, EventListener
-
+from .utils import CartesianList
 
 __all__ = ["Window", "Screen"]
 
 Displayer = Callable[["Screen"], None]
+AnyInt = Union[int, float]
 
 
 class Screen(ABC):
-    """
+    r"""
     A context Abstract class for the console screen.
     Unix and NT machines subclasses this class into two children classes that implements
     `_new` and `_resize` differently.
@@ -69,23 +69,14 @@ class Screen(ABC):
         self.fov = fov
         self.max_fps = max_fps
         self.aspect_ratio = resolution.height / resolution.width
-        self.emptyframe = [" "] * (self.resolution.pixels)
+        self.emptyframe = CartesianList([[" "] * (resolution.width) for _ in range(resolution.height)])
         self.show_fps = show_fps
         self.timer = timer
         self.sysdout = sysdout
         self.debug = debug
 
-        # pre-rendered
-        self._infotext = (
-            self.palette[2]
-            + (r" " * (resolution.width - 2))
-            + self.palette[2]
-            + self.palette[2]
-            + (self.palette[2] * (resolution.width - 2))
-            + self.palette[2]
-        )
-        self._last_frame = self.emptyframe[:]
-        self._frame = self.emptyframe[:]
+        self._last_frame = self.emptyframe.copy()
+        self._frame = self.emptyframe.copy()
         self._records = []
 
         self._fps = 0
@@ -97,6 +88,16 @@ class Screen(ABC):
         self._started_at = time()
         self._stops_at = forcestop
         self._last_fps_measure = time()
+
+        # pre-rendered
+        self._infotext = (
+            self.palette[2]
+            + (r" " * (resolution.width - 2))
+            + self.palette[2]
+            + self.palette[2]
+            + (self.palette[2] * (resolution.width - 2))
+            + self.palette[2]
+        )
 
         if show_fps is True:
             inf = r"FPS: [%s]"
@@ -112,18 +113,16 @@ class Screen(ABC):
             )
 
     @property
-    def frame(self):
-        # type: () -> str
+    def frame(self) -> str:
         """
         The current frame rendered.
 
         :type: :class:`str`
         """
-        return "".join(self._frame)
+        return "".join(self._frame.flatten())
 
     @property
-    def fps(self):
-        # type: () -> int
+    def fps(self) -> int:
         """
         The amount of frames rendered per the second passed.
 
@@ -139,8 +138,7 @@ class Screen(ABC):
         return self._fps
 
     @property
-    def average_fps(self):
-        # type: () -> int
+    def average_fps(self) -> int:
         """
         The amount of frames rendered on average from start to present.
 
@@ -149,8 +147,7 @@ class Screen(ABC):
         return self._average_fps / (time() - self._started_at)
 
     @property
-    def tick(self):
-        # type: () -> int
+    def tick(self) -> int:
         """
         Internal ticks, from 0 to 25 for timing certain things.
 
@@ -161,19 +158,23 @@ class Screen(ABC):
     @staticmethod
     def _puts(*sequence: List[str]):
         r"""
-        Writes out sys stdout directly in bytes
+        Writes onto sys stdout directly, does the encoding.
         """
         os.write(1, "".join(sequence).encode())
 
-    def _slice_fit(self, text: str, point: int):
-        # type: (str, int) -> List[str]
+    def _slice_fit(self, coordinate: Tuple[int, int], *body: str):
         r"""
         Simplified implementation of the slice_fit render method to blit window menus and
         native elements.
         """
-        if point < 0:
-            point = self.resolution.width + point
-        return self._frame[:point] + list(text) + self._frame[point + len(text) :]
+        y_add = 0
+        x_add = 0
+        for char in body:
+            if coordinate[0]+x_add > self.width:
+                y_add += 1
+                x_add = 0
+            self.draw((coordinate[0]+x_add, coordinate[1]+y_add), char)
+            x_add += 1
 
     def _infograph(self):
         r"""
@@ -183,7 +184,9 @@ class Screen(ABC):
         in to maintain a max slice-fit of one per render.
         """
         if self.show_fps:
-            self._frame = self._slice_fit(self._infotext % str(self.fps).rjust(5), 0)
+            text = self._infotext % str(self.fps).rjust(5)
+            self._frame[0] = text[:self.width-1]
+            self._frame[1] = text[self.width-1:]
 
     @abstractmethod
     def _resize(self):
@@ -206,7 +209,7 @@ class Screen(ABC):
         Screen._puts(ANSI.CSI, "2J")
 
     @staticmethod
-    def _cursor(goto=None, visibility=None):
+    def _cursor(goto: Tuple[AnyInt, AnyInt]=None, visibility: bool=None):
         if goto is not None:
             Screen._puts(ANSI.CSI, "%d;%dH" % goto)
         if visibility is not None:
@@ -215,14 +218,7 @@ class Screen(ABC):
             else:
                 Screen._puts(ANSI.CSI, "?25l")
 
-    def _to_distance(self, x, y):
-        return round(x) + (round(y) * self.width)
-
-    def _to_coordinate(self, distance):
-        return divmod(distance, self.width)[::-1]
-
-    def blit(self, object, *args, **kwargs):
-        # type: (object, Tuple[Any], Dict[str, Any]) -> None
+    def blit(self, object: Callable, *args, **kwargs):
         """
         Simply calls the object's internal blit method onto itself and does necessary
         records.
@@ -231,7 +227,7 @@ class Screen(ABC):
             The Model to be blitted onto screen.
         :type object: :class:`Model`
         """
-        self._frame, object.occupancy = object.blit(self, *args, **kwargs)
+        object.occupancy = object.blit(self, *args, **kwargs)
 
     def refresh(self, log_frames=False):
         # type: (bool) -> None
@@ -248,6 +244,7 @@ class Screen(ABC):
         Keyboard.getch()
         self._infograph()
 
+
         current_frame = self.frame
         if self.sysdout:
             Screen._cursor((0, 0))
@@ -257,13 +254,16 @@ class Screen(ABC):
             self._last_frame = current_frame
 
         self._frames_displayed += 1
-        self._frame = self.emptyframe[:]
+        self._frame = self.emptyframe.copy()
+
+    def draw(self, coord: Tuple[int, int], char: str):
+        self._frame[coord[0], coord[1]] = char
 
 
 class WindowsControl(Screen):
     def _resize(self):
         os.system(
-            f"mode con cols={self.resolution.width} lines={self.resolution.height}"
+            f"mode con cols={self.width} lines={self.height}"
         )
 
     def _new(self, mode: Literal["k", "c"], origin_depth: int):
@@ -276,7 +276,7 @@ class WindowsControl(Screen):
             else:
                 frame = frame.f_back
 
-        os.system("""start cmd /{} py {}""".format(mode, caller))
+        os.system("""start cmd /{} py "{}" ;pause""".format(mode, caller))
 
 
 class UnixControl(Screen):
@@ -461,6 +461,8 @@ class Window(EventListener):
         self,
         show_fps: bool = False,
         sysdout: bool = True,
+        resize: bool = True,
+        flush: bool = True,
         timer: bool = False,
     ):
         r"""
@@ -490,9 +492,11 @@ class Window(EventListener):
                 del os.environ[self.PNAME]
 
         if sysdout is True:
-            self.screen._resize()
-            Screen._clear()
-            Screen._cursor(visibility=False)
+            if resize is True:
+                self.screen._resize()
+            if flush is True:
+                Screen._clear()
+                Screen._cursor(visibility=False)
 
         ON_START.emit()
         return self.loop(self.screen)
