@@ -61,7 +61,8 @@ python -m pip install -U asciin.py
 4. Call the `Asciinpy.Window.run` method!
 
 ```py
-from Asciinpy import Screen, Window, Resolutions
+from Asciinpy.screen import Screen, Window
+from Asciinpy.values import Resolutions
 from Asciinpy._2D import Square
 # Define a window
 
