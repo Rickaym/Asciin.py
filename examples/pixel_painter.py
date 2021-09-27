@@ -7,8 +7,9 @@ canvas onto the screen frame. Even then, it is rendered like every other Model.
 """
 import sys
 
-from Asciinpy.utils import Profiler, Color
-from Asciinpy import Screen, Resolutions, Window
+from Asciinpy.utils import Color
+from Asciinpy.screen import Screen, Window
+from Asciinpy.values import Resolutions
 from Asciinpy._2D import Mask
 
 from random import random, choice, randint

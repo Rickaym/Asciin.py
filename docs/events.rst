@@ -64,3 +64,18 @@ Creating an event is as easy as making an instance of :class:`Event` or any of y
    my_event.emit() # adding args to the call will be passed onto listeners
 
 In cases where your handler isn't static, make sure that your classes are event listeners.
+
+
+Functional Device Events
+-------------------------
+
+.. code:: py
+
+   # Define a user loop for the screen and accept a screen parameter, this is of type Screen.
+   @window.loop()
+   def my_loop(screen: Screen):
+       # screen.events() captures all listenable device events and it should be
+       # called before analysis
+       e = screen.events()
+       if Keyboard.pressed == Keyboard.Keys.RIGHT_ARROW:
+           ...
