@@ -2,14 +2,14 @@ import os
 import sys
 
 from typing import Callable, Literal, Tuple, Union, Optional, List
-from abc import ABC, abstractmethod
-from math import tan
+from abc import ABCMeta, abstractmethod
 from time import sleep, time
 
 from .values import Characters, Resolutions, ANSI
 from .devices import Keyboard
 from .events import ON_START, Event, EventListener
 from .utils import CartesianList
+from .globals import PLATFORM
 
 __all__ = ["Window", "Screen"]
 
@@ -17,11 +17,11 @@ Displayer = Callable[["Screen"], None]
 AnyInt = Union[int, float]
 
 
-class Screen(ABC):
+class Screen(metaclass=ABCMeta):
     r"""
-    A context Abstract class for the console screen.
-    Unix and NT machines subclasses this class into two children classes that implements
-    `_new` and `_resize` differently.
+    A context Abstract class for a screen.
+
+    Currently we are able to generalize all the OSes into a single subclass with minimal efforts.
     """
 
     palette = Characters.miniramp
@@ -32,7 +32,6 @@ class Screen(ABC):
         "width",
         "height",
         "max_fps",
-        "fov",
         "aspect_ratio",
         "emptyframe",
         "show_fps",
@@ -57,7 +56,6 @@ class Screen(ABC):
         resolution: Resolutions,
         max_fps: Optional[int],
         forcestop: Optional[int],
-        fov: Optional[int],
         debug: bool,
         show_fps: bool,
         sysdout: bool,
@@ -66,24 +64,21 @@ class Screen(ABC):
         self.resolution = resolution
         self.width, self.height = resolution.value
 
-        self.fov = fov
         self.max_fps = max_fps
         self.aspect_ratio = resolution.height / resolution.width
-        self.emptyframe = CartesianList([[" "] * (resolution.width) for _ in range(resolution.height)])
+        self.emptyframe = lambda: CartesianList([[" "] * (resolution.width) for _ in range(resolution.height)])
         self.show_fps = show_fps
         self.timer = timer
         self.sysdout = sysdout
         self.debug = debug
 
-        self._last_frame = self.emptyframe.copy()
-        self._frame = self.emptyframe.copy()
+        self._frame = self.emptyframe()
+        self._last_frame = self.emptyframe()
         self._records = []
 
         self._fps = 0
         self._average_fps = 0
         self._frames_displayed = 0
-        if fov is not None:
-            self._fov = 1 / tan(fov * 0.5)
 
         self._started_at = time()
         self._stops_at = forcestop
@@ -98,6 +93,8 @@ class Screen(ABC):
             + (self.palette[2] * (resolution.width - 2))
             + self.palette[2]
         )
+        self.__stdout__ = sys.stdout
+        self.sysdout_fileno = self.__stdout__.fileno()
 
         if show_fps is True:
             inf = r"FPS: [%s]"
@@ -111,6 +108,7 @@ class Screen(ABC):
                 + watch
                 + self._infotext[3 + fps_size + offs + len(watch) :]
             )
+
 
     @property
     def frame(self) -> str:
@@ -155,27 +153,6 @@ class Screen(ABC):
         """
         return round(time() - self._started_at) % self.TPS
 
-    @staticmethod
-    def _puts(*sequence: List[str]):
-        r"""
-        Writes onto sys stdout directly, does the encoding.
-        """
-        os.write(1, "".join(sequence).encode())
-
-    def _slice_fit(self, coordinate: Tuple[int, int], *body: str):
-        r"""
-        Simplified implementation of the slice_fit render method to blit window menus and
-        native elements.
-        """
-        y_add = 0
-        x_add = 0
-        for char in body:
-            if coordinate[0]+x_add > self.width:
-                y_add += 1
-                x_add = 0
-            self.draw((coordinate[0]+x_add, coordinate[1]+y_add), char)
-            x_add += 1
-
     def _infograph(self):
         r"""
         Ensures correct conditions to blit a debug menu at the top of the window.
@@ -187,36 +164,6 @@ class Screen(ABC):
             text = self._infotext % str(self.fps).rjust(5)
             self._frame[0] = text[:self.width-1]
             self._frame[1] = text[self.width-1:]
-
-    @abstractmethod
-    def _resize(self):
-        """
-        Abstract method in resizing a powershell or a command prompt to the given resolution, this does not actually
-        care about the size of the screen - also removes scroll wheel.
-        """
-
-    @abstractmethod
-    def _new(self):
-        """
-        Creates an accessible powershell or a command prompt to the given resolution.
-        """
-
-    @staticmethod
-    def _clear():
-        """
-        Clears the current visible terminal
-        """
-        Screen._puts(ANSI.CSI, "2J")
-
-    @staticmethod
-    def _cursor(goto: Tuple[AnyInt, AnyInt]=None, visibility: bool=None):
-        if goto is not None:
-            Screen._puts(ANSI.CSI, "%d;%dH" % goto)
-        if visibility is not None:
-            if visibility is True:
-                Screen._puts(ANSI.CSI, "?25h")
-            else:
-                Screen._puts(ANSI.CSI, "?25l")
 
     def blit(self, object: Callable, *args, **kwargs):
         """
@@ -230,7 +177,6 @@ class Screen(ABC):
         object.occupancy = object.blit(self, *args, **kwargs)
 
     def refresh(self, log_frames=False):
-        # type: (bool) -> None
         """
         Empties the current frame. If sysdout is enabled, it is printed onto the window.
 
@@ -241,30 +187,55 @@ class Screen(ABC):
         if self._stops_at is not None and time() - self._started_at >= self._stops_at:
             raise RuntimeError("Times up! Program has been force stopped.")
 
-        Keyboard.getch()
         self._infograph()
-
-
         current_frame = self.frame
+
         if self.sysdout:
-            Screen._cursor((0, 0))
-            Screen._puts(current_frame)
+            self._update(current_frame)
         if log_frames and self._last_frame != current_frame:
             self._records.append(current_frame)
             self._last_frame = current_frame
 
         self._frames_displayed += 1
-        self._frame = self.emptyframe.copy()
+        self._frame = self.emptyframe()
+
+    def events(self):
+        Keyboard.getch()
 
     def draw(self, coord: Tuple[int, int], char: str):
-        self._frame[coord[0], coord[1]] = char
+        self._frame[round(coord[0]), round(coord[1])] = char
 
-
-class WindowsControl(Screen):
     def _resize(self):
-        os.system(
-            f"mode con cols={self.width} lines={self.height}"
-        )
+        """
+        Abstract method in resizing a powershell or a command prompt to the given resolution, this does not actually
+        care about the size of the screen - also removes scroll wheel.
+        """
+
+    def _new(self):
+        """
+        Creates an accessible powershell or a command prompt to the given resolution.
+        """
+
+    @abstractmethod
+    def _update(self, frame: str):
+        pass
+
+
+class ConsoleInterface(EventListener, Screen):
+    def __init__(self, resolution: Resolutions, max_fps: Optional[int], forcestop: Optional[int], debug: bool, show_fps: bool, sysdout: bool, timer: bool):
+        super().__init__(resolution, max_fps, forcestop, debug, show_fps, sysdout, timer)
+        self.stdout = sys.stdout
+        self.cout = self.stdout.fileno()
+
+    def _resize(self):
+        if PLATFORM == "Windows":
+            os.system(
+                f"mode con cols={self.width} lines={self.height}"
+            )
+        elif PLATFORM == "Linux" or PLATFORM == "Darwin":
+            os.system(f"printf '\e[8;{self.resolution.height};{self.resolution.width}t'")
+        else:
+            raise NotImplementedError("Resize method is not implemented in this OS")
 
     def _new(self, mode: Literal["k", "c"], origin_depth: int):
         frame = list(sys._current_frames().values())[0]
@@ -275,19 +246,68 @@ class WindowsControl(Screen):
                 caller = frame.f_globals["__file__"]
             else:
                 frame = frame.f_back
+        if PLATFORM == "Windows":
+            command = f"""start cmd /{mode} {sys.executable} "{caller}" ;pause"""
+        else:
+            command = f"""gnome-terminal --working-directory=$pwd  -- "{sys.executable}" '{caller}'"""
 
-        os.system("""start cmd /{} py "{}" ;pause""".format(mode, caller))
-
-
-class UnixControl(Screen):
-    def _resize(self):
-        os.system(f"printf '\e[8;{self.resolution.height};{self.resolution.width}t'")
-
-    def _new(self):
-        pass
+        os.system(command)
 
 
-class Window(EventListener):
+    def _puts(self, *sequence: List[str]):
+        r"""
+        Writes onto sys stdout directly, does the encoding.
+        """
+        os.write(self.cout, "".join(sequence).encode())
+
+    def _slice_fit(self, coordinate: Tuple[int, int], *body: str):
+        r"""
+        Simplified implementation of the slice_fit render method to blit window menus and
+        native elements.
+        """
+        coordinate = list(coordinate)
+        for i, chr in enumerate(str(body)):
+            self.draw((coordinate[0]+i, coordinate[1]), chr)
+            if coordinate[0]+i == self.width:
+                coordinate[1] +=1
+                coordinate[0] = -i
+
+    def _clear(self):
+        """
+        Clears the current visible terminal
+        """
+        self._puts(ANSI.CSI, "2J")
+
+    def _cursor(self, goto: Tuple[AnyInt, AnyInt]=None, visibility: bool=None):
+        if goto is not None:
+            self._puts(ANSI.CSI, "%d;%dH" % goto)
+        if visibility is not None:
+            if visibility is True:
+                self._puts(ANSI.CSI, "?25h")
+            else:
+                self._puts(ANSI.CSI, "?25l")
+
+    def _update(self, frame: str):
+        self._cursor((0, 0))
+        self._puts(frame)
+
+    @Event.listen("on_terminate")
+    def _terminate(self):
+        self._puts(ANSI.BEL)
+        if self.sysdout is True:
+            self._puts(ANSI.RESET)
+            self._cursor((0, 0), visibility=True)
+            self._clear()
+
+    @Event.listen("on_start")
+    def _startup(self):
+        if self.sysdout is True:
+            self._resize()
+            self._clear()
+            self._cursor(visibility=False)
+
+
+class Window:
     r"""
     An abstract representation of a window, the class handles the internal loops.
 
@@ -307,7 +327,7 @@ class Window(EventListener):
            ...
 
        # event subscriber
-       @ON_SOME_EVENT.on_emit
+       @Events.listen("ON_SOME_EVENT")
        def callback():
            # event callback
            ...
@@ -321,7 +341,7 @@ class Window(EventListener):
                # this is the game loop
                ...
 
-           @Events.listen("ON_SOME_EVENT") # don't use @ON_SOME_EVENT.on_emit
+           @Events.listen("ON_SOME_EVENT")
            def callback():
                # event callback
                ...
@@ -332,13 +352,9 @@ class Window(EventListener):
     __slots__ = (
         "resolution",
         "max_fps",
-        "fov",
-        "_debug",
-        "_screen",
-        "_client_loop",
         "_stop_time",
-        "_new_win_mode",
-        "_origin_depth",
+        "__loop__",
+        "_debug"
     )
 
     def __init__(
@@ -346,27 +362,10 @@ class Window(EventListener):
         resolution: Union[Resolutions, Tuple[int, int]],
         max_fps: Optional[int] = None,
     ):
-        self.screen: Screen = None
-
-        self._stop_time: int = None
-        self._new_win_mode: Literal["k", "c"]
-        self._origin_depth: int
-        self._debug = False
-
-        self.fov = 1.53
         self.resolution = Resolutions(resolution)
         self.max_fps = max_fps
-
-        self.sysdout = None
-
-    @Event.listen("on_terminate")
-    def _terminate(self):
-        Screen._puts(ANSI.BEL)
-        if self.sysdout is True:
-            Screen._puts(ANSI.RESET)
-            Screen._cursor((0, 0), visibility=True)
-            Screen._clear()
-
+        self.__loop__ = None
+        self._debug = False, None, None
 
     def enable_debug(self, mode: Literal["k", "c"] = "k", origin_depth: int = 5):
         r"""
@@ -378,24 +377,24 @@ class Window(EventListener):
 
             c - Executes the application until interrupted then closes
 
-        - Offloads program onto a subprocess on an external Terminal with the given mode
-        - (TODO) Create another subprocess on a different Terminal for error catching and logging.
+        Offloads program onto a subprocess on an external Terminal with the given mode.
         """
-        self._debug = True
-        self._new_win_mode = mode
-        self._origin_depth = origin_depth
+        self._debug = True, mode, origin_depth
 
-    def loop(self, forcestop: Optional[int] = None) -> Displayer:
+    def loop(self, forcestop: Optional[int] = None, screen: Screen=None) -> Displayer:
         r"""
         Registers the client loop under `loop` of window class.
         This consenquentially limits the decorator to be re-used.
 
         :returns: (Callable[[:class:`Screen`], None]) The wrapped function.
         """
+        if self.__loop__ is not None:
+            return self.__loop__(screen)
+
         self._stop_time = forcestop
 
         def wrapper(func: Displayer):
-            self.loop = func
+            self.__loop__ = func
             return func
         return wrapper
 
@@ -413,12 +412,9 @@ class Window(EventListener):
         self.screen = self.get_screen(
             self.resolution, self.max_fps, self._stop_time, False, False, False
         )
-        self.screen._resize()
-
-        ON_START.emit()
-
         frames = [frame.replace("\n", "", -1) for frame in frames]
         index = 0
+        ON_START.emit()
         while True:
             self.screen._frame = frames[index]
             index += 1
@@ -427,20 +423,7 @@ class Window(EventListener):
             self.screen.refresh()
             sleep(60 / (fps * 60))
 
-    def get_screen(self, *args, **kwargs) -> Screen:
-        r"""
-        Makes a screen based on the OS if none is present.
-        """
-        if self.screen is None:
-            if os.name == "nt":
-                constructor = WindowsControl
-            else:
-                constructor = UnixControl
-            return constructor(*args, **kwargs)
-        return self.screen
-
     def set_title(self, title: str):
-        # type: (str) -> None
         r"""
         Sets the title of the current console window.
         """
@@ -457,46 +440,37 @@ class Window(EventListener):
         """
         self.fov = fov
 
-    def run(
-        self,
-        show_fps: bool = False,
-        sysdout: bool = True,
-        resize: bool = True,
-        flush: bool = True,
-        timer: bool = False,
-    ):
+    def _run_consolas(self, show_fps: bool, sysdout: bool, timer: bool,):
         r"""
-        Creates a screen object internally, does necessary calls on the console and proceeds with debug mode if it is enabled.
+        Creates and screen object by basis of a console.
 
         :param fov:
             FOV of the screen, only relevant to 3D.
         """
-        self.sysdout = sysdout
-        self.screen = self.get_screen(
+        screen = ConsoleInterface(
             self.resolution,
             self.max_fps,
             self._stop_time,
-            self.fov,
             self._debug,
             show_fps,
             sysdout,
             timer,
         )
-
-        if self._debug is True:
+        if self._debug[0] is True:
             if os.getenv(self.PNAME) != "child":
                 os.environ[self.PNAME] = "child"
-                self.screen._new(self._new_win_mode, self._origin_depth)
+                screen._new(self._debug[1], self._debug[2])
                 return
             else:
                 del os.environ[self.PNAME]
 
-        if sysdout is True:
-            if resize is True:
-                self.screen._resize()
-            if flush is True:
-                Screen._clear()
-                Screen._cursor(visibility=False)
-
         ON_START.emit()
-        return self.loop(self.screen)
+        return self.loop(screen=screen)
+
+    def run(
+        self,
+        show_fps: bool = False,
+        sysdout: bool = True,
+        timer: bool = False,
+    ):
+        return self._run_consolas(show_fps, sysdout, timer)

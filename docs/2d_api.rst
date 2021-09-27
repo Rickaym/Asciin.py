@@ -1,55 +1,46 @@
 .. currentmodule:: Asciinpy._2D
 
-Rects and Boundaries
+2D Definitors
 ----------------------
 
-.. autoclass:: Rect
-    :members:
-
-|
-
-.. autoclass:: Rectable
-    :members:
-
-Models and subsequent classes
----------------------------------
-
 .. autoclass:: Plane
-    :show-inheritance:
-    :inherited-members:
     :members:
-    :exclude-members: make_rect
-
-|
-
-.. autoclass:: Triangle
-    :show-inheritance:
-    :inherited-members:
-    :members:
-    :exclude-members: make_rect
-
-|
-
-.. autoclass:: SimpleText
-    :show-inheritance:
-    :inherited-members:
-    :members:
-    :exclude-members: make_rect
-
-|
-
-.. autoclass:: AsciiText
-    :show-inheritance:
-    :inherited-members:
-    :members:
-    :exclude-members: make_rect
 
 |
 
 .. autoclass:: Mask
+    :members:
+
+|
+
+.. autoclass:: Collidable
+    :members:
+
+
+Built-in model classes
+---------------------------------
+
+.. autoclass:: Tile
     :show-inheritance:
     :inherited-members:
     :members:
+    :exclude-members: make_rect
+
+|
+
+.. autoclass:: Text
+    :show-inheritance:
+    :inherited-members:
+    :members:
+    :exclude-members: make_rect
+
+|
+
+.. autoclass:: Polygon
+    :show-inheritance:
+    :inherited-members:
+    :members:
+    :exclude-members: make_rect
 
 |
 

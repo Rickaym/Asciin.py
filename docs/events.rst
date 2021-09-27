@@ -17,12 +17,14 @@ on_terminate       None                            Fatal signal is caught
 on_resize          None                            Terminal resize
 on_key_press       key: :obj:`Keyboard.Keys`       Keyboard key is pressed
 on_mouse_click     button: :obj:`Mouse.Buttons`    Mouse button is pressed
+================= =============================== ======================================
+
 
 Signature is the proposed function signature for the event handler.
 There are several ways we can listen to an internal event depending on the situation. We can use the :obj:`Event.listen` method and pass in the name of the internal event to be listened.
 
 .. code:: py
-   
+
    from Asciinpy.events import Event
    from Asciinpy.devices import Keyboard
 
@@ -35,7 +37,7 @@ The name provided is looked-up inside the globals of `events` module. This means
 The example provided works fine as long as the function is a staticmethod. When dealing with classmethods, although we can use the same decorator the way we did, the class that the classmethod belongs to must be subclassed under :class:`EventListener`. In most cases where you subclass :class:`Window` your class will automatically be an event listener.
 
 .. code:: py
-   
+
    from Asciinpy.events import Event, EventListener
    from Asciinpy.devices import Keyboard
 
@@ -47,12 +49,12 @@ The example provided works fine as long as the function is a staticmethod. When 
 User Events
 ------------
 
-Creating an event is as easy as making an instance of :class:`Event` or any of your subclasses of it. We cannot necessarily use the name look-up method so we can directly pass in the event instance into :obj:`Event.listen` method. You can then call all event listeners of your event simply by calling :obj:`Event.emit` with the targetted signature. 
+Creating an event is as easy as making an instance of :class:`Event` or any of your subclasses of it. We cannot necessarily use the name look-up method so we can directly pass in the event instance into :obj:`Event.listen` method. You can then call all event listeners of your event simply by calling :obj:`Event.emit` with the targetted signature.
 
 .. code:: py
-   
+
    from Asciinpy.events import Event
-   
+
    my_event = Event()
 
    @Event.listen(my_event)

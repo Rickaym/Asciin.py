@@ -21,6 +21,23 @@ class ListeningFunc(Protocol):
 
 # ---
 
+
+class EventListener:
+    def __new__(cls, *args, **kwargs):
+        r"""
+        Filters callables that are marked a subscriber of an event to be registered as the callback.
+        """
+        obj = super().__new__(cls)
+        for item_name in dir(obj):
+            item = getattr(obj, item_name, None)
+            if callable(item):
+                is_subscriber = getattr(item, '__subscribes_to__', False)
+                if is_subscriber is not False:
+                    # the event itself is attached to __subscribes_to__ so we just need to append onto its callbacks
+                    item.__subscribes_to__.callbacks.append(item)
+        return obj
+
+
 class Event:
     __slots__ = ("callbacks")
 
@@ -56,6 +73,7 @@ class Event:
                 func.__subscribes_to__ = target_event
                 func.__threaded__ = threaded
             else:
+                func.__threaded__ = threaded
                 target_event.callbacks.append(func)
             return func
         return wrapper
@@ -73,7 +91,6 @@ ON_RESIZE = Event()
 ON_KEY_PRESS = Event()
 ON_MOUSE_CLICK = Event()
 
-del ON_TERMINATE_EVENT
 
 # Sigint and sigterm signals will start a system termination call
 signal.signal(signal.SIGINT, ON_TERMINATE.emit)
@@ -81,20 +98,6 @@ signal.signal(signal.SIGTERM, ON_TERMINATE.emit)
 
 # more available unix signals for termination and terminal resize
 if PLATFORM != "Windows":
-    signal.signal(signal.SIGKILL, ON_TERMINATE.emit)
     signal.signal(signal.SIGWINCH, ON_TERMINATE.emit)
 
-class EventListener:
-    def __new__(cls, *args, **kwargs):
-        r"""
-        Filters callables that are marked a subscriber of an event to be registered as the callback.
-        """
-        obj = super().__new__(cls)
-        for item_name in dir(obj):
-            item = getattr(obj, item_name, None)
-            if callable(item):
-                is_subscriber = getattr(item, '__subscribes_to__', False)
-                if is_subscriber is not False:
-                    # the event itself is attached to __subscribes_to__ so we just need to append onto its callbacks
-                    item.__subscribes_to__.callbacks.append(item)
-        return obj
+del ON_TERMINATE_EVENT, PLATFORM

@@ -1,2 +1,2 @@
-from .planes import *
-from .rect import *
+from .objects import *
+from .definitors import *

@@ -5,8 +5,7 @@ PixelPainter doesn't directly create an imprint onto the frame. It keeps a refer
 itself that the user draw onto. Only when it is blitted that the pixel painter localizes it's
 canvas onto the screen frame. Even then, it is rendered like every other Model.
 """
-from Asciinpy.geometry import roundi
-from Asciinpy.screen import Color
+from Asciinpy.utils  import Color
 import sys
 
 from Asciinpy import Screen, Window, Resolutions
@@ -23,7 +22,7 @@ def my_loop(screen):
     with open("./examples/DVD_logo.txt", "r") as f:
         img = f.read()
         lines = img.split('\n')
-        DVD_logo = Plane(image=img, dimension=(len(lines[0]), len(lines)))
+        DVD_logo = Plane(image=img, dimension=(len(lines[0]), len(lines)), coordinate=(23, 15))
         DVD_logo.get_rect()
     # Map the velocity for the mmovement
     velocity = [0.0302, 0.0302]
@@ -32,17 +31,17 @@ def my_loop(screen):
         DVD_logo.rect.x += velocity[0]
 
         # Check for border collisions and flip signs
-        if roundi(DVD_logo.rect.y) < 0:
+        if round(DVD_logo.rect.y) <= 0:
             velocity[1] = abs(velocity[1])
             DVD_logo.color = Color.FORE.random()
-        elif (roundi(DVD_logo.rect.y) + DVD_logo.dimension[1]) > screen.resolution.height:
+        elif (round(DVD_logo.rect.y) + DVD_logo.dimension[1]-2) > screen.resolution.height:
             velocity[1] = -velocity[1]
             DVD_logo.color = Color.FORE.random()
 
-        if roundi(DVD_logo.rect.x) < -1:
+        if round(DVD_logo.rect.x) <= 0:
             velocity[0] = abs(velocity[0])
             DVD_logo.color = Color.FORE.random()
-        elif (roundi(DVD_logo.rect.x) + DVD_logo.dimension[0]) >= screen.resolution.width-1:
+        elif (round(DVD_logo.rect.x) + DVD_logo.dimension[0]) > screen.resolution.width:
             velocity[0] = -velocity[0]
             DVD_logo.color = Color.FORE.random()
 

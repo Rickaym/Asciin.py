@@ -1,9 +1,9 @@
 Quickstart
 ===========
 
-#. Instantiate a :class:`Asciinpy.Window` class with the desired values.
+#. Instantiate a :class:`Asciinpy.Window` class with the required details.
 
-#. Define your game loop and decorate it with the :obj:`Asciinpy.Window.loop` decorator that should accept one parameter of type :class:`Displayable`.
+#. Define your game loop and decorate it with the :obj:`Asciinpy.Window.loop` decorator that should accept one parameter of type :class:`Screen`.
 
 #. Write some fancy code with or without built-in models to render.
 
@@ -12,15 +12,15 @@ Quickstart
 
 .. code:: py
 
-   from Asciinpy import Displayable, Window, Resolutions
+   from Asciinpy.screen import Screen, Window,
+   from Asciinpy.values import Resolution
    from Asciinpy._2D import Square
 
    # Define a window
    window = Window(resolution=Resolutions._60c)
 
    @window.loop()
-   def game_loop(screen):
-       # type: (Displayable) -> None
+   def game_loop(screen: Screen) -> None:
        coordinate = (0, 0)
        length = 8
        texture = "%"

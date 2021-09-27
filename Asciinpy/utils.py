@@ -6,14 +6,13 @@ from cProfile import Profile
 from pstats import Stats
 from itertools import chain
 from random import randint
-from copy import deepcopy
 from types import LambdaType
 from typing import Any, Iterator, Literal, Tuple, List, Union, Callable
 
 from .values import ANSI
-from .globals import FINISHED_ONCE_TASKS, ASSET_CACHE, CWD
+from .globals import FINISHED_ONCE_TASKS, CWD
 
-Supplier = Callable[[None], Any]
+Supplier = Callable[[], Any]
 
 class Color:
     def FOREGROUND(id):
@@ -97,11 +96,8 @@ class CartesianList(list):
     def flatten(self) -> Iterator:
         return chain.from_iterable(super().__iter__())
 
-    def copy(self) -> "CartesianList":
-        return deepcopy(self)
 
-
-def beautify(dimension: Tuple[int, int], frame: List[str]) -> str:
+def beautify(dimension: Tuple[int, int], frame: Union[List[str], str]) -> str:
     r"""
     Maps an uncut frame into different pieces with newline characters to make it
     readable in a given context of dimension.
@@ -114,10 +110,13 @@ def beautify(dimension: Tuple[int, int], frame: List[str]) -> str:
     :type frame: Union[:class:`str`, List[:class:`str`]:
     """
     nw_frame = list(frame)
-    for h in range(dimension[1]):
-        nw_frame[h * dimension[0]] += "\n"
-
-    return "".join(nw_frame)
+    if isinstance(nw_frame[0], str):
+        for h in range(dimension[1]):
+            nw_frame[h * dimension[0]] += "\n"
+    elif isinstance(nw_frame[0], (list, tuple)):
+        for i in range(len(nw_frame)):
+            nw_frame[i] += ['\n']
+    return nw_frame
 
 
 def morph(initial_string: str, end_string: str, consume: Literal["start", "end"]="end", loop: bool=True) -> List[str]:
@@ -238,7 +237,7 @@ def asset(getlibt: LambdaType) -> Callable:
            def __init__(self, bomb):
                self.bomb = bomb
 
-           @asset(lambda: "bomb")
+           @asset(lambda: "self.bomb")
            def get_bomb(self):
                return self.bomb.upper().strip().replace(' ', "KAPOW")
 
@@ -253,11 +252,17 @@ def asset(getlibt: LambdaType) -> Callable:
         getlibt = wrapped_getlibt
 
     def wrapper(func: Callable) -> Callable:
-        func.__getliables__ = getlibt
-        func.__libt__ = getlibt()
-        # staticmethods are predicated immediately
-        if not isinstancemethod(func):
-            func = AssetCached.__predicate__(func)
+        if isinstance(func, property):
+            func.fget.__getliables__ = getlibt
+            func.fget.__libt__ = getlibt()
+        else:
+            func.__getliables__ = getlibt
+            func.__libt__ = getlibt()
+
+            # staticmethods are predicated immediately
+            if not isinstancemethod(func):
+                func = AssetCached.__predicate__(func)
+
         return func
     return wrapper
 
@@ -273,26 +278,56 @@ class AssetCached:
         If we don't do this, the calls from different instances of the same type will
         be convoluted into a singular name space.
         """
+
         obj = super().__new__(cls)
+        new_cls = None
+
+        # properties must be tampered before class creation
+        for item_name, item in vars(cls).items():
+            if isinstance(item, property):
+                # __getliables__ is a marker that this function is decorated
+                is_liable = getattr(item.fget, '__getliables__', False)
+                if is_liable is not False:
+                    # properties rely on the class method so we need a new type for each
+                    # different self-sustaining property
+                    if new_cls is None:
+                        new_cls = type(cls.__name__, (cls,), {})
+                        obj = super().__new__(new_cls)
+                    __libt__ = item.fget.__libt__
+                    setattr(new_cls, item_name, property(AssetCached.__predicate__(item.fget, AssetCached.__libt_getter__(__libt__, obj))))
+
         for item_name in dir(obj):
             item = getattr(obj, item_name, None)
+
             if callable(item):
-                # __getliables__ is a marker that this function is decorated
                 is_liable = getattr(item, '__getliables__', False)
                 if is_liable is not False:
-                    primer = item.__getliables__()
-                    setattr(obj, item_name, AssetCached.__predicate__(item, __getliables__ = lambda: [eval(src, {"self": obj}) if isinstance(src, str) else src for src in primer]))
+                    __libt__ = item.__libt__
+                    setattr(obj, item_name, AssetCached.__predicate__(item, AssetCached.__libt_getter__(__libt__, obj)))
         return obj
 
     @staticmethod
+    def __libt_getter__(__libt__, obj):
+        r"""
+        Just a helper function to derive a liability supplier.
+        """
+        prepared_libt = [libt.split('.')[1:] if isinstance(libt, str) else libt for libt in __libt__]
+
+        return lambda: [getattr(obj, src) if isinstance(src, str) else src for src in prepared_libt]
+
+    @staticmethod
     def __predicate__(func, __getliables__: Supplier=None):
+        r"""
+        Predicates the given function into a self-sustainingly cached method.
+        """
         @wraps(func)
         def wrapped(*args, **kwargs):
-            if ASSET_CACHE.get(func) is None or wrapped.__libt__ != wrapped.__getliables__():
-                ASSET_CACHE[func] = func(*args, **kwargs)
-                wrapped.__libt__ = wrapped.__getliables__()
-            return ASSET_CACHE[func]
-        wrapped.__getliables__ = __getliables__ or func.__getliables__
-        wrapped.__libt__ = func.__libt__
-        return wrapped
+            if wrapped.__libt__ != wrapped.__getliables__():
+                wrapped.__cached_return__ = func(*args, **kwargs)
+                wrapped.__libt__ = [_[:] for _ in wrapped.__getliables__()]
+            return wrapped.__cached_return__
 
+        wrapped.__getliables__ = __getliables__ or func.__getliables__
+        wrapped.__cached_return__ = None
+        wrapped.__libt__ = [_[:] for _ in func.__libt__]
+        return wrapped

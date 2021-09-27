@@ -23,6 +23,7 @@ Indices and tables
    ./quickstart.rst
    ./basics.rst
    ./api.rst
+   ./events.rst
 
 
 

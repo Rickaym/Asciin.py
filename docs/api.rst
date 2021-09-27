@@ -8,12 +8,12 @@ Api Reference
 Screens
 ---------------------------------
 
-.. autoclass:: Window
+.. autoclass:: Screen
     :members:
 
 |
 
-.. autoclass:: Screen
+.. autoclass:: Window
     :members:
 
 |
@@ -27,6 +27,18 @@ Values
 
 Utilities
 ----------
+
+
+.. automethod:: utils.Color
+
+
+.. automethod:: utils.Profiler
+
+
+.. automethod:: utils.save_frame
+
+
+.. automethod:: utils.only_once
 
 
 .. automethod:: utils.beautify

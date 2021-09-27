@@ -21,7 +21,7 @@ class RawKeyInput:
     @staticmethod
     def is_alphanumeric(bytes):
         denary_val = int.from_bytes(bytes, byteorder=sys.byteorder)
-        if denary_val < 65 or denary_val > 122:
+        if (denary_val < 32 or denary_val > 126) and denary_val != 10:
             return False
         return True
 
@@ -102,7 +102,6 @@ class Keyboard:
     last_pressed = None
     is_pressed = False
     pressed = None
-
     _thread = None
 
     def change_flag(getch_method):
@@ -227,7 +226,7 @@ class Keyboard:
         PRT_SCR = "UNDEFINED-1"
         BREAK = "UNDEFINED-2"
         BACKSPACE = b"\x08"
-        RETURN = b"\n"
+        RETURN = b"\r\r"
         TAB = b"\t"
         NULL = ZERO + b"\x03"
 
@@ -242,4 +241,3 @@ class Audio:
 
 class Mouse:
     pass
-
