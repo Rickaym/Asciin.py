@@ -89,7 +89,7 @@ class Matrix:
                 pass
         else:
             # scalar multiplication
-            return M(*[val * other for val in list(self.dimension.values())])
+            return [val * other for val in list(self.dimension.values())]
 
     def __getitem__(self, item):
         try:
@@ -118,7 +118,7 @@ class Matrix:
                 + coord[3] * other[3][i]
             )
 
-        return M(res[0], res[1], res[2], res[3])
+        return (res[0], res[1], res[2], res[3])
 
     @staticmethod
     def fast_3x3_mul(coord, other):
@@ -131,7 +131,7 @@ class Matrix:
                 other[1][i] + coord[2] * other[2][i]
             )
 
-        return M(res[0], res[1], res[2])
+        return (res[0], res[1], res[2])
 
 
 class Line:
