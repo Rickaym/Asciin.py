@@ -11,7 +11,6 @@ from .events import ON_START, Event, EventListener
 from .utils import CartesianList
 from .globals import PLATFORM
 
-__all__ = ["Window", "Screen"]
 
 Displayer = Callable[["Screen"], None]
 AnyInt = Union[int, float]
