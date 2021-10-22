@@ -342,8 +342,7 @@ class Window:
         r"""
         Enables debug mode for developers. Defaults to debug mode `k`.
 
-        Modes
-        ------
+        Modes:
             k - Executes the application until interrupted but remains open
 
             c - Executes the application until interrupted then closes

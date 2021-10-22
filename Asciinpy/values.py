@@ -7,8 +7,6 @@ class Resolutions:
     """
     The preset resolutions class that contains static variable for usage and transformation.
 
-    Static-variables
-    -----------------
     :cvar _50c: (50, 25):
     :cvar _60c: (60, 30):
     :cvar _100c: (100, 50):
