@@ -9,6 +9,7 @@ Api Reference
 Screens
 ---------------------------------
 
+Screen
 .. autoclass:: screen.Screen
     :members:
 
