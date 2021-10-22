@@ -1,19 +1,20 @@
 .. currentmodule:: Asciinpy
 
+
 Api Reference
 ===============
 
-|
+.. contents:: :local:
 
 Screens
 ---------------------------------
 
-.. autoclass:: Screen
+.. autoclass:: Asciinpy.screen.Screen
     :members:
 
 |
 
-.. autoclass:: Window
+.. autoclass:: Asciinpy.screen.Window
     :members:
 
 |
@@ -21,7 +22,7 @@ Screens
 Values
 -----------
 
-.. autoclass:: Resolutions
+.. autoclass:: values.Resolutions
     :members:
 
 
@@ -29,13 +30,12 @@ Utilities
 ----------
 
 
-.. automethod:: utils.Color
+.. autoclass:: Asciinpy.utils.Color
+    :members:
 
 
-.. automethod:: utils.Profiler
-
-
-.. automethod:: utils.save_frame
+.. autoclass:: Asciinpy.utils.Profiler
+    :members:
 
 
 .. automethod:: utils.only_once
@@ -59,12 +59,7 @@ Line and Matrixes
     :members:
 
 
-2D Objects
------------
-
 .. include:: 2d_api.rst
 
-3D Objects
------------
 
 .. include:: 3d_api.rst

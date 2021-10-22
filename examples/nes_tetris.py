@@ -22,9 +22,9 @@ TETRIS_BLOCKS = (
 )
 
 LOGO = """
-[=] :== [=] [=] =-= :==
- |  |-   |  |-|  |  |__
- |  :==  |  | \ =-= __/
+### ### ### #`\ ### +=-
+ $  $-   $  #-#  $  #=#
+ #  ###  #  ; \ ### -=+
 """
 
 # Define a user loop for the screen and accept a screen parameter, this is of type Screen.

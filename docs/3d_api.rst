@@ -1,4 +1,4 @@
 .. currentmodule:: Asciinpy._3D
 
 .. note::
-    in the works.
+    3D features will be solidifed in 0.4.0

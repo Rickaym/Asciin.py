@@ -50,11 +50,12 @@ def my_loop(screen: Screen):
     # Make a bunch of squares to simulate collisions
     squares = (
         Square((2, 4), 10, texture="#"),
+        Square((9, 4), 8, texture="."),
+        Square((2, 18), 13, texture=","),
         )
 
     STATIC = 0.03902
     velocities = []
-    sq = Square((0, 20), 10, texture="@")
     for i in squares:
         velocities.append([STATIC, STATIC])
 
@@ -67,14 +68,14 @@ def my_loop(screen: Screen):
             if round(square.y) < 0:
                 velocities[i][1] = -1 * velocities[i][1]
                 square.y = 0
-            elif round(square.y) + (square.length // 2) > screen.resolution.height:
+            elif round(square.y) + (square.length // 2) -1 > screen.resolution.height:
                 velocities[i][1] = -1 * velocities[i][1]
                 square.y = screen.resolution.height - (square.length // 2)
 
             if round(square.x) < 0:
                 velocities[i][0] = -1 * velocities[i][0]
                 square.x = 0
-            elif round(square.x) + square.length > screen.resolution.width:
+            elif round(square.x) + square.length -1 > screen.resolution.width:
                 velocities[i][0] = -1 * velocities[i][0]
                 square.x = screen.resolution.width - square.length
 
@@ -87,7 +88,6 @@ def my_loop(screen: Screen):
         screen.refresh()
 
 if __name__ == "__main__":
-    # Runs the window
-    with Profiler("stats.txt"):
-        window.run(show_fps=True)
+    # Runs the windows
+    window.run(show_fps=True)
     sys.exit(0)

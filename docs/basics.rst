@@ -1,24 +1,25 @@
 Fundamentals
 ===============
-To start off, an instantiation of the :class:`Asciinpy.Window` class is required.
-It handles the OS dependencies and provides a way to inject a game loop through a decorator.
+The :class:`Asciinpy.Window` class handles the OS dependencies and provides a way to instantiate the game loop through a decorator in functional programming, and when subclassing the window class, the game loop function should be named `loop`.
 
-`E.g. 1`
 
+`E.g. 1 Functional`
 .. code:: py
 
    from Asciinpy import Window
 
-   window = Window(resolution: Union[Tuple[int, int], Asciinpy.values.Resolutions], max_framerate: Optional[int] = None)
+   window = Window(...)
 
-There are a few methods you can call from this instance; :obj:`Asciinpy.Window.replay` and :obj:`Asciinpy.Window.run`.
+
+There are two main modes to run a window, by calling either of :obj:`Asciinpy.Window.replay` or :obj:`Asciinpy.Window.run`.
 
 Run
 ----
-The run method executes the game loop that has been passed in previously with an internal clock.
-It is possible to set a timer for termination, refer to :obj:`Asciinpy.Window.loop` for further information.
-Passing in the game loop is as simple as defining a function with a given signature of one parameter and decorated.
-The game loop must accept a single parameter of type :class:`Asciinpy.Displayable`, it will raise an error if the signature is incorrect.
+The run method begins a real-time rendering mode that has a game loop defined.
+As described previously, there are two ways you can instantiate the game loop.
+1. You can define a function with a given signature of one parameter and decorated with :obj:`Asciinpy.Window.loop`.
+
+The game loop must accept a single parameter of type :class:`Asciinpy.Screen`, it will raise an error if the signature is incorrect.
 
 .. note::
 
@@ -34,7 +35,17 @@ The game loop must accept a single parameter of type :class:`Asciinpy.Displayabl
 
    window.run()
 
-There are a few customizations you can make when running a game loop. This includes with and without sysdout. For instance rendering frame headless to get an animation and have it fetched from a hidden attribute :obj:`Asciinpy.Window._frame_log`.
+2. Subclassing the window instance
+
+.. code::py
+
+   class Game(Window):
+      # the game loop must be named loop
+      def loop(screen):
+         pass
+
+There are a few customizations you can make when running a game loop. This includes with and without sysdout.
+For instance rendering frame headless to get an animation and have it fetched from the attribute :obj:`Asciinpy.Window._frame_log`.
 
 Replay
 -------
@@ -46,8 +57,9 @@ The replay method simply covers plain iteration of a recorded ascii string array
 
    window.replay(["frame 1", "frame 2", "frame 3"], fps=1)
 
-Models
+Planes
 =======
+A Plane is a
 Models, they are shapes, angles, text, diagrams, spheres and circles.
 Every model inherits from the :class:`Asciinpy.Plane` that provides an interface for a variety of things necessary for subsystem interactions to the model.
 
@@ -65,20 +77,14 @@ These methods can be overidden but avoid it if possible.
    from Asciinpy import Plane
 
    class MyModel(Plane):
-      def __init__(self, ...):
-         super().__init__() # necessary
-
       def blit(self, ...): pass
          # overrides the inner blitting method of the model
-         # do this only when you are aware of the consequences
 
       def collides_with(self, ...): pass
          # overrides the inner collision checking method
-         # do this only when you are aware of the consequences
 
 
-
-2. Using the **__init__** method.
+2. Instantiating a new Plane object
 
 Taking a closer look to :obj:`Asciinpy.Plane.__init__` you will understand that all the built-in models calls this method somewhere during instantiation.
 
@@ -92,47 +98,3 @@ providing either is enough to make a model from scratch.
    from Asciinpy import Plane
 
    my_model = Plane(image="ABBBBBBBB\nABBBBBBB")
-
-Pixel Painter
---------------
-A :class:`Asciinpy.PixelPainter` model is a simple interface to draw over each pixel on the screen.
-
-You can instantiate a pixel painter model by passing in the current :class:`Asciinpy.Displayable`.
-After instantiation, the pixel painter takes a copy of the screen with the given coordinates and dimension (if none is given it takes the entire screen - by default the coordinate and the dimension of the model is based on the screen).
-
-You will be drawing onto this frame by making use of :obj:`Asciinpy.PixelPainter.draw` method.
-Like every other model, it must be blitted onto screen. Only when it is blitted, the changes in the canvas are rendered onto the screen elegantly.
-
-`E.g. 2.3`
-
-.. code:: py
-
-   from Asciinpy import PixelPainter, Resolutions
-
-   window = Window(Resolutions._60c)
-
-   @window.loop()
-   def game_loop(screen):
-      canvas = PixelPainter(screen)
-
-      while True:
-         canvas.draw("HAHA", xy=(0, 3))
-
-         screen.blit(canvas)
-         screen.refresh()
-
-Shapes
---------
-
-Refer to the Api Reference for more information.
-
-==========================-===== ==============================================================================================
-Class                             Description
-================================ ==============================================================================================
-:class:`Asciinpy.Line`               Constructs a simple line from two given points
-:class:`Asciinpy._2D.Rectangle`      Makes a generic rectangle from **coordinate** and **width**, **height**.
-:class:`Asciinpy._2D.Square`         Makes a generic square from **coordinate** and **length**.
-:class:`Asciinpy._2D.SimpleText`     Makes a simple model with a text body from **coordinate** and **text**.
-:class:`Asciinpy._2D.AsciiText`      Makes an ascii model in the form of a typical text body
-:class:`Asciinpy._2D.Triangle`       Constructs a triangle from any given three points, this is directly derived from line.
-================================ ==============================================================================================

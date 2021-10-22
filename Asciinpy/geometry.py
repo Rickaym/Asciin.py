@@ -55,11 +55,10 @@ class Matrix:
         )
 
     def __len__(self):
-        return len(self.dimension)
+        return len(self.layers)
 
-    def __mul__(self, other):
-        # type: (Union[Matrix, int]) -> Matrix
-        """
+    def __mul__(self, other: Union["Matrix", int]) -> "Matrix":
+        r"""
         The number of columns of the 1st matrix must equal the number of rows of the 2nd matrix in multiplicatioon.
         And the result will have the same number of rows as the 1st matrix, and the same number of columns as the 2nd matrix.
         Matrix Multiplication,

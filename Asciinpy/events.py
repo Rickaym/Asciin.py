@@ -62,13 +62,15 @@ class Event:
         A decorator that registers a callable as a callback under an event.
         Decorated function can be of any type with the only exception that bound methods must subclass under :class:`EventListener`.
         """
-        if isinstance(event, str):
-            target_event = globals().get(event.upper(), None)
-            if target_event is None or not isinstance(target_event, Event):
-                raise AttributeError(f"cannot find event with name {event}")
-        else:
-            target_event = event
         def wrapper(func: Consumer) -> ListeningFunc:
+            if isinstance(event, str) or event is None:
+                name = event or func.__name__
+                target_event = globals().get(name.upper(), None)
+                if target_event is None or not isinstance(target_event, Event):
+                    raise AttributeError(f"cannot find event with name {event}")
+            else:
+                target_event = event
+
             if isinstancemethod(func):
                 func.__subscribes_to__ = target_event
                 func.__threaded__ = threaded

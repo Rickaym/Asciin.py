@@ -15,12 +15,9 @@ from .globals import FINISHED_ONCE_TASKS, CWD
 Supplier = Callable[[], Any]
 
 class Color:
-    def FOREGROUND(id):
-        return ANSI.CSI + "38;5;{}m".format(id)
-
-    def BACKGROUND(id):
-        return ANSI.CSI + "48;5;{}m".format(id)
-
+    """
+    Color management class.
+    """
     @staticmethod
     def RGB_FOREGROUND(r, g, b):
         return ANSI.CSI + "38;2;{};{};{}m".format(r, g, b)
@@ -30,23 +27,58 @@ class Color:
         return ANSI.CSI + "48;2;{};{};{}m".format(r, g, b)
 
     @staticmethod
-    def FORE(r, g, b):
+    def FORE(r: int, g: int, b: int):
+        r"""
+        Colors the foreground with a given RGB value.
+        """
         return Color.RGB_FOREGROUND(r, g, b)
 
     @staticmethod
-    def BACK(r, g, b):
+    def BACK(r: int, g: int, b: int):
+        r"""
+        Colors the background with a given RGB value.
+        """
         return Color.RGB_BACKGROUND(r, g, b)
 
-
-Color.FORE.random = lambda: Color.FORE(
+    @staticmethod
+    def FORErandom():
+        r"""
+        Random foreground color.
+        """
+        return Color.FORE(
     randint(0, 255), randint(0, 255), randint(0, 255)
 )
-Color.BACK.random = lambda: Color.BACK(
+    @staticmethod
+    def BACKrandom():
+        r"""
+        Random backgroun color.
+        """
+        return Color.BACK(
     randint(0, 255), randint(0, 255), randint(0, 255)
 )
 
 
 class Profiler:
+    r"""
+    Instance profiler.
+
+    Encapsulate the call with a context manager of the profiler and a file path to save the statistics returned.
+
+    .. code:: py
+
+       with Profiler("file.txt"):
+           window.run(show_fps=True)
+
+
+    You can also use it functionally for any reason.
+
+    .. code:: py
+
+       pf = Profiler("file.txt")
+       pf.start()
+       window.run(show_fps=True)
+       pf.stop()
+    """
     def __init__(self, path: str):
         self.path = path
 
@@ -57,10 +89,16 @@ class Profiler:
         self.stop()
 
     def start(self):
+        r"""
+        Starts gathering statistics.
+        """
         self.cpf = Profile()
         self.cpf.enable()
 
     def stop(self):
+        r"""
+        Stop gathering statistics.
+        """
         self.cpf.disable()
         redirect = StringIO()
         Stats(self.cpf, stream=redirect).sort_stats("time").print_stats()
@@ -167,21 +205,34 @@ def deprecated(callable: Callable) -> Callable:
                 callable.__name__
             )
         )
-
     return wrapper
 
 
-def save_frame(frame: str, path: str):
+def praised(release) -> Callable:
     r"""
-    Helper function to save a string frame onto a text file.
+    A to-be implemented features.
     """
-    with open(path, "w") as f:
-        f.write(frame)
+    def wrapper(callable: Callable) -> Callable:
+        def wrapped():
+            raise TypeError(
+            f"{callable.__name__} is praised in the current release and is expected to be implemented in version {release}."
+        )
+        return wrapped
+    return wrapper
 
 
 def only_once(func: Callable) -> Callable:
     r"""
     Executes the given function only once.
+
+    .. code:: py
+
+       @only_once
+       def some_func(...):
+           ...
+
+       while ...:
+           some_func()
     """
     @wraps(func)
     def wrapper(*args, **kwargs):

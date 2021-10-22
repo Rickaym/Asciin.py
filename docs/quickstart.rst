@@ -12,8 +12,8 @@ Quickstart
 
 .. code:: py
 
-   from Asciinpy.screen import Screen, Window,
-   from Asciinpy.values import Resolution
+   from Asciinpy.screen import Screen, Window
+   from Asciinpy.values import Resolutions
    from Asciinpy._2D import Square
 
    # Define a window
@@ -21,15 +21,16 @@ Quickstart
 
    @window.loop()
    def game_loop(screen: Screen) -> None:
-       coordinate = (0, 0)
-       length = 8
-       texture = "%"
-       Square = Square(coordinate, length, texture)
-       while True:
-           screen.blit(Square)
-           screen.refresh()
+      coordinate = (0, 0)
+      length = 8
+      texture = "%"
+      square = Square(coordinate, length, texture)
+      while True:
+         screen.blit(square)
+         screen.refresh()
 
-   window.run()
+   if __name__ == "__main__":
+      window.run()
 
 .. note::
 

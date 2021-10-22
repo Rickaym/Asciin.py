@@ -19,9 +19,7 @@ AnyInt = Union[int, float]
 
 class Screen(metaclass=ABCMeta):
     r"""
-    A context Abstract class for a screen.
-
-    Currently we are able to generalize all the OSes into a single subclass with minimal efforts.
+    A meta class for a screen object.
     """
 
     palette = Characters.miniramp
@@ -109,7 +107,6 @@ class Screen(metaclass=ABCMeta):
                 + self._infotext[3 + fps_size + offs + len(watch) :]
             )
 
-
     @property
     def frame(self) -> str:
         """
@@ -166,18 +163,18 @@ class Screen(metaclass=ABCMeta):
             self._frame[1] = text[self.width-1:]
 
     def blit(self, object: Callable, *args, **kwargs):
-        """
+        r"""
         Simply calls the object's internal blit method onto itself and does necessary
         records.
 
         :param object:
             The Model to be blitted onto screen.
-        :type object: :class:`Model`
+        :type object: Union[:class:`Plane`, :class:`Mask`]
         """
         object.occupancy = object.blit(self, *args, **kwargs)
 
     def refresh(self, log_frames=False):
-        """
+        r"""
         Empties the current frame. If sysdout is enabled, it is printed onto the window.
 
         :param log_frames:
@@ -200,10 +197,16 @@ class Screen(metaclass=ABCMeta):
         self._frame = self.emptyframe()
 
     def events(self):
+        r"""
+        Gather all IO events.
+        """
         Keyboard.getch()
 
     def draw(self, coord: Tuple[int, int], char: str):
-        self._frame[round(coord[0]), round(coord[1])] = char
+        r"""
+        Paints a specific point on the cavas with the character.
+        """
+        self._frame[round(coord[0]), round(coord[1])] = str(char)
 
     def _resize(self):
         """
@@ -238,6 +241,10 @@ class ConsoleInterface(EventListener, Screen):
             raise NotImplementedError("Resize method is not implemented in this OS")
 
     def _new(self, mode: Literal["k", "c"], origin_depth: int):
+        r"""
+        Starts a different command prompt dedicated for display and
+        leaves the current one.
+        """
         frame = list(sys._current_frames().values())[0]
 
         # Searches the origin of a call
@@ -253,10 +260,9 @@ class ConsoleInterface(EventListener, Screen):
 
         os.system(command)
 
-
     def _puts(self, *sequence: List[str]):
         r"""
-        Writes onto sys stdout directly, does the encoding.
+        Writes onto sys stdout directly with the encoding.
         """
         os.write(self.cout, "".join(sequence).encode())
 
@@ -295,11 +301,9 @@ class ConsoleInterface(EventListener, Screen):
     def _terminate(self):
         self._puts(ANSI.BEL)
         if self.sysdout is True:
-            self._puts(ANSI.RESET)
             self._cursor((0, 0), visibility=True)
             self._clear()
 
-    @Event.listen("on_start")
     def _startup(self):
         if self.sysdout is True:
             self._resize()
@@ -313,38 +317,6 @@ class Window:
 
     Subclasses of Window must implement :obj:`Window.loop` as it's client loop.
     Whereas traditionally, it as a decorator.
-    Below is an example on the different approaches you can take.
-
-    In functional programming:
-
-    .. code:: py
-
-       app = Window(resolution, max_fps)
-
-       @app.loop()
-       def game(screen):
-           # this is the game loop
-           ...
-
-       # event subscriber
-       @Events.listen("ON_SOME_EVENT")
-       def callback():
-           # event callback
-           ...
-
-    OOP:
-
-    .. code:: py
-
-       class App(Window):
-           def loop(screen): # important that this is named "loop"
-               # this is the game loop
-               ...
-
-           @Events.listen("ON_SOME_EVENT")
-           def callback():
-               # event callback
-               ...
     """
 
     PNAME = "ASCIINPY_PROCESS"
@@ -465,7 +437,14 @@ class Window:
                 del os.environ[self.PNAME]
 
         ON_START.emit()
-        return self.loop(screen=screen)
+
+        # running this on another thread can delete potential
+        # tracebacks
+        screen._startup()
+        if self.__loop__ is None:
+            return self.loop(screen=screen)
+        else:
+            return self.__loop__(screen=screen)
 
     def run(
         self,

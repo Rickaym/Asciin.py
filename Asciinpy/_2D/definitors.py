@@ -1,6 +1,7 @@
 import itertools
 
 from typing import Any, Callable, Iterable, Mapping, Set, Tuple, List, Union
+from functools import lru_cache
 
 from ..screen import Screen
 from ..utils import Color
@@ -66,6 +67,15 @@ class Plane(Collidable):
         self.color = color
         self.x = coordinate[0]
         self.y = coordinate[1]
+
+    @staticmethod
+    @lru_cache()
+    def get_dimension(image):
+        return len(max(image.split("\n"), key=lambda e: len(e))), len(image.split("\n"))
+
+    @property
+    def dimension(self):
+        return Plane.get_dimension(self.image)
 
     @property
     def pixels(self):

@@ -4,11 +4,12 @@ from io import BytesIO
 from typing import Optional
 from threading import Thread
 
-from .utils import deprecated
+from .utils import deprecated, praised
 from .events import ON_KEY_PRESS
 from .values import ANSI
 
 
+@praised("0.4.0")
 class RawMouseInput:
     pass
 
@@ -231,13 +232,16 @@ class Keyboard:
         NULL = ZERO + b"\x03"
 
 
+@praised("0.4.0")
 class Microphone:
     pass
 
 
+@praised("0.4.0")
 class Audio:
     pass
 
 
+@praised("0.4.0")
 class Mouse:
     pass

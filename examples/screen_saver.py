@@ -5,10 +5,10 @@ PixelPainter doesn't directly create an imprint onto the frame. It keeps a refer
 itself that the user draw onto. Only when it is blitted that the pixel painter localizes it's
 canvas onto the screen frame. Even then, it is rendered like every other Model.
 """
-from Asciinpy.utils  import Color
+from Asciinpy.utils import Color
 import sys
 
-from Asciinpy import Screen, Window, Resolutions
+from Asciinpy.screen import Screen, Window, Resolutions
 from Asciinpy._2D import Plane
 
 # Start by defining a screen object with the desired resolution
@@ -19,36 +19,42 @@ window = Window(resolution=Resolutions._60c)
 def my_loop(screen):
     # type: (Screen) -> None
     # Make the DVD_logo model out of scratch with the path
-    with open("./examples/DVD_logo.txt", "r") as f:
-        img = f.read()
-        lines = img.split('\n')
-        DVD_logo = Plane(image=img, dimension=(len(lines[0]), len(lines)), coordinate=(23, 15))
-        DVD_logo.get_rect()
+    DVD_logo = Plane(
+        image="""   shhhhhhhhhy`  `+hhhhhhhyo.
+  `yysosmMMmMM/ .hMmoyyooyNMM:
+  sMM:  /MMysMd:NMs.NMm` `dMM-
+ `NMMsshMNs``NMMm- oMMdsyNMd:
+ .oosso+:`   /Mo`  +oosoo/.
+  `-/+syyhdddhdyyhdddhyys+/-`
+ -mMMMMMMMMM+`   `+MMMMMMMMMm.
+   .-/+ossyyhhyyyhhyysso+/-.""",
+        coordinate=(23, 15),
+    )
     # Map the velocity for the mmovement
     velocity = [0.0302, 0.0302]
     while True:
-        DVD_logo.rect.y += velocity[1]
-        DVD_logo.rect.x += velocity[0]
+        DVD_logo.y += velocity[1]
+        DVD_logo.x += velocity[0]
 
         # Check for border collisions and flip signs
-        if round(DVD_logo.rect.y) <= 0:
+        if round(DVD_logo.y) <= 0:
             velocity[1] = abs(velocity[1])
-            DVD_logo.color = Color.FORE.random()
-        elif (round(DVD_logo.rect.y) + DVD_logo.dimension[1]-2) > screen.resolution.height:
+            DVD_logo.color = Color.FORErandom()
+        elif round(DVD_logo.y + DVD_logo.dimension[1] - 2) >= screen.resolution.height:
             velocity[1] = -velocity[1]
-            DVD_logo.color = Color.FORE.random()
+            DVD_logo.color = Color.FORErandom()
 
-        if round(DVD_logo.rect.x) <= 0:
+        if round(DVD_logo.x) <= 0:
             velocity[0] = abs(velocity[0])
-            DVD_logo.color = Color.FORE.random()
-        elif (round(DVD_logo.rect.x) + DVD_logo.dimension[0]) > screen.resolution.width:
+            DVD_logo.color = Color.FORErandom()
+        elif round(DVD_logo.x + DVD_logo.dimension[0] - 1) >= screen.resolution.width:
             velocity[0] = -velocity[0]
-            DVD_logo.color = Color.FORE.random()
-
+            DVD_logo.color = Color.FORErandom()
         # Blit the dvd logo onto screen
         screen.blit(DVD_logo)
         # Refresh the screen to render new blits
         screen.refresh()
+
 
 if __name__ == "__main__":
     # Runs the window
