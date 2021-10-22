@@ -9,7 +9,7 @@ Api Reference
 Screens
 ---------------------------------
 
-.. autoclass:: Asciinpy.screen.Screen
+.. autoclass:: screen.Screen
     :members:
 
 |
