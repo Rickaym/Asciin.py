@@ -6,21 +6,23 @@ Api Reference
 
 .. contents:: :local:
 
+
 Screens
 ---------------------------------
+
 
 .. autoclass:: Asciinpy.screen.Screen
     :members:
 
-|
+
 
 .. autoclass:: Asciinpy.screen.Window
     :members:
 
-|
 
 Values
 -----------
+
 
 .. autoclass:: values.Resolutions
     :members:
