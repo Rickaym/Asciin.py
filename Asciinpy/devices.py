@@ -1,12 +1,14 @@
 import sys
 
 from io import BytesIO
-from typing import Optional
+from typing import Callable, Optional
 from threading import Thread
 
 from .utils import deprecated, praised
 from .events import ON_KEY_PRESS
 from .values import ANSI
+
+CharacterGetter = Callable[[], Optional[bytes]]
 
 
 @praised("0.4.0")
@@ -15,130 +17,119 @@ class RawMouseInput:
 
 
 class RawKeyInput:
-    # these buffers only allow one sequential occupation any given time
+    r"""
+    A raw key buffer before it gets filtered into the main keyboard class.
+    """
     cmd_buffer: Optional[BytesIO] = None  # keeps track of any escape sequences
-    line_buffer: Optional[BytesIO] = None  # keeps track of a record until return is pressed
+    line_buffer: Optional[
+        BytesIO
+    ] = None  # keeps track of a record until return is pressed
 
-    @staticmethod
-    def is_alphanumeric(bytes):
-        denary_val = int.from_bytes(bytes, byteorder=sys.byteorder)
-        if (denary_val < 32 or denary_val > 126) and denary_val != 10:
-            return False
-        return True
 
-    def _pick_getch():
-        r"""
-        Getch gets us a key press focused in the console, since python doesn't have a default method for that
-        nor an OS independent one for that matter, we will have to make the getch method based on the OS.
-        """
-        try:
-            import termios
-        except ImportError:  # windows machine
-            import msvcrt
+def is_alphanumeric(bytes):
+    denary_val = int.from_bytes(bytes, byteorder=sys.byteorder)
+    if (denary_val < 32 or denary_val > 126) and denary_val != 10:
+        return False
+    return True
 
-            def _getch():
-                key = None
-                if msvcrt.kbhit():
-                    key = msvcrt.getch()
-                return key
 
-        else:
-            import tty
+def _resolve_getch() -> CharacterGetter:
+    r"""
+    Getch gets us a key press focused in the console, since python doesn't have a default method for that
+    nor an OS independent one for that matter, we will have to make the getch method based on the OS.
+    """
+    try:
+        import termios
+    except ImportError:  # windows machine
+        import msvcrt
 
-            def _getch():
-                fd = sys.stdin.fileno()  # usually 0 but whatever
-                old_settings = termios.tcgetattr(fd)
-                try:
-                    tty.setraw(fd)
-                    ch = sys.stdin.read(1)
-                finally:
-                    termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-                return ch
+        def _win_getch():
+            key = None
+            if msvcrt.kbhit():
+                key = msvcrt.getch()
+            return key
 
-        return _getch
+        return _win_getch
+    else:
+        import tty
 
-    def _filter(getch_method):
-        r"""
-        Wraps the getch method with necessary buffering
-        """
+        def _unix_getch():
+            fd = sys.stdin.fileno()  # usually 0 but whatever
+            old_settings = termios.tcgetattr(fd)
+            try:
+                tty.setraw(fd)
+                ch = sys.stdin.read(1)
+            finally:
+                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+            return ch.encode()
 
-        def wrapper(*args, **kwargs):
-            ch = getch_method(*args, **kwargs)
-            if ch is None:
-                return
+        return _unix_getch
 
-            if ch == ANSI.WIN_INTERUPT.encode():
-                raise KeyboardInterrupt
 
-            if RawKeyInput.cmd_buffer is not None:
-                past = RawKeyInput.cmd_buffer.getvalue()
-                RawKeyInput.cmd_buffer = None
-                return past + ch
-            elif not RawKeyInput.is_alphanumeric(ch):  # must be some escape sequence
-                if RawKeyInput.cmd_buffer is None:
-                    RawKeyInput.cmd_buffer = BytesIO()
-                    RawKeyInput.cmd_buffer.write(ch)
-                return
+def _pick_getch():
+    r"""
+    Wraps the getch method with necessary buffering
+    """
+    getch_method = _resolve_getch()
 
-            if RawKeyInput.line_buffer is not None:
-                past = RawKeyInput.line_buffer.getvalue()
-                RawKeyInput.line_buffer.write(ch)
-                if ch in ("\n".encode(), "\r".encode()):
-                    l_buf = RawKeyInput.line_buffer.getvalue()
-                    RawKeyInput.line_buffer = None
-                    return l_buf
-            elif RawKeyInput.line_buffer is None:  # start a line buffer
-                RawKeyInput.line_buffer = BytesIO()
-                RawKeyInput.line_buffer.write(ch)
-            return ch
+    def wrapped(*args, **kwargs) -> Optional[str]:
+        ch = getch_method(*args, **kwargs)
+        if ch is None:
+            return
 
-        return wrapper
+        if ch == ANSI.WIN_INTERUPT.encode():
+            raise KeyboardInterrupt
 
-    getch = _filter(_pick_getch())  # final getch product
+        if RawKeyInput.cmd_buffer is not None:
+            past = RawKeyInput.cmd_buffer.getvalue()
+            RawKeyInput.cmd_buffer = None
+            return (past+ch).decode()
+        elif not is_alphanumeric(ch):
+            if RawKeyInput.cmd_buffer is None:
+                RawKeyInput.cmd_buffer = BytesIO()
+                RawKeyInput.cmd_buffer.write(ch)
+            return
+
+        if RawKeyInput.line_buffer is not None:
+            past = RawKeyInput.line_buffer.getvalue()
+            RawKeyInput.line_buffer.write(ch)
+            if ch in ("\n".encode(), "\r".encode()):
+                l_buf = RawKeyInput.line_buffer.getvalue()
+                RawKeyInput.line_buffer = None
+                return l_buf.decode()
+        elif RawKeyInput.line_buffer is None:  # start a line buffer
+            RawKeyInput.line_buffer = BytesIO()
+            RawKeyInput.line_buffer.write(ch)
+
+        return ch.decode()
+
+    return wrapped
 
 
 class Keyboard:
     # is_pressed and is_released are universal flags under `Keyboard` but they exist as a flag
     # under each `Key`
-    last_pressed = None
     is_pressed = False
     pressed = None
     _thread = None
+    _getch = _pick_getch()
 
-    def change_flag(getch_method):
-        def wrapped(*args, **kwargs):
-            ch = getch_method(*args, **kwargs)
-            if ch is not None:
-                Keyboard.pressed = ch
-                Keyboard.last_pressed = ch
-                Keyboard.is_pressed = True
-                ON_KEY_PRESS.emit(Keyboard.pressed)
-            else:
-                Keyboard.pressed = None
-                Keyboard.is_pressed = False
-            return ch
+    @staticmethod
+    def getch(*args, **kwargs):
+        ch = Keyboard._getch(*args, **kwargs)
+        if ch is not None:
+            Keyboard.pressed = ch
+            Keyboard.is_pressed = True
+            ON_KEY_PRESS.emit(Keyboard.pressed)
+        else:
+            Keyboard.pressed = None
+            Keyboard.is_pressed = False
+        return ch
 
-        return wrapped
-
-    # wraps the raw input getch method
-    getch = change_flag(RawKeyInput.getch)
-
-    @deprecated
-    def start_backend():
-        # backend doesn't stay sync with the main caller loop
-        # that can be problamatic
-        def loop():
-            while True:
-                Keyboard.getch()
-
-        Keyboard._thread = Thread(target=loop)
-        Keyboard._thread.start()
-
-    # the general byte representation of each keys
     class Keys:
-        B_ZERO = b"\x00" # 0
-        B_TTF = b"\xe0" # 224
-
+        # the general byte representation of each keys
+        B_ZERO = b"\x00"  # 0
+        B_TTF = b"\xe0"  # 224
         A = b"a"
         B = b"b"
         C = b"c"

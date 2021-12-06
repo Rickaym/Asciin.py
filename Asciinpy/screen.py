@@ -5,15 +5,20 @@ from typing import Callable, Literal, Tuple, Union, Optional, List
 from abc import ABCMeta, abstractmethod
 from time import sleep, time
 
+from numpy import ndarray
+
+from Asciinpy.objects import Blitable
+
 from .values import Characters, Resolutions, ANSI
 from .devices import Keyboard
-from .events import ON_START, Event, EventListener
+from .events import ON_START, EventListener
 from .utils import CartesianList
 from .globals import PLATFORM
+from .types import AnyInt
 
 
 Displayer = Callable[["Screen"], None]
-AnyInt = Union[int, float]
+DisplayerWrapper = Callable[[Displayer], Displayer]
 
 
 class Screen(metaclass=ABCMeta):
@@ -46,6 +51,7 @@ class Screen(metaclass=ABCMeta):
         "_stops_at",
         "_started_at",
         "_last_fps_measure",
+        "_stdout"
     )
 
     def __init__(
@@ -63,7 +69,9 @@ class Screen(metaclass=ABCMeta):
 
         self.max_fps = max_fps
         self.aspect_ratio = resolution.height / resolution.width
-        self.emptyframe = lambda: CartesianList([[" "] * (resolution.width) for _ in range(resolution.height)])
+        self.emptyframe = lambda: CartesianList(
+            [[" "] * (resolution.width) for _ in range(resolution.height)]
+        )
         self.show_fps = show_fps
         self.timer = timer
         self.sysdout = sysdout
@@ -90,13 +98,14 @@ class Screen(metaclass=ABCMeta):
             + (self.palette[2] * (resolution.width - 2))
             + self.palette[2]
         )
-        self.__stdout__ = sys.stdout
-        self.sysdout_fileno = self.__stdout__.fileno()
+        self._stdout = sys.stdout
 
+        fps_size = 0
         if show_fps is True:
             inf = r"FPS: [%s]"
             fps_size = len(inf) + 3
             self._infotext = self._infotext[:3] + inf + self._infotext[3 + fps_size :]
+
         if timer is True:
             watch = r"StopWatch: %s  "
             offs = 5
@@ -132,7 +141,7 @@ class Screen(metaclass=ABCMeta):
         return self._fps
 
     @property
-    def average_fps(self) -> int:
+    def average_fps(self) -> float:
         """
         The amount of frames rendered on average from start to present.
 
@@ -158,10 +167,10 @@ class Screen(metaclass=ABCMeta):
         """
         if self.show_fps:
             text = self._infotext % str(self.fps).rjust(5)
-            self._frame[0] = text[:self.width-1]
-            self._frame[1] = text[self.width-1:]
+            self._frame[0] = text[: self.width - 1]
+            self._frame[1] = text[self.width - 1 :]
 
-    def blit(self, object: Callable, *args, **kwargs):
+    def blit(self, object: Blitable, *args, **kwargs):
         r"""
         Simply calls the object's internal blit method onto itself and does necessary
         records.
@@ -170,7 +179,8 @@ class Screen(metaclass=ABCMeta):
             The Model to be blitted onto screen.
         :type object: Union[:class:`Plane`, :class:`Mask`]
         """
-        object.occupancy = object.blit(self, *args, **kwargs)
+        object.blit(self.resolution, self.draw, *args, **kwargs)
+        #tuple(map(lambda o: self.draw((o[0], o[1]), o[2]), object.blit(self.resolution, *args, **kwargs)))
 
     def refresh(self, log_frames=False):
         r"""
@@ -201,11 +211,11 @@ class Screen(metaclass=ABCMeta):
         """
         Keyboard.getch()
 
-    def draw(self, coord: Tuple[int, int], char: str):
+    def draw(self, point: ndarray, char: str):
         r"""
         Paints a specific point on the cavas with the character.
         """
-        self._frame[round(coord[0]), round(coord[1])] = str(char)
+        self._frame[point[0], point[1]] = char
 
     def _resize(self):
         """
@@ -224,34 +234,47 @@ class Screen(metaclass=ABCMeta):
 
 
 class ConsoleInterface(EventListener, Screen):
-    def __init__(self, resolution: Resolutions, max_fps: Optional[int], forcestop: Optional[int], debug: bool, show_fps: bool, sysdout: bool, timer: bool):
-        super().__init__(resolution, max_fps, forcestop, debug, show_fps, sysdout, timer)
+    def __init__(
+        self,
+        resolution: Resolutions,
+        max_fps: Optional[int],
+        forcestop: Optional[int],
+        debug: bool,
+        show_fps: bool,
+        sysdout: bool,
+        timer: bool,
+    ):
+        super().__init__(
+            resolution, max_fps, forcestop, debug, show_fps, sysdout, timer
+        )
         self.stdout = sys.stdout
         self.cout = self.stdout.fileno()
 
     def _resize(self):
         if PLATFORM == "Windows":
-            os.system(
-                f"mode con cols={self.width} lines={self.height}"
-            )
+            os.system(f"mode con cols={self.width} lines={self.height}")
         elif PLATFORM == "Linux" or PLATFORM == "Darwin":
-            os.system(f"printf '\e[8;{self.resolution.height};{self.resolution.width}t'")
+            os.system(
+                f"printf '\e[8;{self.resolution.height};{self.resolution.width}t'"
+            )
         else:
             raise NotImplementedError("Resize method is not implemented in this OS")
 
-    def _new(self, mode: Literal["k", "c"], origin_depth: int):
+    def _new(self, mode: Union[str, Literal["k", "c"]], origin_depth: int):
         r"""
         Starts a different command prompt dedicated for display and
         leaves the current one.
         """
         frame = list(sys._current_frames().values())[0]
-
         # Searches the origin of a call
         for i in range(origin_depth):
             if getattr(frame, "f_back") is None:
                 caller = frame.f_globals["__file__"]
             else:
-                frame = frame.f_back
+                if frame.f_back is None:
+                    break
+                else:
+                    frame = frame.f_back
         if PLATFORM == "Windows":
             command = f"""start cmd /{mode} {sys.executable} "{caller}" ;pause"""
         else:
@@ -259,7 +282,7 @@ class ConsoleInterface(EventListener, Screen):
 
         os.system(command)
 
-    def _puts(self, *sequence: List[str]):
+    def _puts(self, *sequence: str):
         r"""
         Writes onto sys stdout directly with the encoding.
         """
@@ -270,12 +293,12 @@ class ConsoleInterface(EventListener, Screen):
         Simplified implementation of the slice_fit render method to blit window menus and
         native elements.
         """
-        coordinate = list(coordinate)
+        m_coordinate = list(coordinate)
         for i, chr in enumerate(str(body)):
-            self.draw((coordinate[0]+i, coordinate[1]), chr)
-            if coordinate[0]+i == self.width:
-                coordinate[1] +=1
-                coordinate[0] = -i
+            self.draw((m_coordinate[0] + i, m_coordinate[1]), chr)
+            if m_coordinate[0] + i == self.width:
+                m_coordinate[1] += 1
+                m_coordinate[0] = -i
 
     def _clear(self):
         """
@@ -283,7 +306,7 @@ class ConsoleInterface(EventListener, Screen):
         """
         self._puts(ANSI.CSI, "2J")
 
-    def _cursor(self, goto: Tuple[AnyInt, AnyInt]=None, visibility: bool=None):
+    def _cursor(self, goto: Tuple[AnyInt, AnyInt] = None, visibility: bool = None):
         if goto is not None:
             self._puts(ANSI.CSI, "%d;%dH" % goto)
         if visibility is not None:
@@ -296,14 +319,16 @@ class ConsoleInterface(EventListener, Screen):
         self._cursor((0, 0))
         self._puts(frame)
 
-    @Event.listen("on_terminate")
+    #@Event.listen("on_terminate")
     def _terminate(self):
         self._puts(ANSI.BEL)
         if self.sysdout is True:
             self._cursor((0, 0), visibility=True)
             self._clear()
 
-    def _startup(self):
+    def _start(self):
+        # enable VT100 escape seq
+        os.system("")
         if self.sysdout is True:
             self._resize()
             self._clear()
@@ -320,13 +345,7 @@ class Window:
 
     PNAME = "ASCIINPY_PROCESS"
 
-    __slots__ = (
-        "resolution",
-        "max_fps",
-        "_stop_time",
-        "__loop__",
-        "_debug"
-    )
+    __slots__ = ("resolution", "max_fps", "fov", "screen", "_stop_time", "_loop", "_debug", "_debug_mode", "_debug_origin_depth")
 
     def __init__(
         self,
@@ -335,8 +354,10 @@ class Window:
     ):
         self.resolution = Resolutions(resolution)
         self.max_fps = max_fps
-        self.__loop__ = None
-        self._debug = False, None, None
+        self._loop: Optional[Displayer] = None
+        self._debug = False
+        self._debug_mode = "k"
+        self._debug_origin_depth = 5
 
     def enable_debug(self, mode: Literal["k", "c"] = "k", origin_depth: int = 5):
         r"""
@@ -349,23 +370,26 @@ class Window:
 
         Offloads program onto a subprocess on an external Terminal with the given mode.
         """
-        self._debug = True, mode, origin_depth
+        self._debug = True
+        self._debug_mode = mode
+        self._debug_origin_depth = origin_depth
 
-    def loop(self, forcestop: Optional[int] = None, screen: Screen=None) -> Displayer:
+    def loop(self, forcestop: Optional[int] = None, screen: Screen = None) -> DisplayerWrapper:
         r"""
         Registers the client loop under `loop` of window class.
         This consenquentially limits the decorator to be re-used.
 
         :returns: (Callable[[:class:`Screen`], None]) The wrapped function.
         """
-        if self.__loop__ is not None:
-            return self.__loop__(screen)
+        if self._loop is not None:
+            return self._loop(screen)
 
         self._stop_time = forcestop
 
-        def wrapper(func: Displayer):
-            self.__loop__ = func
+        def wrapper(func: Displayer) -> Displayer:
+            self._loop = func
             return func
+
         return wrapper
 
     def replay(self, frames: List[str], fps: int = 1):
@@ -379,14 +403,13 @@ class Window:
             The FPS at which the replay is rendered. It is defaulted to `1`.
         :type frames: :class:`int`
         """
-        self.screen = self.get_screen(
-            self.resolution, self.max_fps, self._stop_time, False, False, False
-        )
+        self.screen = ConsoleInterface(self.resolution, self.max_fps, self._stop_time, False, False, False, False)
+        self.screen._start()
         frames = [frame.replace("\n", "", -1) for frame in frames]
         index = 0
         ON_START.emit()
         while True:
-            self.screen._frame = frames[index]
+            self.screen._frame = CartesianList(frames[index])
             index += 1
             if index >= len(frames):
                 raise RuntimeError("Replay had run out of frames..")
@@ -410,14 +433,19 @@ class Window:
         """
         self.fov = fov
 
-    def _run_consolas(self, show_fps: bool, sysdout: bool, timer: bool,):
+    def _run_consolas(
+        self,
+        show_fps: bool,
+        sysdout: bool,
+        timer: bool,
+    ):
         r"""
         Creates and screen object by basis of a console.
 
         :param fov:
             FOV of the screen, only relevant to 3D.
         """
-        screen = ConsoleInterface(
+        self.screen = ConsoleInterface(
             self.resolution,
             self.max_fps,
             self._stop_time,
@@ -426,10 +454,10 @@ class Window:
             sysdout,
             timer,
         )
-        if self._debug[0] is True:
+        if self._debug is True:
             if os.getenv(self.PNAME) != "child":
                 os.environ[self.PNAME] = "child"
-                screen._new(self._debug[1], self._debug[2])
+                self.screen._new(self._debug_mode, self._debug_origin_depth)
                 return
             else:
                 del os.environ[self.PNAME]
@@ -438,11 +466,11 @@ class Window:
 
         # running this on another thread can delete potential
         # tracebacks
-        screen._startup()
-        if self.__loop__ is None:
-            return self.loop(screen=screen)
+        self.screen._start()
+        if self._loop is None:
+            return self.loop(screen=self.screen)
         else:
-            return self.__loop__(screen=screen)
+            return self._loop(self.screen)
 
     def run(
         self,

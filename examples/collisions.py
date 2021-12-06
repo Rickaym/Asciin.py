@@ -4,19 +4,14 @@ Simple collisions system with squares.
 from Asciinpy.events import Event
 import sys
 
-from Asciinpy.utils import Profiler
 from Asciinpy.screen import Screen, Window
 from Asciinpy.values import Resolutions
 from Asciinpy._2D import Square
 
-from random import randint
 from typing import List, Tuple
 
 # Start by defining a screen object with the desired resolution
 window = Window(resolution=Resolutions._60c)
-
-@Event.listen("on_start")
-def abc(): pass
 
 def manage_collisions(velocities: Tuple[int, int], i: int, square: Square, other_squares: List[Square]) -> Tuple[int, int]:
     for other in other_squares:

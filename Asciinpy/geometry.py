@@ -1,7 +1,11 @@
+import numpy as np
+
 from itertools import chain
 from functools import lru_cache
 from math import cos, sin
 from typing import Tuple, Union
+
+from Asciinpy.types import AnyInt
 
 GRADIENT = lru_cache(maxsize=64)(
     lambda P1, P2: None if P2[0] -
@@ -217,14 +221,10 @@ class Line:
         return f"< --- Line: {self.p1}, {self.p2}>"
 
 
-def X_ROTO(theta): return Matrix(cos(theta), -sin(theta))
-def Y_ROTO(theta): return Matrix(sin(theta), cos(theta))
-
-
-def rotate(coordinate, theta, cor):
-    r_x, r_y = X_ROTO(theta), Y_ROTO(theta)
-    x, y = coordinate[0]-cor[0], coordinate[1]-cor[1]
-    return (x*r_x[0] + y*r_x[1])+cor[0], (x*r_y[0] + y*r_y[1])+cor[1]
+def rotate(coordinate: np.ndarray, theta: AnyInt, midpoint: np.ndarray):
+    coeff = np.array((cos(theta), -sin(theta)), (sin(theta), cos(theta)))
+    coordinate -= midpoint
+    return coordinate * coeff + midpoint
 
 
 del lru_cache
