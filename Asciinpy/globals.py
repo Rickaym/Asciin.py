@@ -4,8 +4,12 @@ from platform import system
 from os import getcwd
 
 SINGLE_PRINT_FLAG: bool = False
-PLATFORM: Union[str, Literal["Windows", "Linux", "Darwin"]] = system()
+
+class Platform:
+    name = system()
+    is_window = name == "Windows"
+    is_linux = name == "Linux"
+    is_darwin = name == "Darwin"
+
 FINISHED_ONCE_TASKS: List[Callable] = []
 CWD: str = getcwd()
-
-del Callable, List, Literal, WeakKeyDictionary, system, getcwd, Union

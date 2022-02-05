@@ -1,25 +1,16 @@
-from functools import lru_cache
 import itertools
 
+from functools import lru_cache
 from .definitors import OccupancySetType, Plane, Mask
-
 from ..geometry import Line
-from ..utils import Color
+from ..values import Color
 from ..screen import Screen
-from ..globals import PLATFORM
+from ..types import AnyInt
+from ..globals import Platform
 
 from typing import Tuple, List, Union
 
-DEFAULT_BRICK = "\u2588" if PLATFORM != "Windows" else "#"
-
-#
-# Types
-#
-
-AnyInt = Union[int, float]
-
-# ---
-
+DEFAULT_BRICK = "#" if Platform.is_window else "\u2588"
 
 class Tile(Plane):
     def __init__(
@@ -31,7 +22,7 @@ class Tile(Plane):
     ):
         dimension = (length, length // 2) if isinstance(length, int) else length
         image = (((texture * dimension[0]) + "\n") * (dimension[1])).strip()
-        super().__init__(image, coordinate, color)
+        super().__init__(image=image, coordinate=coordinate, color=color)
 
 
 class Text(Plane):
@@ -58,6 +49,18 @@ class Polygon(Mask):
     @lru_cache(maxsize=64)
     def get_edge_mapping(edges: List[Line]) -> OccupancySetType:
         return set(itertools.chain.from_iterable(e.points for e in edges))
+
+    @staticmethod
+    @lru_cache(maxsize=64)
+    def get_edges(coordinates: List[Tuple[int, int]]) -> Tuple[Line]:
+        ends = len(coordinates) - 1
+        edges = [
+            Line(coordinates[i], coordinates[i + 1])
+            for i in range(len(coordinates))
+            if i != ends
+        ]
+        edges.append(Line(coordinates[0], coordinates[-1]))
+        return tuple(edges)
 
     @property
     def edges(self):
@@ -87,18 +90,6 @@ class Polygon(Mask):
             map(lambda coord: (coord[0], coord[1] + translates), self.coordinates)
         )
 
-    @staticmethod
-    @lru_cache(maxsize=64)
-    def get_edges(coordinates: List[Tuple[int, int]]) -> Tuple[Line]:
-        ends = len(coordinates) - 1
-        edges = [
-            Line(coordinates[i], coordinates[i + 1])
-            for i in range(len(coordinates))
-            if i != ends
-        ]
-        edges.append(Line(coordinates[0], coordinates[-1]))
-        return tuple(edges)
-
     def blit(self, screen: Screen):
         self.mappings[self.texture] = self.get_edge_mapping(self.edges)
         return super().blit(screen)
@@ -114,5 +105,5 @@ class Square(Mask):
     ):
         dimension = (length, length // 2) if isinstance(length, int) else length
         image = (((texture * dimension[0]) + "\n") * (dimension[1])).strip()
-        super().__init__(coordinate, image)
         self.length = length
+        super().__init__(image=image, coordinate=coordinate)

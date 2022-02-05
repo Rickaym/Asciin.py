@@ -2,9 +2,9 @@ import sys
 
 from io import BytesIO
 from typing import Callable, Optional
-from threading import Thread
+from enum import Enum
 
-from .utils import deprecated, praised
+from .utils import praised
 from .events import ON_KEY_PRESS
 from .values import ANSI
 
@@ -17,7 +17,7 @@ class RawMouseInput:
 
 
 class RawKeyInput:
-    r"""
+    """
     A raw key buffer before it gets filtered into the main keyboard class.
     """
     cmd_buffer: Optional[BytesIO] = None  # keeps track of any escape sequences
@@ -34,7 +34,7 @@ def is_alphanumeric(bytes):
 
 
 def _resolve_getch() -> CharacterGetter:
-    r"""
+    """
     Getch gets us a key press focused in the console, since python doesn't have a default method for that
     nor an OS independent one for that matter, we will have to make the getch method based on the OS.
     """
@@ -54,20 +54,20 @@ def _resolve_getch() -> CharacterGetter:
         import tty
 
         def _unix_getch():
-            fd = sys.stdin.fileno()  # usually 0 but whatever
-            old_settings = termios.tcgetattr(fd)
+            fd = sys.stdin.fileno()
+            old_settings = termios.tcgetattr(fd) # type: ignore
             try:
-                tty.setraw(fd)
+                tty.setraw(fd) # type: ignore
                 ch = sys.stdin.read(1)
             finally:
-                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings) # type: ignore
             return ch.encode()
 
         return _unix_getch
 
 
 def _pick_getch():
-    r"""
+    """
     Wraps the getch method with necessary buffering
     """
     getch_method = _resolve_getch()
@@ -126,7 +126,7 @@ class Keyboard:
             Keyboard.is_pressed = False
         return ch
 
-    class Keys:
+    class Keys(Enum):
         # the general byte representation of each keys
         B_ZERO = b"\x00"  # 0
         B_TTF = b"\xe0"  # 224

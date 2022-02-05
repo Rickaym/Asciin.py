@@ -1,5 +1,3 @@
-import numpy as np
-
 from itertools import chain
 from functools import lru_cache
 from math import cos, sin
@@ -11,131 +9,6 @@ GRADIENT = lru_cache(maxsize=64)(
     lambda P1, P2: None if P2[0] -
     P1[0] == 0 else (P2[1] - P1[1]) / (P2[0] - P1[0])
 )
-
-
-class Matrix:
-    r"""
-    A matrix class that supports up to 5x5 matrixes.
-
-    Supports scalar multiplication, pretty printing, equality checks,
-    matrix multiplication and alias references such as x for element 0 and
-    y for element 1.
-
-    :param layers:
-        The layers of the Matrix, a matrix can contain other matrixes.
-    :type layers: Union[Tuple[:class:`int`], :class:`Matrix`]
-    """
-
-    NAME_SPACE = ("x", "y", "z", "k", "w")
-    NAME_MAP = dict(zip(NAME_SPACE, range(len(NAME_SPACE))))
-
-    def __init__(self, *layers):
-        self.layers = [
-            layer if not isinstance(layer, (tuple, list)) else Matrix(*layer)
-            for layer in layers
-        ]
-        self.__dict__.update(dict(zip(self.NAME_SPACE, self.layers)))
-
-    def __eq__(self, o):
-        return all(
-            self.__dict__.get(attr) == o.__dict__.get(attr) for attr in self.NAME_SPACE
-        )
-
-    def __ne__(self, o):
-        return not self.__eq__(o)
-
-    def __repr__(self):
-        return (
-            "["
-            + " ".join(
-                (
-                    str(val)
-                    if not isinstance(val, Matrix)
-                    else ("\n " if i != 0 else "") + val.__repr__()
-                )
-                for i, val in enumerate(self.layers)
-            )
-            + "]"
-        )
-
-    def __len__(self):
-        return len(self.layers)
-
-    def __mul__(self, other: Union["Matrix", int]) -> "Matrix":
-        r"""
-        The number of columns of the 1st matrix must equal the number of rows of the 2nd matrix in multiplicatioon.
-        And the result will have the same number of rows as the 1st matrix, and the same number of columns as the 2nd matrix.
-        Matrix Multiplication,
-            Scalar multiplication just multiplies every component of a matrix with the multiplier
-
-            In a matrix to matrix multiplication, consider their sizes,
-                in format :: row x column
-
-            Matrix A: MA = 1x2 [[1 1]   Matrix B: MB = 2x1 [[0 0]
-                                [1 1]]                      [1 1]]
-
-            Col of MA == Row of MB or is incompatible
-            that means MA(1x2) MB(2x1)
-                          \ \_EA__/ /
-                           \____EB_/
-
-            expression A: EA = column(MA) == row(MB) represents the comparison expression needed to be true for compatibility
-            expression B: EB =  row(MA), column(MB)  represents the dimension of the resultant matrix
-        """
-        if isinstance(other, Matrix):
-            # self columns must equal other rows
-            if len(self.dimension) != len(other.dimension["x"]):
-                raise TypeError("uncompatible to multiple these matrixes")
-            else:
-                self_vals = list(self.layers)
-                other_vals = list(other.layers)
-
-                pass
-        else:
-            # scalar multiplication
-            return [val * other for val in list(self.dimension.values())]
-
-    def __getitem__(self, item):
-        try:
-            return self.layers[item]
-        except TypeError:
-            return self.layers[self.NAME_MAP[item]]
-
-    def rounds(self):
-        for i, l in enumerate(self.layers):
-            if isinstance(l, Matrix):
-                self.layers[i] = l.rounds()
-            else:
-                self.layers[i] = round(l)
-        return self.layers
-
-    @staticmethod
-    def fast_4x4_mul(coord, other):
-        coord = [coord[0], coord[1], coord[2], 1]
-        res = [0, 0, 0, 0]
-
-        for i in range(len(coord)):
-            res[i] = (
-                coord[0] * other[0][i]
-                + coord[1] * other[1][i]
-                + coord[2] * other[2][i]
-                + coord[3] * other[3][i]
-            )
-
-        return (res[0], res[1], res[2], res[3])
-
-    @staticmethod
-    def fast_3x3_mul(coord, other):
-        coord = [coord[0], coord[1], coord[2]]
-        res = [0, 0, 0]
-
-        for i in range(len(coord)):
-            res[i] = (
-                coord[0] * other[0][i] + coord[1] *
-                other[1][i] + coord[2] * other[2][i]
-            )
-
-        return (res[0], res[1], res[2])
 
 
 class Line:
@@ -156,7 +29,7 @@ class Line:
 
     @property
     def points(self):
-        r"""
+        """
         The points that join p1 to p2.
 
         :type: List[Tuple[:class:`int`, :class:`int`]]
@@ -218,13 +91,23 @@ class Line:
             return lambda y: (((y - p1[1]) / gradient) + p1[0], y)
 
     def __repr__(self) -> str:
-        return f"< --- Line: {self.p1}, {self.p2}>"
+        return f"<Line x={self.p1} y={self.p2}>"
 
 
 def rotate(coordinate: np.ndarray, theta: AnyInt, midpoint: np.ndarray):
-    coeff = np.array((cos(theta), -sin(theta)), (sin(theta), cos(theta)))
-    coordinate -= midpoint
-    return coordinate * coeff + midpoint
+    """
+    The rotation of a coordinate at a point in radians.
+
+    Rotation of axes - 0 (theta): (x, y) -> (X, Y)
+    X = x cos(0) + y sin(0)
+    Y = -x sin(0) + y cos(0)
+    """
+    coeff = np.array(((sin(theta), cos(theta)),
+                      (cos(theta), -sin(theta))), dtype=float)
+    coordinate = coordinate.astype(float)
+    coordinate -= midpoint.astype(float)
+    return (coordinate * coeff + midpoint).sum(axis=1)
 
 
 del lru_cache
+

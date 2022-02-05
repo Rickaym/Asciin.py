@@ -4,6 +4,7 @@ The :class:`Asciinpy.Window` class handles the OS dependencies and provides a wa
 
 
 `E.g. 1 Functional`
+
 .. code:: py
 
    from Asciinpy import Window

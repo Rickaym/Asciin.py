@@ -1,0 +1,42 @@
+         230 function calls in 0.037 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.036    0.036    0.036    0.036 {built-in method nt.system}
+        1    0.000    0.000    0.000    0.000 d:\Programming\Python\Projects\PyAscii\Asciinpy\events.py:29(__new__)
+      114    0.000    0.000    0.000    0.000 {built-in method builtins.getattr}
+        2    0.000    0.000    0.000    0.000 d:\Programming\Python\Projects\PyAscii\Asciinpy\screen.py:114(<listcomp>)
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.dir}
+        1    0.000    0.000    0.000    0.000 {built-in method nt.putenv}
+        1    0.000    0.000    0.036    0.036 d:\Programming\Python\Projects\PyAscii\Asciinpy\screen.py:264(_new)
+        1    0.000    0.000    0.037    0.037 d:\Programming\Python\Projects\PyAscii\Asciinpy\screen.py:438(_run_consolas)
+        1    0.000    0.000    0.000    0.000 d:\Programming\Python\Projects\PyAscii\Asciinpy\screen.py:55(__init__)
+       72    0.000    0.000    0.000    0.000 {built-in method builtins.callable}
+        1    0.000    0.000    0.000    0.000 d:\Programming\Python\Projects\PyAscii\Asciinpy\screen.py:238(__init__)
+        1    0.000    0.000    0.000    0.000 d:\Programming\Python\Projects\PyAscii\Asciinpy\utils.py:95(stop)
+        3    0.000    0.000    0.000    0.000 C:\Users\User\AppData\Local\Programs\Python\Python39\lib\os.py:740(check_str)
+        1    0.000    0.000    0.000    0.000 {built-in method sys._current_frames}
+        1    0.000    0.000    0.000    0.000 C:\Users\User\AppData\Local\Programs\Python\Python39\lib\os.py:682(__setitem__)
+        2    0.000    0.000    0.000    0.000 d:\Programming\Python\Projects\PyAscii\Asciinpy\screen.py:113(get_emptyframe)
+        1    0.000    0.000    0.000    0.000 C:\Users\User\AppData\Local\Programs\Python\Python39\lib\os.py:674(__getitem__)
+        2    0.000    0.000    0.000    0.000 C:\Users\User\AppData\Local\Programs\Python\Python39\lib\os.py:746(encodekey)
+        1    0.000    0.000    0.000    0.000 C:\Users\User\AppData\Local\Programs\Python\Python39\lib\os.py:771(getenv)
+        1    0.000    0.000    0.000    0.000 C:\Users\User\AppData\Local\Programs\Python\Python39\lib\_collections_abc.py:759(get)
+        1    0.000    0.000    0.000    0.000 d:\Programming\Python\Projects\PyAscii\Asciinpy\utils.py:85(__exit__)
+        1    0.000    0.000    0.000    0.000 {method 'fileno' of '_io.TextIOWrapper' objects}
+        1    0.000    0.000    0.000    0.000 d:\Programming\Python\Projects\PyAscii\Asciinpy\screen.py:125(fps)
+        1    0.000    0.000    0.000    0.000 d:\Programming\Python\Projects\PyAscii\Asciinpy\screen.py:116(frame)
+        4    0.000    0.000    0.000    0.000 {built-in method time.time}
+        1    0.000    0.000    0.037    0.037 d:\Programming\Python\Projects\PyAscii\Asciinpy\screen.py:477(run)
+        1    0.000    0.000    0.000    0.000 d:\Programming\Python\Projects\PyAscii\Asciinpy\screen.py:150(tick)
+        1    0.000    0.000    0.000    0.000 {built-in method __new__ of type object at 0x00007FFABE97BC60}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        1    0.000    0.000    0.000    0.000 d:\Programming\Python\Projects\PyAscii\Asciinpy\screen.py:141(average_fps)
+        2    0.000    0.000    0.000    0.000 {method 'upper' of 'str' objects}
+        3    0.000    0.000    0.000    0.000 {built-in method builtins.isinstance}
+        1    0.000    0.000    0.000    0.000 {method 'values' of 'dict' objects}
+        1    0.000    0.000    0.000    0.000 {method 'append' of 'list' objects}
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.len}
+
+

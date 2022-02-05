@@ -4,60 +4,14 @@ from functools import wraps
 from io import StringIO
 from cProfile import Profile
 from pstats import Stats
-from itertools import chain
-from random import randint
 from typing import Any, Iterator, Literal, Tuple, List, Union, Callable
 
-from .values import ANSI
 from .globals import FINISHED_ONCE_TASKS, CWD
 
 
-class Color:
-    """
-    Color management class.
-    """
-    @staticmethod
-    def RGB_FOREGROUND(r, g, b):
-        return ANSI.CSI + "38;2;{};{};{}m".format(r, g, b)
-
-    @staticmethod
-    def RGB_BACKGROUND(r, g, b):
-        return ANSI.CSI + "48;2;{};{};{}m".format(r, g, b)
-
-    @staticmethod
-    def FORE(r: int, g: int, b: int):
-        r"""
-        Colors the foreground with a given RGB value.
-        """
-        return Color.RGB_FOREGROUND(r, g, b)
-
-    @staticmethod
-    def BACK(r: int, g: int, b: int):
-        r"""
-        Colors the background with a given RGB value.
-        """
-        return Color.RGB_BACKGROUND(r, g, b)
-
-    @staticmethod
-    def FORErandom():
-        r"""
-        Random foreground color.
-        """
-        return Color.FORE(
-    randint(0, 255), randint(0, 255), randint(0, 255)
-)
-    @staticmethod
-    def BACKrandom():
-        r"""
-        Random backgroun color.
-        """
-        return Color.BACK(
-    randint(0, 255), randint(0, 255), randint(0, 255)
-)
-
 class Profiler:
-    r"""
-    Instance profiler.
+    """
+    Instance profiler wrapper for CProfiler.
 
     Encapsulate the call with a context manager of the profiler and a file path to save the statistics returned.
 
@@ -86,14 +40,14 @@ class Profiler:
         self.stop()
 
     def start(self):
-        r"""
+        """
         Starts gathering statistics.
         """
         self.cpf = Profile()
         self.cpf.enable()
 
     def stop(self):
-        r"""
+        """
         Stop gathering statistics.
         """
         self.cpf.disable()
@@ -103,37 +57,8 @@ class Profiler:
             f.write(redirect.getvalue().replace(CWD, "", -1))
 
 
-class CartesianList(list):
-    r"""
-    A subclass of list to translates coordinate notation (1, 2) to [y][x] notation and starting from 1.
-
-    Supports:
-        CartList[1, 2]      equals   list[1][0]
-        CartList[1, 2] = 2  equals   list[1][0] = 2
-        CartList.flatten()  equals   chain.from_iterable(2DList)
-        CartList.copy()     equals   deepcopy(CartList)
-    """
-    __ignore_oob__ = True
-
-    def __getitem__(self, key) -> Any:
-        if isinstance(key, (tuple, list)):
-            return super().__getitem__(key[1]-1).__getitem__(key[0]-1)
-        else:
-            return super().__getitem__(key)
-
-    def __setitem__(self, key, value) -> Any:
-        if isinstance(key, (tuple, list)):
-            if not (key[1]-1 >= super().__len__() or key[0]-1 >= super().__getitem__(0).__len__() or key[1] <= 0 or key[0] <= 0):
-                return super().__getitem__(key[1]-1).__setitem__(key[0]-1, value)
-        else:
-            return super().__setitem__(key, value)
-
-    def flatten(self) -> Iterator:
-        return chain.from_iterable(super().__iter__())
-
-
 def beautify(dimension: Tuple[int, int], frame: Union[List[str], str]) -> str:
-    r"""
+    """
     Maps an uncut frame into different pieces with newline characters to make it
     readable in a given context of dimension.
 
@@ -155,7 +80,7 @@ def beautify(dimension: Tuple[int, int], frame: Union[List[str], str]) -> str:
 
 
 def morph(initial_string: str, end_string: str, consume: Literal["start", "end"]="end", loop: bool=True) -> List[str]:
-    r"""
+    """
     Morphs one string onto another and return a string array
     of all the frames needed to be displayed.
 
@@ -192,7 +117,7 @@ def morph(initial_string: str, end_string: str, consume: Literal["start", "end"]
 
 
 def deprecated(callable: Callable) -> Callable:
-    r"""
+    """
     Simply raises a DeprecationWarning when the decorated function is called.
     """
 
@@ -206,7 +131,7 @@ def deprecated(callable: Callable) -> Callable:
 
 
 def praised(release) -> Callable:
-    r"""
+    """
     A to-be implemented features.
     """
     def wrapper(callable: Callable) -> Callable:
@@ -219,7 +144,7 @@ def praised(release) -> Callable:
 
 
 def only_once(func: Callable) -> Callable:
-    r"""
+    """
     Executes the given function only once.
 
     .. code:: py
@@ -243,7 +168,7 @@ def only_once(func: Callable) -> Callable:
 
 
 def isinstancemethod(func: Callable) -> bool:
-    r"""
+    """
     Returns whether if a given function is a staticmethod or an instancemethod/classmethod.
     """
     return "self" in inspect.getfullargspec(func)[0]

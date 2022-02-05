@@ -1,19 +1,16 @@
 import os
 import sys
 
-from typing import Callable, Literal, Tuple, Union, Optional, List
 from abc import ABCMeta, abstractmethod
+from itertools import chain
 from time import sleep, time
+from typing import Callable, Literal, Sequence, Tuple, Union, Optional, List
 
-from numpy import ndarray
-
-from Asciinpy.objects import Blitable
-
-from .values import Characters, Resolutions, ANSI
+from .objects import Blitable
+from .values import WINDOW_COLOR_HEXES, Color, Characters, Resolutions, ANSI
 from .devices import Keyboard
-from .events import ON_START, EventListener
-from .utils import CartesianList
-from .globals import PLATFORM
+from .events import ON_START, ON_TERMINATE, Event, EventListener
+from .globals import Platform
 from .types import AnyInt
 
 
@@ -22,7 +19,7 @@ DisplayerWrapper = Callable[[Displayer], Displayer]
 
 
 class Screen(metaclass=ABCMeta):
-    r"""
+    """
     A meta class for a screen object.
     """
 
@@ -51,7 +48,7 @@ class Screen(metaclass=ABCMeta):
         "_stops_at",
         "_started_at",
         "_last_fps_measure",
-        "_stdout"
+        "_stdout",
     )
 
     def __init__(
@@ -69,16 +66,13 @@ class Screen(metaclass=ABCMeta):
 
         self.max_fps = max_fps
         self.aspect_ratio = resolution.height / resolution.width
-        self.emptyframe = lambda: CartesianList(
-            [[" "] * (resolution.width) for _ in range(resolution.height)]
-        )
         self.show_fps = show_fps
         self.timer = timer
         self.sysdout = sysdout
         self.debug = debug
 
-        self._frame = self.emptyframe()
-        self._last_frame = self.emptyframe()
+        self._frame = self.get_emptyframe()
+        self._last_frame = self.get_emptyframe()
         self._records = []
 
         self._fps = 0
@@ -115,6 +109,9 @@ class Screen(metaclass=ABCMeta):
                 + self._infotext[3 + fps_size + offs + len(watch) :]
             )
 
+    def get_emptyframe(self) -> List[List[str]]:
+        return [[" "] * (self.resolution.width) for _ in range(self.resolution.height)]
+
     @property
     def frame(self) -> str:
         """
@@ -122,7 +119,7 @@ class Screen(metaclass=ABCMeta):
 
         :type: :class:`str`
         """
-        return "".join(self._frame.flatten())
+        return "".join(chain.from_iterable(self._frame))
 
     @property
     def fps(self) -> int:
@@ -159,7 +156,7 @@ class Screen(metaclass=ABCMeta):
         return round(time() - self._started_at) % self.TPS
 
     def _infograph(self):
-        r"""
+        """
         Ensures correct conditions to blit a debug menu at the top of the window.
 
         This menu is pre-rendered before-hand and the values are formatted
@@ -171,7 +168,7 @@ class Screen(metaclass=ABCMeta):
             self._frame[1] = text[self.width - 1 :]
 
     def blit(self, object: Blitable, *args, **kwargs):
-        r"""
+        """
         Simply calls the object's internal blit method onto itself and does necessary
         records.
 
@@ -179,11 +176,11 @@ class Screen(metaclass=ABCMeta):
             The Model to be blitted onto screen.
         :type object: Union[:class:`Plane`, :class:`Mask`]
         """
-        object.blit(self.resolution, self.draw, *args, **kwargs)
-        #tuple(map(lambda o: self.draw((o[0], o[1]), o[2]), object.blit(self.resolution, *args, **kwargs)))
+        object.blit(self, *args, **kwargs)
+        # tuple(map(lambda o: self.draw((o[0], o[1]), o[2]), object.blit(self.resolution, *args, **kwargs)))
 
     def refresh(self, log_frames=False):
-        r"""
+        """
         Empties the current frame. If sysdout is enabled, it is printed onto the window.
 
         :param log_frames:
@@ -203,19 +200,22 @@ class Screen(metaclass=ABCMeta):
             self._last_frame = current_frame
 
         self._frames_displayed += 1
-        self._frame = self.emptyframe()
+        self._frame = self.get_emptyframe()
 
     def events(self):
-        r"""
+        """
         Gather all IO events.
         """
         Keyboard.getch()
 
-    def draw(self, point: ndarray, char: str):
-        r"""
+    def draw(self, point: Sequence, char: str):
+        """
         Paints a specific point on the cavas with the character.
         """
-        self._frame[point[0], point[1]] = char
+        try:
+            self._frame[point[1]][point[0]] = char
+        except IndexError:
+            pass
 
     def _resize(self):
         """
@@ -251,22 +251,25 @@ class ConsoleInterface(EventListener, Screen):
         self.cout = self.stdout.fileno()
 
     def _resize(self):
-        if PLATFORM == "Windows":
+        if Platform.is_window:
             os.system(f"mode con cols={self.width} lines={self.height}")
-        elif PLATFORM == "Linux" or PLATFORM == "Darwin":
+        elif Platform.is_linux or Platform.is_darwin:
             os.system(
-                f"printf '\e[8;{self.resolution.height};{self.resolution.width}t'"
+                rf"printf '\e[8;{self.resolution.height};{self.resolution.width}t'"
             )
         else:
-            raise NotImplementedError("Resize method is not implemented in this OS")
+            raise NotImplementedError(
+                f"resize method is not implemented in this platform {Platform.name}"
+            )
 
     def _new(self, mode: Union[str, Literal["k", "c"]], origin_depth: int):
-        r"""
+        """
         Starts a different command prompt dedicated for display and
         leaves the current one.
         """
         frame = list(sys._current_frames().values())[0]
         # Searches the origin of a call
+        caller = None
         for i in range(origin_depth):
             if getattr(frame, "f_back") is None:
                 caller = frame.f_globals["__file__"]
@@ -275,21 +278,30 @@ class ConsoleInterface(EventListener, Screen):
                     break
                 else:
                     frame = frame.f_back
-        if PLATFORM == "Windows":
+        if caller is None:
+            raise ValueError(
+                f"origin depth {origin_depth} is not enough to find the caller"
+            )
+
+        if Platform.is_window:
             command = f"""start cmd /{mode} {sys.executable} "{caller}" ;pause"""
-        else:
+        elif Platform.is_linux or Platform.is_darwin:
             command = f"""gnome-terminal --working-directory=$pwd  -- "{sys.executable}" '{caller}'"""
+        else:
+            raise NotImplementedError(
+                f"this platform {Platform.name} is not supported on asciinpy"
+            )
 
         os.system(command)
 
     def _puts(self, *sequence: str):
-        r"""
+        """
         Writes onto sys stdout directly with the encoding.
         """
         os.write(self.cout, "".join(sequence).encode())
 
     def _slice_fit(self, coordinate: Tuple[int, int], *body: str):
-        r"""
+        """
         Simplified implementation of the slice_fit render method to blit window menus and
         native elements.
         """
@@ -319,24 +331,30 @@ class ConsoleInterface(EventListener, Screen):
         self._cursor((0, 0))
         self._puts(frame)
 
-    #@Event.listen("on_terminate")
-    def _terminate(self):
-        self._puts(ANSI.BEL)
-        if self.sysdout is True:
-            self._cursor((0, 0), visibility=True)
-            self._clear()
+    def _enable_VT100(self):
+        """
+        Enable the VT100 sequence.
+        """
+        if Platform.is_window:
+            os.system("")
 
+    @Event.listen(ON_START)
     def _start(self):
-        # enable VT100 escape seq
-        os.system("")
+        self._enable_VT100()
         if self.sysdout is True:
             self._resize()
             self._clear()
             self._cursor(visibility=False)
 
+    @Event.listen(ON_TERMINATE)
+    def _terminate(self):
+        if self.sysdout is True:
+            self._cursor(goto=(0, 0), visibility=True)
+            self._clear()
 
-class Window:
-    r"""
+
+class Window(EventListener):
+    """
     An abstract representation of a window, the class handles the internal loops.
 
     Subclasses of Window must implement :obj:`Window.loop` as it's client loop.
@@ -345,7 +363,20 @@ class Window:
 
     PNAME = "ASCIINPY_PROCESS"
 
-    __slots__ = ("resolution", "max_fps", "fov", "screen", "_stop_time", "_loop", "_debug", "_debug_mode", "_debug_origin_depth")
+    __slots__ = (
+        "resolution",
+        "max_fps",
+        "fov",
+        "screen",
+        "_game_loop",
+        "_title",
+        "_foreground_color",
+        "_background_color",
+        "_stop_time",
+        "_debug",
+        "_debug_mode",
+        "_debug_origin_depth",
+    )
 
     def __init__(
         self,
@@ -354,13 +385,17 @@ class Window:
     ):
         self.resolution = Resolutions(resolution)
         self.max_fps = max_fps
-        self._loop: Optional[Displayer] = None
+
+        self._title = None
         self._debug = False
         self._debug_mode = "k"
         self._debug_origin_depth = 5
+        self._foreground_color = None
+        self._background_color = None
+        self._game_loop: Optional[Displayer] = None
 
-    def enable_debug(self, mode: Literal["k", "c"] = "k", origin_depth: int = 5):
-        r"""
+    def enable_debug(self, mode: Literal["k", "c"] = None, origin_depth: int = None):
+        """
         Enables debug mode for developers. Defaults to debug mode `k`.
 
         Modes:
@@ -371,29 +406,34 @@ class Window:
         Offloads program onto a subprocess on an external Terminal with the given mode.
         """
         self._debug = True
-        self._debug_mode = mode
-        self._debug_origin_depth = origin_depth
+        if mode:
+            self._debug_mode = mode
+        if origin_depth:
+            self._debug_origin_depth = origin_depth
 
-    def loop(self, forcestop: Optional[int] = None, screen: Screen = None) -> DisplayerWrapper:
-        r"""
+    def loop(
+        self, screen: Screen = None, forcestop: Optional[int] = None
+    ) -> DisplayerWrapper:
+        """
         Registers the client loop under `loop` of window class.
         This consenquentially limits the decorator to be re-used.
 
         :returns: (Callable[[:class:`Screen`], None]) The wrapped function.
         """
-        if self._loop is not None:
-            return self._loop(screen)
-
-        self._stop_time = forcestop
 
         def wrapper(func: Displayer) -> Displayer:
-            self._loop = func
+            self._game_loop = func
             return func
 
+        if self._game_loop and screen:
+            self._game_loop(screen)
+            return wrapper
+
+        self._stop_time = forcestop
         return wrapper
 
     def replay(self, frames: List[str], fps: int = 1):
-        r"""
+        """
         Replays a given list of frames with the specified fps limit.
 
         :param frames:
@@ -403,28 +443,24 @@ class Window:
             The FPS at which the replay is rendered. It is defaulted to `1`.
         :type frames: :class:`int`
         """
-        self.screen = ConsoleInterface(self.resolution, self.max_fps, self._stop_time, False, False, False, False)
+        raise NotImplementedError
+        self.screen = ConsoleInterface(
+            self.resolution, self.max_fps, self._stop_time, False, False, False, False
+        )
         self.screen._start()
         frames = [frame.replace("\n", "", -1) for frame in frames]
         index = 0
         ON_START.emit()
         while True:
-            self.screen._frame = CartesianList(frames[index])
+            self.screen._frame = list(frames[index])
             index += 1
             if index >= len(frames):
                 raise RuntimeError("Replay had run out of frames..")
             self.screen.refresh()
             sleep(60 / (fps * 60))
 
-    def set_title(self, title: str):
-        r"""
-        Sets the title of the current console window.
-        """
-        if os.name != "nt":
-            Screen._puts(ANSI.ESC, "]2;{}".format(title))
-
     def set_fov(self, fov: float):
-        r"""
+        """
         Sets the screen fov, this is only relevant if 3D objects are involved.
 
         :param fov:
@@ -433,13 +469,72 @@ class Window:
         """
         self.fov = fov
 
+    def set_title(self, title: str):
+        self._title = title
+
+    def set_color(
+        self, foreground: Optional[Color] = None, background: Optional[Color] = None
+    ):
+        if foreground:
+            self._foreground_color = foreground
+        if background:
+            self._background_color = background
+
+    @Event.listen(ON_START)
+    def _decorate_console(self):
+        if Platform.is_window:
+            if self._title:
+                os.system(f"TITLE {self._title}")
+            if self._foreground_color or self._background_color:
+                fg_hex = (
+                    WINDOW_COLOR_HEXES[self._foreground_color]
+                    if self._foreground_color
+                    else ""
+                )
+                bg_hex = (
+                    WINDOW_COLOR_HEXES[self._background_color]
+                    if self._background_color
+                    else ""
+                )
+                if os.system(f"COLOR {fg_hex}{bg_hex}") == 1:
+                    raise ValueError(
+                        f"a combination of foreground {self._foreground_color}"
+                        f" and background {self._background_color} is invalid"
+                    )
+        elif Platform.is_darwin or Platform.is_linux:
+            if self._title:
+                self.screen._puts(ANSI.ESC, "]2;{}".format(self._title))
+            if self._foreground_color or self._background_color:
+                raise NotImplementedError
+        else:
+            raise NotImplementedError(
+                f"console decorations not supported for {Platform.name}"
+            )
+
+    @Event.listen(ON_TERMINATE)
+    def _restore_console(self):
+        if Platform.is_window:
+            if self._title:
+                os.system("TITLE Command Prompt")
+            if self._foreground_color or self._background_color:
+                os.system("COLOR")
+        elif Platform.is_darwin or Platform.is_linux:
+            if self._title:
+                raise NotImplementedError
+            if self._foreground_color or self._background_color:
+                raise NotImplementedError
+        else:
+            raise NotImplementedError(
+                f"console decorations not supported for {Platform.name}"
+            )
+
     def _run_consolas(
         self,
         show_fps: bool,
         sysdout: bool,
         timer: bool,
     ):
-        r"""
+        """
         Creates and screen object by basis of a console.
 
         :param fov:
@@ -454,6 +549,7 @@ class Window:
             sysdout,
             timer,
         )
+
         if self._debug is True:
             if os.getenv(self.PNAME) != "child":
                 os.environ[self.PNAME] = "child"
@@ -463,14 +559,7 @@ class Window:
                 del os.environ[self.PNAME]
 
         ON_START.emit()
-
-        # running this on another thread can delete potential
-        # tracebacks
-        self.screen._start()
-        if self._loop is None:
-            return self.loop(screen=self.screen)
-        else:
-            return self._loop(self.screen)
+        self.loop(screen=self.screen)
 
     def run(
         self,

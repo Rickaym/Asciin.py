@@ -5,11 +5,11 @@ PixelPainter doesn't directly create an imprint onto the frame. It keeps a refer
 itself that the user draw onto. Only when it is blitted that the pixel painter localizes it's
 canvas onto the screen frame. Even then, it is rendered like every other Model.
 """
-from Asciinpy.utils import Color
 import sys
 
-from Asciinpy.screen import Screen, Window, Resolutions
 from Asciinpy._2D import Plane
+from Asciinpy.values import Color
+from Asciinpy.screen import Screen, Window, Resolutions
 
 # Start by defining a screen object with the desired resolution
 window = Window(resolution=Resolutions._60c)
