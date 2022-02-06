@@ -15,6 +15,8 @@ from .globals import Platform
 from .types import AnyInt, IntCoordinate
 
 
+__all__ = ["Window", "Screen"]
+
 Displayer = Callable[["Screen"], None]
 DisplayerWrapper = Callable[[Displayer], Displayer]
 

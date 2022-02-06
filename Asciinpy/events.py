@@ -8,7 +8,7 @@ from Asciinpy.globals import Platform
 
 from .utils import isinstancemethod
 
-__all__ = ["Event", "EventListener", "ON_TERMINATE", "ON_START", "ON_RESIZE", "ON_KEY_PRESS", "ON_MOUSE_CLICK"]
+__all__ = ["Event", "EventListener", "ON_TERMINATE", "ON_START", "ON_RESIZE", "ON_KEY_PRESS", "ON_KEY_RELEASE","ON_MOUSE_CLICK"]
 
 Consumer = Callable[[Any], None]
 BoundConsumer = Callable[[object], None]

@@ -2,9 +2,7 @@ from abc import abstractmethod
 from abc import ABCMeta
 from typing import List, Tuple
 
-
 Pixel = Tuple[int, int, str, str]
-
 
 class Blitable(metaclass=ABCMeta):
     """

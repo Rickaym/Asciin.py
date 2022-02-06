@@ -10,6 +10,8 @@ from .utils import praised
 from .events import ON_KEY_PRESS, ON_KEY_RELEASE
 from .values import ANSI
 
+__all__ = ["Keyboard", "Microphone", "Audio", "Mouse"]
+
 CharacterGetter = Callable[[], Optional[bytes]]
 
 

@@ -1,9 +1,11 @@
 from itertools import chain
 from functools import lru_cache
 from math import cos, sin
-from typing import Tuple, Union
+from typing import Tuple
 
 from Asciinpy.types import AnyInt, AnyIntCoordinate
+
+__all__ = ["Line", "rotate"]
 
 GRADIENT = lru_cache(maxsize=64)(
     lambda P1, P2: None if P2[0] -
@@ -105,7 +107,3 @@ def rotate(coordinate: AnyIntCoordinate, theta: AnyInt, midpoint: AnyIntCoordina
     r_x, r_y = (cos(theta), sin(theta)), (-sin(theta), cos(theta))
     x, y = coordinate[0]-midpoint[0], coordinate[1]-midpoint[1]
     return (x*r_x[0] + y*r_x[1])+midpoint[0], (x*r_y[0] + y*r_y[1])+midpoint[1]
-
-
-del lru_cache
-

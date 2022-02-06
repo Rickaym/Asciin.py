@@ -1,7 +1,8 @@
-from typing import Callable, List, Literal, Union
-from weakref import WeakKeyDictionary
+from typing import Callable, List
 from platform import system
 from os import getcwd
+
+__all__ = ["Platform"]
 
 SINGLE_PRINT_FLAG: bool = False
 
