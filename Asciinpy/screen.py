@@ -4,6 +4,7 @@ import sys
 from abc import ABCMeta, abstractmethod
 from itertools import chain
 from time import sleep, time
+import traceback
 from typing import Callable, Literal, Sequence, Tuple, Union, Optional, List
 
 from .objects import Blitable
@@ -11,7 +12,7 @@ from .values import WINDOW_COLOR_HEXES, Color, Characters, Resolutions, ANSI
 from .devices import Keyboard
 from .events import ON_START, ON_TERMINATE, Event, EventListener
 from .globals import Platform
-from .types import AnyInt
+from .types import AnyInt, IntCoordinate
 
 
 Displayer = Callable[["Screen"], None]
@@ -208,7 +209,7 @@ class Screen(metaclass=ABCMeta):
         """
         Keyboard.getch()
 
-    def draw(self, point: Sequence, char: str):
+    def draw(self, point: IntCoordinate, char: str):
         """
         Paints a specific point on the cavas with the character.
         """
@@ -347,10 +348,11 @@ class ConsoleInterface(EventListener, Screen):
             self._cursor(visibility=False)
 
     @Event.listen(ON_TERMINATE)
-    def _terminate(self):
+    def _terminate(self, exit_code: int):
         if self.sysdout is True:
-            self._cursor(goto=(0, 0), visibility=True)
-            self._clear()
+            self._cursor(visibility=True)
+            if exit_code != -1:
+                self._clear()
 
 
 class Window(EventListener):
@@ -383,7 +385,10 @@ class Window(EventListener):
         resolution: Union[Resolutions, Tuple[int, int]],
         max_fps: Optional[int] = None,
     ):
-        self.resolution = Resolutions(resolution)
+        if isinstance(resolution, tuple):
+            self.resolution = Resolutions.custom(resolution)
+        else:
+            self.resolution = resolution
         self.max_fps = max_fps
 
         self._title = None
@@ -443,18 +448,16 @@ class Window(EventListener):
             The FPS at which the replay is rendered. It is defaulted to `1`.
         :type frames: :class:`int`
         """
-        raise NotImplementedError
         self.screen = ConsoleInterface(
             self.resolution, self.max_fps, self._stop_time, False, False, False, False
         )
-        self.screen._start()
-        frames = [frame.replace("\n", "", -1) for frame in frames]
+        _frames = [frame.replace("\n", "", -1) for frame in frames]
         index = 0
         ON_START.emit()
         while True:
-            self.screen._frame = list(frames[index])
+            self.screen._frame = _frames[index]
             index += 1
-            if index >= len(frames):
+            if index >= len(_frames):
                 raise RuntimeError("Replay had run out of frames..")
             self.screen.refresh()
             sleep(60 / (fps * 60))
@@ -512,7 +515,7 @@ class Window(EventListener):
             )
 
     @Event.listen(ON_TERMINATE)
-    def _restore_console(self):
+    def _restore_console(self, exit_code: int):
         if Platform.is_window:
             if self._title:
                 os.system("TITLE Command Prompt")
@@ -559,7 +562,14 @@ class Window(EventListener):
                 del os.environ[self.PNAME]
 
         ON_START.emit()
-        self.loop(screen=self.screen)
+        try:
+            self.loop(screen=self.screen)
+        except Exception as e:
+            traceback.print_exception(e.__class__, e, e.__traceback__)
+            exit_code = -1
+        else:
+            exit_code = 0
+        ON_TERMINATE.emit(exit_code)
 
     def run(
         self,
