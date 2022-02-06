@@ -4,8 +4,10 @@ from io import BytesIO
 from typing import Callable, Optional
 from enum import Enum
 
+from Asciinpy.globals import Platform
+
 from .utils import praised
-from .events import ON_KEY_PRESS
+from .events import ON_KEY_PRESS, ON_KEY_RELEASE
 from .values import ANSI
 
 CharacterGetter = Callable[[], Optional[bytes]]
@@ -20,6 +22,7 @@ class RawKeyInput:
     """
     A raw key buffer before it gets filtered into the main keyboard class.
     """
+
     cmd_buffer: Optional[BytesIO] = None  # keeps track of any escape sequences
     line_buffer: Optional[
         BytesIO
@@ -33,14 +36,13 @@ def is_alphanumeric(bytes):
     return True
 
 
-def _resolve_getch() -> CharacterGetter:
+def get_getch() -> CharacterGetter:
     """
     Getch gets us a key press focused in the console, since python doesn't have a default method for that
     nor an OS independent one for that matter, we will have to make the getch method based on the OS.
     """
-    try:
-        import termios
-    except ImportError:  # windows machine
+    if Platform.is_window:
+        # Windows machine
         import msvcrt
 
         def _win_getch():
@@ -51,28 +53,27 @@ def _resolve_getch() -> CharacterGetter:
 
         return _win_getch
     else:
+        import termios
         import tty
 
         def _unix_getch():
             fd = sys.stdin.fileno()
-            old_settings = termios.tcgetattr(fd) # type: ignore
+            old_settings = termios.tcgetattr(fd)  # type: ignore
             try:
-                tty.setraw(fd) # type: ignore
+                tty.setraw(fd)  # type: ignore
                 ch = sys.stdin.read(1)
             finally:
-                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings) # type: ignore
+                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)  # type: ignore
             return ch.encode()
 
         return _unix_getch
 
 
-def _pick_getch():
+def warp_buffer_getch(getch_method: Callable):
     """
     Wraps the getch method with necessary buffering
     """
-    getch_method = _resolve_getch()
-
-    def wrapped(*args, **kwargs) -> Optional[str]:
+    def wrapped(*args, **kwargs) -> Optional[bytes]:
         ch = getch_method(*args, **kwargs)
         if ch is None:
             return
@@ -83,7 +84,10 @@ def _pick_getch():
         if RawKeyInput.cmd_buffer is not None:
             past = RawKeyInput.cmd_buffer.getvalue()
             RawKeyInput.cmd_buffer = None
-            return (past+ch).decode()
+            try:
+                return past+ch
+            except:
+                raise RuntimeError(past + ch)
         elif not is_alphanumeric(ch):
             if RawKeyInput.cmd_buffer is None:
                 RawKeyInput.cmd_buffer = BytesIO()
@@ -93,15 +97,15 @@ def _pick_getch():
         if RawKeyInput.line_buffer is not None:
             past = RawKeyInput.line_buffer.getvalue()
             RawKeyInput.line_buffer.write(ch)
-            if ch in ("\n".encode(), "\r".encode()):
+            if ch in b"\n\r":
                 l_buf = RawKeyInput.line_buffer.getvalue()
                 RawKeyInput.line_buffer = None
-                return l_buf.decode()
+                return l_buf
         elif RawKeyInput.line_buffer is None:  # start a line buffer
             RawKeyInput.line_buffer = BytesIO()
             RawKeyInput.line_buffer.write(ch)
 
-        return ch.decode()
+        return ch
 
     return wrapped
 
@@ -112,24 +116,25 @@ class Keyboard:
     is_pressed = False
     pressed = None
     _thread = None
-    _getch = _pick_getch()
+    _getch = warp_buffer_getch(get_getch())
 
     @staticmethod
     def getch(*args, **kwargs):
         ch = Keyboard._getch(*args, **kwargs)
+
         if ch is not None:
-            Keyboard.pressed = ch
+            Keyboard.pressed = Keyboard.Keys._value2member_map_.get(ch, Keyboard.Keys.NullByte)
             Keyboard.is_pressed = True
             ON_KEY_PRESS.emit(Keyboard.pressed)
         else:
+            if Keyboard.is_pressed:
+                ON_KEY_RELEASE.emit(Keyboard.pressed)
             Keyboard.pressed = None
             Keyboard.is_pressed = False
-        return ch
+        return Keyboard.pressed
 
     class Keys(Enum):
         # the general byte representation of each keys
-        B_ZERO = b"\x00"  # 0
-        B_TTF = b"\xe0"  # 224
         A = b"a"
         B = b"b"
         C = b"c"
@@ -156,71 +161,72 @@ class Keyboard:
         X = b"x"
         Y = b"y"
         Z = b"z"
-        ZERO = b"0"
-        ONE = b"1"
-        TWO = b"2"
-        THREE = b"3"
-        FOUR = b"4"
-        FIVE = b"5"
-        SIX = b"6"
-        SEVEN = b"7"
-        EIGHT = b"8"
-        NINE = b"9"
-        SPACE = b"  "
-        MINUS = b"-"
-        PLUS = b"+"
-        EQUAL = b"="
-        UNDERSCORE = b"_"
-        RIGHT_BRACKET = b"("
-        LEFT_BRACKET = b")"
-        SQUARE_RIGHT_BRACKET = b"["
-        SQUARE_LEFT_BRACKET = b"]"
-        WIGGLY_RIGHT_BRACKET = b"{"
-        WIGGLY_LEFT_BRACKET = b"}"
-        RIGHT_ANGLE_BRACKET = b"<"
-        LEFT_ANGLE_BRACKET = b">"
-        FORWARD_SLASH = b"/"
-        BACKWARD_SLASH = b"\\"
-        PIPE = b"|"
-        SINGLE_QUOTE = b"'"
-        DOUBLE_QUOTE = b'"'
-        COLON = b":"
-        SEMI_COLON = b";"
-        PERIOD = b"."
-        COMMA = b","
-        QUESTION_MARK = b"?"
-        AND = b"&"
-        PERCENT = b"%"
-        HASH = b"#"
-        EXCLM = b"!"
-        F1 = B_ZERO + b";"
-        F2 = B_ZERO + b"<"
-        F3 = B_ZERO + b"="
-        F4 = B_ZERO + b">"
-        F5 = B_ZERO + b"?"
-        F6 = B_ZERO + b"@"
-        F7 = B_ZERO + b"A"
-        F8 = B_ZERO + b"B"
-        F9 = B_ZERO + b"C"
-        F10 = B_ZERO + b"D"
-        F11 = B_TTF + b"\x85"
-        F12 = B_TTF + b"\x86"
-        HOME = B_TTF + b"G"
-        UP_ARROW = B_TTF + b"H"
-        PAGE_UP = B_TTF + b"I"
-        LEFT_ARROW = B_TTF + b"K"
-        RIGHT_ARROW = B_TTF + b"M"
-        END = B_TTF + b"O"
-        DOWN_ARROW = B_TTF + b"P"
-        PAGE_DOWN = B_TTF + b"Q"
-        INSERT = B_TTF + b"R"
-        DELETE = B_TTF + b"S"
-        PRT_SCR = "UNDEFINED-1"
-        BREAK = "UNDEFINED-2"
-        BACKSPACE = b"\x08"
-        RETURN = b"\r\r"
-        TAB = b"\t"
-        NULL = ZERO + b"\x03"
+        Zero = b"0"
+        One = b"1"
+        Two = b"2"
+        Three = b"3"
+        Four = b"4"
+        Five = b"5"
+        Six = b"6"
+        Seven = b"7"
+        Eight = b"8"
+        Nine = b"9"
+        Space = b"  "
+        Minus = b"-"
+        Plus = b"+"
+        Equal = b"="
+        Underscore = b"_"
+        RightBracket = b"("
+        LeftBracket = b")"
+        SquareRightBracket = b"["
+        SquareLeftBracket = b"]"
+        WigglyRightBracket = b"{"
+        WigglyLeftBracket = b"}"
+        RightAngleBracket = b"<"
+        LeftAngleBracket = b">"
+        ForwardSlash = b"/"
+        BackwardSlash = b"\\"
+        Pipe = b"|"
+        SingleQuote = b"'"
+        DoubleQuote = b'"'
+        Colon = b":"
+        SemiColon = b";"
+        Period = b"."
+        Comma = b","
+        QuestionMark = b"?"
+        And = b"&"
+        Percent = b"%"
+        Hash = b"#"
+        Exclaim = b"!"
+        NullByte = b"\x00"  # 0
+        TTF = b"\xe0"  # 224
+        F1 = NullByte + b";"
+        F2 = NullByte + b"<"
+        F3 = NullByte + b"="
+        F4 = NullByte + b">"
+        F5 = NullByte + b"?"
+        F6 = NullByte + b"@"
+        F7 = NullByte + b"A"
+        F8 = NullByte + b"B"
+        F9 = NullByte + b"C"
+        F10 = NullByte + b"D"
+        F11 = TTF + b"\x85"
+        F12 = TTF + b"\x86"
+        UpArrow = TTF + b"H"
+        LeftArrow = TTF + b"K"
+        RightArrow = TTF + b"M"
+        DownArrow = TTF + b"P"
+        PageUp = TTF + b"I"
+        PageDown = TTF + b"Q"
+        Tab = b"\t"
+        Return = b"\r\r"
+        Home = TTF + b"G"
+        End = TTF + b"O"
+        Backspace = b"\x08"
+        Insert = TTF + b"R"
+        Delete = TTF + b"S"
+        PrtScr = "UNDEFINED-1"
+        Break = "UNDEFINED-2"
 
 
 @praised("0.4.0")
@@ -235,4 +241,7 @@ class Audio:
 
 @praised("0.4.0")
 class Mouse:
-    pass
+    class Keys(Enum):
+        Left = 0
+        Right = 1
+        Scroll = 2
