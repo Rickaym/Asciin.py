@@ -11,7 +11,7 @@ from Asciinpy._2D import Square
 from typing import List, Tuple
 
 # Start by defining a screen object with the desired resolution
-window = Window(resolution=Resolutions._60c)
+window = Window(resolution=Resolutions.Basic)
 
 def manage_collisions(velocities: Tuple[int, int], i: int, square: Square, other_squares: List[Square]) -> Tuple[int, int]:
     for other in other_squares:
@@ -44,9 +44,10 @@ def manage_collisions(velocities: Tuple[int, int], i: int, square: Square, other
 def my_loop(screen: Screen):
     # Make a bunch of squares to simulate collisions
     squares = (
-        Square((2, 4), 10, texture="#"),
-        Square((9, 4), 8, texture="."),
-        Square((2, 18), 13, texture=","),
+        Square((2, 4), 5, texture="#"),
+        Square((9, 4), 6, texture="."),
+        Square((5, 5), 7, texture="+"),
+        Square((2, 18), 8, texture=","),
         )
 
     STATIC = 0.03902
@@ -82,7 +83,7 @@ def my_loop(screen: Screen):
         # Refresh the screen to render new blits
         screen.refresh()
 
+window.enable_debug()
+
 if __name__ == "__main__":
-    # Runs the windows
     window.run(show_fps=True)
-    sys.exit(0)
