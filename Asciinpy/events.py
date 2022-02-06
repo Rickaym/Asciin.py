@@ -2,10 +2,13 @@ import signal
 
 from threading import Thread
 from typing import Any, Callable, Protocol, List
+from functools import partial
+
+from Asciinpy.globals import Platform
 
 from .utils import isinstancemethod
 
-__all__ = ["Event", "EventListener"]
+__all__ = ["Event", "EventListener", "ON_TERMINATE", "ON_START", "ON_RESIZE", "ON_KEY_PRESS", "ON_MOUSE_CLICK"]
 
 Consumer = Callable[[Any], None]
 BoundConsumer = Callable[[object], None]
@@ -37,19 +40,21 @@ class EventListener:
 
 
 class Event:
-    __slots__ = "subscribers"
+    __slots__ = ("subscribers", "name", "threadable")
 
-    def __init__(self):
+    def __init__(self, name: str, threadable: bool=True):
         """
         An Event Aggregator that allows observers to listen to certain events and observers in
         this specific case are callables.
         """
+        self.name = name
+        self.threadable = threadable
         self.subscribers: List[ListeningFunc] = []
 
     def emit(self, *args, **kwargs):
         if len(self.subscribers) != 0:
             for cb in self.subscribers:
-                if cb.__threaded__ is True:
+                if cb.__threaded__ and self.threadable:
                     Thread(target=cb, args=args, kwargs=kwargs).start()
                 else:
                     cb(*args, *kwargs)
@@ -76,23 +81,21 @@ class Event:
 
 class ON_TERMINATE_EVENT(Event):
     def emit(self, *args, **kwargs):
-        super().emit()
-        exit(0)
+        super().emit(args[0], **kwargs)
+        exit(args[0])
 
 
-ON_TERMINATE = ON_TERMINATE_EVENT()
-ON_START = Event()
-ON_RESIZE = Event()
-# IO
-ON_KEY_PRESS = Event()
-ON_MOUSE_CLICK = Event()
+ON_TERMINATE = ON_TERMINATE_EVENT("ON_TERMINATE")
+ON_START = Event("ON_START", threadable=False)
+ON_RESIZE = Event("ON_RESIZE")
+ON_KEY_PRESS = Event("ON_KEY_PRESS")
+ON_KEY_RELEASE = Event("ON_KEY_RELEASE")
+ON_MOUSE_CLICK = Event("ON_MOUSE_CLICK")
 
 
 # Sigint and sigterm signals will start a system termination call
-signal.signal(signal.SIGINT, ON_TERMINATE.emit)
-signal.signal(signal.SIGTERM, ON_TERMINATE.emit)
+signal.signal(signal.SIGINT, partial(ON_TERMINATE.emit, signal.SIGINT.value))
+signal.signal(signal.SIGTERM, partial(ON_TERMINATE.emit, signal.SIGTERM.value))
 
-# if PLATFORM != "Window":
-#    signal.signal(signal.SIGWINCH, ON_TERMINATE.emit)
-
-del ON_TERMINATE_EVENT
+if not Platform.is_window:
+   signal.signal(signal.SIGWINCH, partial(ON_TERMINATE.emit, signal.SIGWINCH.value)) # type: ignore
