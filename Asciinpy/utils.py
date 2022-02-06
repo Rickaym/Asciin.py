@@ -63,8 +63,9 @@ def get_floor(_2d_coords: Iterable[AnyIntCoordinate]) -> List[AnyInt]:
     Takes in a 2d array of coordinates and returns the floor coordinate.
 
     Use utils.get_floor_ceil() if you need both floor and ceiling
-    Return:
-        [Min_X_axis, Min_Y_axis]
+
+    :returns: (List[AnyInt]) The floor coordinate.
+
     """
     floor: List[AnyInt] = [None, None] # type: ignore
     for x, y in _2d_coords:
@@ -86,8 +87,8 @@ def get_ceil(_2d_coords: Iterable[AnyIntCoordinate]) -> List[AnyInt]:
     Takes in a 2d array of coordinates and returns the ceiling coordinate.
 
     Use utils.get_floor_ceil() if you need both floor and ceiling
-    Return:
-        [Max_X_axis, Max_Y_axis]
+
+    :returns: (List[AnyInt]) The ceil coordinate.
     """
     ceil: List[AnyInt] = [None, None] # type: ignore
     for x, y in _2d_coords:
@@ -111,8 +112,9 @@ def get_floor_ceil(_2d_coords: Iterable[AnyIntCoordinate]) -> Tuple[List[AnyInt]
     utils.get_ceil() it specializes in getting both simultaneoulsy with a slightly
     better speed.
 
-    Return:
-        [Max_X_axis, Max_Y_axis], [Min_X_axis, Min_Y_axis]
+    **[Max_X_axis, Max_Y_axis], [Min_X_axis, Min_Y_axis]**
+
+    :returns: (List[AnyInt], List[AnyInt]) The floor and ceil coordinate.
     """
     floor: List[AnyInt] = [None, None] # type: ignore
     ceil: List[AnyInt] = [None, None] # type: ignore
@@ -135,6 +137,7 @@ def get_floor_ceil(_2d_coords: Iterable[AnyIntCoordinate]) -> Tuple[List[AnyInt]
 
     return floor, ceil
 
+
 def beautify(dimension: Tuple[int, int], frame: Union[List[str], str]) -> str:
     """
     Maps an uncut frame into different pieces with newline characters to make it
@@ -146,6 +149,8 @@ def beautify(dimension: Tuple[int, int], frame: Union[List[str], str]) -> str:
     :param frame:
         The frame to be converted from newline characters to a straight line.
     :type frame: Union[:class:`str`, List[:class:`str`]:
+
+    :returns: (:class:`str`) The joined entire string frame.
     """
     nw_frame = list(frame)
     if isinstance(nw_frame[0], str):
@@ -218,30 +223,6 @@ def praised(release) -> Callable:
             f"{callable.__name__} is praised in the current release and is expected to be implemented in version {release}."
         )
         return wrapped
-    return wrapper
-
-
-def only_once(func: Callable) -> Callable:
-    """
-    Executes the given function only once.
-
-    .. code:: py
-
-       @only_once
-       def some_func(...):
-           ...
-
-       while ...:
-           some_func()
-    """
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        global FINISHED_ONCE_TASKS
-        if func not in FINISHED_ONCE_TASKS:
-            FINISHED_ONCE_TASKS.append(func)
-            return func(*args, **kwargs)
-        else:
-            return None
     return wrapper
 
 

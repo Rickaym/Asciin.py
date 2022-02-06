@@ -24,6 +24,22 @@ DisplayerWrapper = Callable[[Displayer], Displayer]
 class Screen(metaclass=ABCMeta):
     """
     A meta class for a screen object.
+
+    Attributes:
+        resolutions: :class:`~Asciinpy.values.Resolutions`
+            The resolution of the screen.
+        max_fps: :class:`int`
+            The fps cap for the screen.
+        aspect_ratio: :class:`int`
+            The aspect ratio of the screen.
+        show_fps: :class:`bool`
+            A boolean flag whether an FPS text box is shown on screen.
+        timer: :class:`int`
+            A number in seconds that the screen is allowed to run in entirity, when reached exits gracefully.
+        sysdout: :class:`bool`
+            A boolean flag on whether visualization of the rendering is enabled.
+        debug: :class:`bool`
+            A boolean flag whether debug mode is turned on.
     """
 
     palette = Characters.miniramp
@@ -64,7 +80,7 @@ class Screen(metaclass=ABCMeta):
         sysdout: bool,
         timer: bool,
     ):
-        self.resolution = resolution
+        self.resolution: Resolutions = resolution
         self.width, self.height = resolution.value
 
         self.max_fps = max_fps
@@ -119,8 +135,6 @@ class Screen(metaclass=ABCMeta):
     def frame(self) -> str:
         """
         The current frame rendered.
-
-        :type: :class:`str`
         """
         return "".join(chain.from_iterable(self._frame))
 
@@ -128,8 +142,6 @@ class Screen(metaclass=ABCMeta):
     def fps(self) -> int:
         """
         The amount of frames rendered per the second passed.
-
-        :type: :class:`int`
         """
         now = time()
         duration = now - self._last_fps_measure
@@ -144,8 +156,6 @@ class Screen(metaclass=ABCMeta):
     def average_fps(self) -> float:
         """
         The amount of frames rendered on average from start to present.
-
-        :type: :class:`int`
         """
         return self._average_fps / (time() - self._started_at)
 
@@ -153,8 +163,6 @@ class Screen(metaclass=ABCMeta):
     def tick(self) -> int:
         """
         Internal ticks, from 0 to 25 for timing certain things.
-
-        :type: :class:`int`
         """
         return round(time() - self._started_at) % self.TPS
 
@@ -177,10 +185,9 @@ class Screen(metaclass=ABCMeta):
 
         :param object:
             The Model to be blitted onto screen.
-        :type object: Union[:class:`Plane`, :class:`Mask`]
+        :type object: :class:`~Asciinpy.objects.Blitable`
         """
         object.blit(self, *args, **kwargs)
-        # tuple(map(lambda o: self.draw((o[0], o[1]), o[2]), object.blit(self.resolution, *args, **kwargs)))
 
     def refresh(self, log_frames=False):
         """
@@ -207,7 +214,8 @@ class Screen(metaclass=ABCMeta):
 
     def events(self):
         """
-        Gather all IO events.
+        Generally, the client does not capture user events
+        this method must be called in order to gather them.
         """
         Keyboard.getch()
 
@@ -363,6 +371,16 @@ class Window(EventListener):
 
     Subclasses of Window must implement :obj:`Window.loop` as it's client loop.
     Whereas traditionally, it as a decorator.
+
+    Attributes:
+        resolutions: :class:`~Asciinpy.values.Resolutions`
+            The resolution of the screen.
+        max_fps: :class:`int`
+            The fps cap for the screen.
+        fov: :class:`int`
+            The fov of the screen relevant for 3D rendering.
+        screen: Optional[:class:`~Asciinpy.screen.Screen`]
+            A screen object instantiated when run.
     """
 
     PNAME = "ASCIINPY_PROCESS"
@@ -407,7 +425,6 @@ class Window(EventListener):
 
         Modes:
             k - Executes the application until interrupted but remains open
-
             c - Executes the application until interrupted then closes
 
         Offloads program onto a subprocess on an external Terminal with the given mode.

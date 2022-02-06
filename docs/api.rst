@@ -4,14 +4,12 @@ Api Reference
 .. contents:: :local:
 
 
-Screens
+Screen
 ---------------------------------
-
 
 .. autoclass:: Asciinpy.screen.Screen
     :members:
 
-|
 
 .. autoclass:: Asciinpy.screen.Window
     :members:
@@ -20,26 +18,28 @@ Screens
 Values
 -----------
 
-
 .. autoclass:: Asciinpy.values.Resolutions
+    :members:
+
+
+.. autoclass:: Asciinpy.utils.Color
     :members:
 
 
 Utilities
 ----------
 
-
-.. autoclass:: Asciinpy.utils.Color
-    :members:
-
-|
-
 .. autoclass:: Asciinpy.utils.Profiler
     :members:
 
-|
 
-.. automethod:: Asciinpy.utils.only_once
+.. automethod:: Asciinpy.utils.get_floor
+
+
+.. automethod:: Asciinpy.utils.get_ceil
+
+
+.. automethod:: Asciinpy.utils.get_floor_ceil
 
 
 .. automethod:: Asciinpy.utils.beautify
@@ -52,11 +52,6 @@ Utilities
 Line and Matrixes
 -------------------
 
-.. autoclass:: Asciinpy.geometry.Matrix
-    :members:
-
-|
-
 .. autoclass:: Asciinpy.geometry.Line
     :members:
 
@@ -64,49 +59,38 @@ Line and Matrixes
 2D Definitors
 ----------------------
 
-.. autoclass:: Asciinpy._2D.definitors.Plane
+.. autoclass:: Asciinpy._2D.definitors.Collidable
     :members:
 
-|
-
-.. autoclass:: Asciinpy._2D.definitors.Mask
-    :members:
-
-|
 
 .. autoclass:: Asciinpy._2D.definitors.Collidable
     :members:
+    :show-inheritance:
+
+
+.. autoclass:: Asciinpy._2D.definitors.Mask
+    :members:
+    :show-inheritance:
 
 
 2D Objects
 ---------------------------------
 
 .. autoclass:: Asciinpy._2D.objects.Tile
-    :show-inheritance:
-    :inherited-members:
     :members:
-    :exclude-members: make_rect
+    :show-inheritance:
 
-|
 
 .. autoclass:: Asciinpy._2D.objects.Text
-    :show-inheritance:
-    :inherited-members:
     :members:
-    :exclude-members: make_rect
+    :show-inheritance:
 
-|
 
 .. autoclass:: Asciinpy._2D.objects.Polygon
-    :show-inheritance:
-    :inherited-members:
     :members:
-    :exclude-members: make_rect
+    :show-inheritance:
 
-|
 
 .. autoclass:: Asciinpy._2D.objects.Square
-    :show-inheritance:
-    :inherited-members:
     :members:
-    :exclude-members: make_rect
+    :show-inheritance:

@@ -23,9 +23,8 @@ SOFTWARE.
 """
 
 """
-TODO: Add color support
-      Mouse click support
-      Sound support
+TODO: Support enlargement in Planes
+      Fix replay functionality for `Window`
 """
 
 __version__ = "0.2.0"

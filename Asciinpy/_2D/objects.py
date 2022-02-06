@@ -15,6 +15,10 @@ from typing import Tuple, List, Union
 DEFAULT_BRICK = "#" if Platform.is_window else "\u2588"
 
 class Tile(Plane):
+    """
+    An plane for rectangle/square like objects.
+    """
+
     def __init__(
         self,
         coordinate: Tuple[int, int],
@@ -28,12 +32,21 @@ class Tile(Plane):
 
 
 class Text(Plane):
+    """
+    A plane for rendering text.
+    """
+
     def __init__(self, coordinate: Tuple[int, int], text: str):
         super().__init__(image=str(text), coordinate=coordinate)
         self.text = str(text)
 
 
 class Polygon(Mask):
+    """
+    A mask for n verticies constructed using the :class:`~Asciinpy.geometry.Line`
+    objects.
+    """
+
     def __init__(
         self,
         coordinates: List[Tuple[int, int]],
@@ -98,6 +111,10 @@ class Polygon(Mask):
 
 
 class Square(Mask):
+    """
+    A mask for square/rectangle like objects with complex transformations.
+    """
+
     def __init__(
         self,
         coordinate: IntCoordinate,

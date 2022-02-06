@@ -1,9 +1,26 @@
 Fundamentals
 ===============
-The :class:`Asciinpy.Window` class handles the OS dependencies and provides a way to instantiate the game loop through a decorator in functional programming, and when subclassing the window class, the game loop function should be named `loop`.
+The :class:`~Asciinpy.screen.Window` class handles the OS dependencies and
+provides a way to instantiate the game loop through a decorator in functional
+programming, and when subclassing the window class, the game loop function
+should be named `loop`.
 
+There are two main methods to run a window, either as a replay or as a runnable
+(:obj:`~Asciinpy.screen.Window.replay` or :obj:`~Asciinpy.screen.Window.run`).1
 
-`E.g. 1 Functional`
+Run
+----
+Running a window initiates a real-time frame rendering that has a game loop defined.
+As described previously, there are two ways you can instantiate the game loop.
+1. You can define a function with a given signature of one parameter and decorated
+with :obj:`~Asciinpy.screen.Window.loop`.
+
+The game loop must accept a single parameter of type :class:`Asciinpy.screen.Screen`,
+it will raise an error if the signature is incorrect.
+The game loop is executed once and returned during the call on run and it is
+expected for the developer to create a gameloop within the function.
+
+`E.g. 1.1`
 
 .. code:: py
 
@@ -11,42 +28,34 @@ The :class:`Asciinpy.Window` class handles the OS dependencies and provides a wa
 
    window = Window(...)
 
+   @window.loop()
+   def game_loop(screen):
+       # Looping
+       while True:
+         ...
 
-There are two main modes to run a window, by calling either of :obj:`Asciinpy.Window.replay` or :obj:`Asciinpy.Window.run`.
+   if __name__ == "__main__":
+      window.run()
 
-Run
-----
-The run method begins a real-time rendering mode that has a game loop defined.
-As described previously, there are two ways you can instantiate the game loop.
-1. You can define a function with a given signature of one parameter and decorated with :obj:`Asciinpy.Window.loop`.
 
-The game loop must accept a single parameter of type :class:`Asciinpy.Screen`, it will raise an error if the signature is incorrect.
-
-.. note::
-
-   The client loop is only executed once and returned during the call on run. This means any looping must be done within the function.
+1. Subclassing the window instance
 
 `E.g. 1.2`
 
 .. code:: py
-
-   @window.loop()
-   def game_loop(screen):
-       pass
-
-   window.run()
-
-2. Subclassing the window instance
-
-.. code::py
 
    class Game(Window):
       # the game loop must be named loop
       def loop(screen):
          pass
 
-There are a few customizations you can make when running a game loop. This includes with and without sysdout.
-For instance rendering frame headless to get an animation and have it fetched from the attribute :obj:`Asciinpy.Window._frame_log`.
+   if __name__ == "__main__":
+      game = Game()
+      game.run()
+
+There are a few customizations you can make when running a game loop.
+This includes with and without stdout. Asciin.py also by default provides a way
+to display FPS through the `show_fps` boolean flag in :obj:`~Asciinpy.screen.Window.run`.
 
 Replay
 -------
@@ -60,16 +69,22 @@ The replay method simply covers plain iteration of a recorded ascii string array
 
 Planes
 =======
-A Plane is a
-Models, they are shapes, angles, text, diagrams, spheres and circles.
-Every model inherits from the :class:`Asciinpy.Plane` that provides an interface for a variety of things necessary for subsystem interactions to the model.
+These are the most simple 2D objects available for basic static shapes like
+:class:`~Asciinpy._2D.objects.Squares`, :class:`~Asciinpy._2D.objects.Tiles` and
+:class:`~Asciinpy._2D.objects.Text`. Planes support basic transformation such as
+movement and enlargement through supplementary methods. It cannot be trusted for
+Plane subclasses to recalculate self attributes when complex transformation is imposed
+instead, developers are recommended to override and change these attributes themselves --
+this is particularly because Planes are meant to speedy and simplified. Consider using
+:class:`~Asciinpy._2D.definitors.Mask` that we'll touch on next up.
 
-There are two ways to create your own models.
+There are two ways to create your own Planes.
 
-1. Subclassing.
+1. Instantiating a new Plane object with an image kwarg
 
-When subclassing :class:`Asciinpy.Plane` you are provided a full set of methods that a model should traditionally have such as :obj:`Asciinpy.Plane.blit` and :obj:`Asciinpy.Plane.collides_with`.
-These methods can be overidden but avoid it if possible.
+Taking a closer look to :obj:`Asciinpy.Plane.__init__`, the `image` attribute
+is not expected to change unless enlargement is invoked. The dimensions of Plane
+is also deduced by the given image.
 
 `E.g. 2`
 
@@ -77,20 +92,17 @@ These methods can be overidden but avoid it if possible.
 
    from Asciinpy import Plane
 
-   class MyModel(Plane):
-      def blit(self, ...): pass
-         # overrides the inner blitting method of the model
-
-      def collides_with(self, ...): pass
-         # overrides the inner collision checking method
+   my_model = Plane(image="##########"
+                        "\n##########")
 
 
-2. Instantiating a new Plane object
+The example above will create our own Plane object with the rectangle image.
 
-Taking a closer look to :obj:`Asciinpy.Plane.__init__` you will understand that all the built-in models calls this method somewhere during instantiation.
+2. Instantiating by subclassing
 
-You can do the same and acquire a function model. The **__init__** method takes a few parameters such as *path* and *image*.
-providing either is enough to make a model from scratch.
+Regardless of how the internals are changed through subclassing, developers should
+call `super().__init__()` with the given kwargs. A similar example to the above
+would look something like this:
 
 `E.g. 2.2`
 
@@ -98,4 +110,14 @@ providing either is enough to make a model from scratch.
 
    from Asciinpy import Plane
 
-   my_model = Plane(image="ABBBBBBBB\nABBBBBBB")
+   class MyModel(Plane):
+      def __init__(self, coordinate):
+         super().__init__(coordinate, "##########"
+                                    "\n##########")
+      def blit(self, ...): pass
+         # overrides the inner blitting method of the model
+
+      def collides_with(self, ...): pass
+         # overrides the inner collision checking method inherited from `Collidable`
+
+   my_model = MyModel()

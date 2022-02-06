@@ -95,19 +95,16 @@ class Resolutions(Enum):
     """
     The preset resolutions class that contains static variable for usage and transformation.
 
-    :cvar _50c: (50, 25):
-    :cvar _60c: (60, 30):
-    :cvar _100c: (100, 50):
-    :cvar _240c: (352, 240):
-    :cvar _360c: (480, 360):
-    :cvar _480c: (858, 480):
-    :cvar _720c: (1280, 720):
-    :cvar _768c: (1366, 768):
-    :cvar _1080c: (1980, 1080):
+    Members:
+        **Basic** = (50, 25)
 
-    :type: Tuple[:class:`int`, :class:`int`]
+        **Medium** = (60, 30)
+
+        **Large** = (100, 50)
+
+        **HD** = (352, 240)
     """
-    Basic =  (50, 25)
+    Basic = (50, 25)
     Medium = (60, 30)
     Large = (100, 50)
     HD = (352, 240)

@@ -243,7 +243,7 @@ class Audio:
 
 @praised("0.4.0")
 class Mouse:
-    class Keys(Enum):
+    class Buttons(Enum):
         Left = 0
         Right = 1
         Scroll = 2
