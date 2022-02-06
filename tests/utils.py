@@ -1,4 +1,5 @@
 import operator
+
 from random import choice, randint
 from typing import Any, Callable, Collection, Optional
 from Asciinpy._2D.definitors import Mask
