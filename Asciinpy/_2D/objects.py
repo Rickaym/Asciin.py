@@ -1,11 +1,13 @@
 import itertools
 
 from functools import lru_cache
+
+from ..utils import get_floor
 from .definitors import OccupancySetType, Plane, Mask
 from ..geometry import Line
 from ..values import Color
 from ..screen import Screen
-from ..types import AnyInt
+from ..types import AnyInt, IntCoordinate
 from ..globals import Platform
 
 from typing import Tuple, List, Union
@@ -43,7 +45,7 @@ class Polygon(Mask):
         self.color = color
 
         self.mappings = {self.texture: self.get_edge_mapping(self.edges)}
-        self._coordinate = self.get_min_point(self.occupancy)
+        self._coordinate = get_floor(self.occupancy)
 
     @staticmethod
     @lru_cache(maxsize=64)
@@ -64,7 +66,7 @@ class Polygon(Mask):
 
     @property
     def edges(self):
-        return self.get_edges(self.coordinates)
+        return self.get_edges(self.coordinates) # type: ignore
 
     @property
     def x(self) -> AnyInt:
@@ -98,8 +100,8 @@ class Polygon(Mask):
 class Square(Mask):
     def __init__(
         self,
-        coordinate: Tuple[int, int],
-        length: Union[Tuple[int, int], int],
+        coordinate: IntCoordinate,
+        length: int,
         texture: str = DEFAULT_BRICK,
         color=None,
     ):
@@ -107,3 +109,19 @@ class Square(Mask):
         image = (((texture * dimension[0]) + "\n") * (dimension[1])).strip()
         self.length = length
         super().__init__(image=image, coordinate=coordinate)
+
+    @property
+    def right(self):
+        return self.x+self.length+1
+
+    @property
+    def left(self):
+        return self.x
+
+    @property
+    def top(self):
+        return self.y
+
+    @property
+    def bottom(self):
+        return self.y+self.length+1

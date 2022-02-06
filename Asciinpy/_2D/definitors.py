@@ -1,22 +1,21 @@
 import itertools
 
-from typing import Callable, Dict, Mapping, Sequence, Set, Tuple, List, Union
+from typing import Callable, Dict, Mapping, Sequence, Set, Tuple, List
+
+from Asciinpy.utils import get_floor, get_floor_ceil
 
 from ..screen import Screen
-from ..types import AnyInt
+from ..types import AnyInt, AnyIntCoordinate
 from ..objects import Blitable
 from ..values import Color, ANSI
 from ..geometry import rotate
 
-#
-# Types
-#
+
 OccupancySetType = Set[Tuple[AnyInt, AnyInt]]
 CharacterMappingType = Mapping[str, OccupancySetType]
 ImageType = List[str]
-Transformer =  Callable[[List[int]], Union[List[int], Sequence[AnyInt]]]
-MaskPixmap =  Dict[str, List[int]]
-# ---
+Transformer = Callable[[AnyIntCoordinate], AnyIntCoordinate]
+MaskPixmap = Dict[str, List[AnyIntCoordinate]]
 
 
 class Collidable:
@@ -67,7 +66,9 @@ class Plane(Collidable, Blitable):
         self.image = image
         self.color = color
         self.topleft = list(coordinate)
-        self.dimension = tuple((len(max(image.split("\n"), key=lambda e: len(e))), len(image.split("\n"))))
+        self.dimension = tuple(
+            (len(max(image.split("\n"), key=lambda e: len(e))), len(image.split("\n")))
+        )
 
     @property
     def x(self):
@@ -142,7 +143,7 @@ class Mask(Collidable, Blitable):
 
     __slots__ = ("_coordinate", "_pixmap")
 
-    def __init__(self, image: str, coordinate: Sequence[AnyInt]=[1,1]):
+    def __init__(self, image: str, coordinate: Sequence[AnyInt] = [1, 1]):
         self._pixmap = self.get_pixmap(coordinate, image)
         self._topleft = coordinate
 
@@ -169,11 +170,11 @@ class Mask(Collidable, Blitable):
         return pixmap
 
     @property
-    def dimension(self) -> np.ndarray:
-        floor, ceil = np.min(self.occupancy, axis=0), np.max(self.occupancy, axis=0)
+    def dimension(self) -> AnyIntCoordinate:
+        floor, ceil = get_floor_ceil(self.occupancy)
         # we're counting pixels, not calculating distance
         # hence thee increment of ceil by one
-        return ceil + 1 - floor
+        return ceil[0] + 1 - floor[0], ceil[1] + 1 - floor[1]
 
     @property
     def midpoint(self) -> Tuple[AnyInt, AnyInt]:
@@ -186,14 +187,19 @@ class Mask(Collidable, Blitable):
             sum_x += _x
             sum_y += _y
             size += 1
-        return (sum_x/size, sum_y/size)
+        return (sum_x / size, sum_y / size)
 
     @property
     def occupancy(self) -> Set[Tuple[int, int]]:
         """
-        An array of all the coordinates that this structure occupies.
+        A set of all the coordinates that this structure occupies.
         """
-        return set(map(lambda z: (round(z[0]), round(z[1])), itertools.chain.from_iterable(self._pixmap.values())))
+        return set(
+            map(
+                lambda z: (round(z[0]), round(z[1])),
+                itertools.chain.from_iterable(self._pixmap.values()),
+            )
+        )
 
     @property
     def x(self) -> AnyInt:
@@ -203,7 +209,7 @@ class Mask(Collidable, Blitable):
     def x(self, value: AnyInt):
         translates = value - self._topleft[0]
         self._topleft = (value, self._topleft[1])
-        self.transform(lambda coord: coord + [translates, 0])
+        self.transform(lambda coord: (coord[0] + translates, coord[1]))
 
     @property
     def y(self) -> AnyInt:
@@ -213,21 +219,17 @@ class Mask(Collidable, Blitable):
     def y(self, value: AnyInt):
         translates = value - self._topleft[1]
         self._topleft = (self._topleft[0], value)
-        self.transform(lambda coord: (coord + [0, translates]))
+        self.transform(lambda coord: (coord[0], coord[1] + translates))
 
-    def transform(
-        self, equation: Transformer
-    ):
+    def transform(self, equation: Transformer):
         for k, presences in self._pixmap.items():
             self._pixmap[k] = list(map(equation, presences))
 
     def rotate(self, theta: AnyInt):
         self.transform(lambda coord: rotate(coord, theta, self.midpoint))
-        self._topleft = np.min(self.occupancy, axis=0)
-        #raise KeyboardInterrupt(self._coordinate, self.occupancy)
+        self._topleft = get_floor(self.occupancy)
 
     def blit(self, screen: Screen):
         for char, presences in self._pixmap.items():
-            for i in presences:
-                screen.draw(i.round().astype(int), char)
-
+            for x, y in presences:
+                screen.draw((round(x), round(y)), char)
