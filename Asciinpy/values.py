@@ -1,5 +1,6 @@
 from enum import Enum
 from random import randint
+from typing import Tuple
 
 
 class Color(Enum):
@@ -90,7 +91,7 @@ class Characters:
     miniramp = r"""@%#*+=-:. """
 
 
-class Resolutions:
+class Resolutions(Enum):
     """
     The preset resolutions class that contains static variable for usage and transformation.
 
@@ -106,23 +107,26 @@ class Resolutions:
 
     :type: Tuple[:class:`int`, :class:`int`]
     """
+    Basic =  (50, 25)
+    Medium = (60, 30)
+    Large = (100, 50)
+    HD = (352, 240)
+    Custom = (0, 0)
 
-    _50c = (50, 25)
-    _60c = (60, 30)
-    _100c = (100, 50)
-    _240c = (352, 240)
-    _360c = (480, 360)
-    _480c = (858, 480)
-    _720c = (1280, 720)
-    _768c = (1366, 768)
-    _1080c = (1980, 1080)
+    def __new__(cls, *args, **kwds):
+        obj = object.__new__(cls)
+        obj._value_ = args
+        return obj
 
-    def __init__(self, val):
-        self.value = val
-        self.pixels = val[0] * val[1]
-        self.width = val[0]
-        self.height = val[1]
+    def __init__(self, width: int, height: int):
+        self.width = width
+        self.height = height
+        self.pixels = width*height
 
+    @staticmethod
+    def custom(dimensions: Tuple[int, int]):
+        Resolutions.Custom._value_ = dimensions
+        return Resolutions.Custom
 
 class ANSI:
     # these are intended to be sent to the stdout so they are strings, encode when necessary
