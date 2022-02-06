@@ -1,22 +1,15 @@
 [![pipenv](https://img.shields.io/pypi/pyversions/Asciin.py.svg)](https://www.python.org/)
+[![support](https://img.shields.io/discord/793047973751554088?logo=discord)](https://discord.gg/UmnzdPgn6g)
 [![release](https://img.shields.io/pypi/v/Asciin.py.svg)](https://pypi.org/project/Asciin.py/)
 ![platform](https://img.shields.io/static/v1?label=platforms&message=Windows+|+Linux+|+OSX&color=informational)
 [![documentation status](https://readthedocs.org/projects/asciinpy/badge/?version=latest)](https://asciinpy.readthedocs.io/en/latest/?badge=latest)
 
-# Asciin.py
 
 ![logo](https://raw.githubusercontent.com/Rickaym/Asciin.py/main/assets/inverted_logo.png)
 
 A 2D and 3D Ascii Game Engine written purely in Python from ground up with zero external dependencies.
 Supports Python versions starting from 3.5.3.
 
----
-
-**[ReadTheDocs](https://asciinpy.readthedocs.io/en/latest/)** | **[PyPi Project](https://pypi.org/project/Asciin.py/)** |
-**[Github Repo](https://github.com/Rickaym/Asciin.py)** |
-**[Dev server](https://discord.gg/UmnzdPgn6g)**
-
----
 
 ### Status Demo
 
@@ -66,14 +59,11 @@ from Asciinpy.values import Resolutions
 from Asciinpy._2D import Square
 
 # Define a window
-window = Window(resolution=Resolutions._60c)
+window = Window(resolution=Resolutions.Basic)
 
 @window.loop()
 def game_loop(screen: Screen) -> None:
-    coordinate = (0, 0)
-    length = 8
-    texture = "%"
-    square = Square(coordinate, length, texture)
+    square = Square(coordinate=(0, 0), length=8, texture="%")
     while True:
         screen.blit(square)
         screen.refresh()

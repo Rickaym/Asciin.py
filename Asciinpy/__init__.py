@@ -37,5 +37,4 @@ from .globals import *
 from .objects import *
 from .screen import *
 from .types import *
-from .utils import *
 from .values import *
