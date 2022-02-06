@@ -4,9 +4,10 @@ from functools import wraps
 from io import StringIO
 from cProfile import Profile
 from pstats import Stats
-from typing import Any, Iterator, Literal, Tuple, List, Union, Callable
+from typing import Iterable, Literal, Set, Tuple, List, Union, Callable
 
 from .globals import FINISHED_ONCE_TASKS, CWD
+from .types import AnyInt, AnyIntCoordinate
 
 
 class Profiler:
@@ -56,6 +57,83 @@ class Profiler:
         with open(self.path, "w") as f:
             f.write(redirect.getvalue().replace(CWD, "", -1))
 
+
+def get_floor(_2d_coords: Iterable[AnyIntCoordinate]) -> List[AnyInt]:
+    """
+    Takes in a 2d array of coordinates and returns the floor coordinate.
+
+    Use utils.get_floor_ceil() if you need both floor and ceiling
+    Return:
+        [Min_X_axis, Min_Y_axis]
+    """
+    floor: List[AnyInt] = [None, None] # type: ignore
+    for x, y in _2d_coords:
+        if floor[0] is None:
+            floor[0] = x
+        elif floor[0] > x:
+            floor[0] = x
+
+        if floor[1] is None:
+            floor[1] = y
+        elif floor[1] > y:
+            floor[1] = y
+
+    return floor
+
+
+def get_ceil(_2d_coords: Iterable[AnyIntCoordinate]) -> List[AnyInt]:
+    """
+    Takes in a 2d array of coordinates and returns the ceiling coordinate.
+
+    Use utils.get_floor_ceil() if you need both floor and ceiling
+    Return:
+        [Max_X_axis, Max_Y_axis]
+    """
+    ceil: List[AnyInt] = [None, None] # type: ignore
+    for x, y in _2d_coords:
+        if ceil[0] is None:
+            ceil[0] = x
+        elif ceil[0] < x:
+            ceil[0] = x
+
+        if ceil[1] is None:
+            ceil[1] = y
+        elif ceil[1] < y:
+            ceil[1] = y
+
+    return ceil
+
+
+def get_floor_ceil(_2d_coords: Iterable[AnyIntCoordinate]) -> Tuple[List[AnyInt], List[AnyInt]]:
+    """
+    Takes in a 2d array of coordinates and returns a tuple of lists:
+    This functional is not simply a macro to calling utils.get_floor() or
+    utils.get_ceil() it specializes in getting both simultaneoulsy with a slightly
+    better speed.
+
+    Return:
+        [Max_X_axis, Max_Y_axis], [Min_X_axis, Min_Y_axis]
+    """
+    floor: List[AnyInt] = [None, None] # type: ignore
+    ceil: List[AnyInt] = [None, None] # type: ignore
+    for x, y in _2d_coords:
+        if floor[0] is None:
+            ceil[0] = x
+            floor[0] = x
+        elif ceil[0] < x:
+            ceil[0] = x
+        elif floor[0] > x:
+            floor[0] = x
+
+        if floor[1] is None:
+            ceil[1] = y
+            floor[1] = y
+        elif floor[1] < y:
+            ceil[1] = y
+        elif floor[1] > y:
+            floor[1] = y
+
+    return floor, ceil
 
 def beautify(dimension: Tuple[int, int], frame: Union[List[str], str]) -> str:
     """
