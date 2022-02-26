@@ -1,55 +1,52 @@
 from enum import Enum
 from random import randint
-from typing import Tuple
+from typing import Tuple, Union
 
 
-class Color(Enum):
-    Initial = None
-    Black = 0x000000
-    Gray = 0x767676
-    Grey = 0x767676
-    Blue = 0x0037DA
-    Green = 0x13A10E
-    Aqua = 0x3B78FF
-    Red = 0xC50F1F
-    Purple = 0x881798
-    Yellow = 0xC19C00
+class ColorLayer(Enum):
+    Foreground = 0
+    Background = 1
+    Unknown = 2
 
-    LightBlue = 0x3A96DD
-    LightGreen = 0x16C60C
-    LightAqua = 0x61D6D6
-    LightRed = 0xE74856
-    LightPurple = 0xB4009E
-    LightYellow = 0xF9F1A5
 
-    White = 0xF2F2F2
-    BrightWhite = 0xFFFFFF
+class Color:
+    __slots__ = ("rgb", "layer")
 
-    """
-    Color management class.
-    """
+    def __init__(self, r: int, g: int, b: int, layer: ColorLayer=ColorLayer.Unknown) -> None:
+        self.rgb = r, g, b
+        self.layer = layer
 
-    @staticmethod
-    def rgb_foreground(r, g, b):
-        return ANSI.CSI + "38;2;{};{};{}m".format(r, g, b)
+    def ansi(self):
+        if self.layer is ColorLayer.Foreground:
+            return ANSI.CSI + "38;2;{};{};{}m".format(*self.rgb)
+        elif self.layer is ColorLayer.Background:
+            return ANSI.CSI + "48;2;{};{};{}m".format(*self.rgb)
+        else:
+            raise TypeError(f"color layer {self.layer} is invalid")
 
-    @staticmethod
-    def rgb_background(r, g, b):
-        return ANSI.CSI + "48;2;{};{};{}m".format(r, g, b)
+    def as_layer(self, layer: ColorLayer):
+        if layer is ColorLayer.Unknown:
+            raise TypeError(f"color layer {self.layer} is invalid")
+        else:
+            self.layer = layer
+            return self
 
     @staticmethod
     def foreground(r: int, g: int, b: int):
-        """
-        Colors the foreground with a given RGB value.
-        """
-        return Color.rgb_foreground(r, g, b)
+        return Color(r, g, b, ColorLayer.Foreground)
 
     @staticmethod
     def background(r: int, g: int, b: int):
-        """
-        Colors the background with a given RGB value.
-        """
-        return Color.rgb_background(r, g, b)
+        return Color(r, g, b, ColorLayer.Background)
+
+    @staticmethod
+    def from_hex(hex_int: Union[str, int], layer: ColorLayer):
+        if isinstance(hex_int, int):
+            hex_str = str(hex(hex_int))[2:].rjust(6, "0")
+        else:
+            hex_str = hex_int[2:].rjust(6, "0")
+
+        return Color(*(int(hex_str[i : i + 2], 16) for i in (0, 2, 4)), layer=layer)
 
     @staticmethod
     def foreground_random(grayscale=False):
@@ -61,7 +58,7 @@ class Color(Enum):
         else:
             rgb = (randint(0, 255), randint(0, 255), randint(0, 255))
 
-        return Color.foreground(*rgb)
+        return Color(*rgb, layer=ColorLayer.Foreground)
 
     @staticmethod
     def background_random(grayscale=False):
@@ -73,10 +70,52 @@ class Color(Enum):
         else:
             rgb = (randint(0, 255), randint(0, 255), randint(0, 255))
 
-        return Color.background(*rgb)
+        return Color(*rgb, layer=ColorLayer.Foreground)
+
+    Black: "Color"
+    Green: "Color"
+    Blue: "Color"
+    Aqua: "Color"
+    Red: "Color"
+    Purple: "Color"
+    Yellow: "Color"
+    Gray: "Color"
+    Grey: "Color"
+
+    LightBlue: "Color"
+    LightGreen: "Color"
+    LightAqua: "Color"
+    LightRed: "Color"
+    LightPurple: "Color"
+    LightYellow: "Color"
+
+    White: "Color"
+    BrightWhite: "Color"
 
 
-# A mapping to singular "identifiers" used for command prompt
+# Preset colors
+Color.Black = Color.from_hex(0x000000, ColorLayer.Unknown)
+Color.Green = Color.from_hex(0x13A10E, ColorLayer.Unknown)
+Color.Blue = Color.from_hex(0x0037DA, ColorLayer.Unknown)
+Color.Aqua = Color.from_hex(0x3B78FF, ColorLayer.Unknown)
+Color.Red = Color.from_hex(0xC50F1F, ColorLayer.Unknown)
+Color.Purple = Color.from_hex(0x881798, ColorLayer.Unknown)
+Color.Yellow = Color.from_hex(0xC19C00, ColorLayer.Unknown)
+Color.Gray = Color.from_hex(0x767676, ColorLayer.Unknown)
+Color.Grey = Color.Gray
+
+Color.LightBlue = Color.from_hex(0x3A96DD, ColorLayer.Unknown)
+Color.LightGreen = Color.from_hex(0x16C60C, ColorLayer.Unknown)
+Color.LightAqua = Color.from_hex(0x61D6D6, ColorLayer.Unknown)
+Color.LightRed = Color.from_hex(0xE74856, ColorLayer.Unknown)
+Color.LightPurple = Color.from_hex(0xB4009E, ColorLayer.Unknown)
+Color.LightYellow = Color.from_hex(0xF9F1A5, ColorLayer.Unknown)
+
+Color.White = Color.from_hex(0xF2F2F2, ColorLayer.Unknown)
+Color.BrightWhite = Color.from_hex(0xFFFFFF, ColorLayer.Unknown)
+
+
+# A mapping to "identifiers" used for command prompt
 # background/foreground color
 WINDOW_COLOR_HEXES = {
     Color.Black: 0,
@@ -117,6 +156,7 @@ class Resolutions(Enum):
 
         **HD** = (352, 240)
     """
+
     Basic = (50, 25)
     Medium = (60, 30)
     Large = (100, 50)
@@ -131,7 +171,7 @@ class Resolutions(Enum):
     def __init__(self, width: int, height: int):
         self.width = width
         self.height = height
-        self.pixels = width*height
+        self.pixels = width * height
 
     @staticmethod
     def custom(dimensions: Tuple[int, int]):
@@ -139,10 +179,12 @@ class Resolutions(Enum):
         Resolutions.Custom.height = dimensions[1]
         return Resolutions.Custom
 
+
 class ANSI:
     """
     ANSI control codes for terminal control.
     """
+
     BEL = "\x07"  # bell
     BS = "\x08"  # backspace
     HT = "\x09"  # horizontal tab

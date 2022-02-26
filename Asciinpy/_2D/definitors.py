@@ -96,15 +96,16 @@ class Plane(Collidable, Blitable):
     def rasterize(self):
         is_coloring = False
         ammended_pix = list(self.image)
-        for i, char in enumerate(self.image):
-            if char == "\n":
-                continue
+        if self.color:
+            for i, char in enumerate(self.image):
+                if char == "\n":
+                    continue
 
-            if not is_coloring:
-                ammended_pix[i] = "".join((str(self.color), char))
-                is_coloring = True
-            if i + 1 == len(self.image) or self.image[i + 1] in (" ", "\n"):
-                ammended_pix[i] += ANSI.RESET
+                if not is_coloring:
+                    ammended_pix[i] = "".join((str(self.color.ansi()), char))
+                    is_coloring = True
+                if i + 1 == len(self.image) or self.image[i + 1] in (" ", "\n"):
+                    ammended_pix[i] += ANSI.RESET
         return ammended_pix
 
     def blit(self, screen: Screen):

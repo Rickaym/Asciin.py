@@ -1,7 +1,7 @@
 """
 MIT License
 
-Copyright (c) 2021 Ricky M
+Copyright (c) 2022 Ricky M
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@ SOFTWARE.
 """
 TODO: Support enlargement in Planes
       Fix replay functionality for `Window`
-      Save to a variable the starting foreground and background color
+      Save to a variable the starting Foreground and Background Color
 """
 
 __version__ = "0.2.0"

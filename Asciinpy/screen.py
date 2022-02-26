@@ -281,7 +281,7 @@ class ConsoleInterface(EventListener, Screen):
         frame = list(sys._current_frames().values())[0]
         # Searches the origin of a call
         caller = None
-        for i in range(origin_depth):
+        for _ in range(origin_depth):
             if getattr(frame, "f_back") is None:
                 caller = frame.f_globals["__file__"]
             else:
@@ -511,14 +511,14 @@ class Window(EventListener):
                 fg_hex = (
                     WINDOW_COLOR_HEXES[self._foreground_color]
                     if self._foreground_color
-                    else ""
+                    else "0"
                 )
                 bg_hex = (
                     WINDOW_COLOR_HEXES[self._background_color]
                     if self._background_color
-                    else ""
+                    else "0"
                 )
-                if os.system(f"COLOR {fg_hex}{bg_hex}") == 1:
+                if os.system(f"COLOR {bg_hex}{fg_hex}") == 1:
                     raise ValueError(
                         f"a combination of foreground {self._foreground_color}"
                         f" and background {self._background_color} is invalid"
