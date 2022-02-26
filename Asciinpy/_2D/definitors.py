@@ -1,6 +1,6 @@
 import itertools
 
-from typing import Callable, Dict, Mapping, Sequence, Set, Tuple, List
+from typing import Callable, Dict, Mapping, Optional, Sequence, Set, Tuple, List
 
 from Asciinpy.utils import get_floor, get_floor_ceil
 
@@ -60,7 +60,7 @@ class Plane(Collidable, Blitable):
     """
 
     def __init__(
-        self, image: str, coordinate: Sequence[AnyInt] = [0, 0], color: Color = None
+        self, image: str, coordinate: Sequence[AnyInt] = [0, 0], color: Optional[Color] = None
     ):
         super().__init__()
         self.image = image
@@ -89,26 +89,23 @@ class Plane(Collidable, Blitable):
     @property
     def pixels(self):
         if self.color is not None:
-            return self.rasterize(self.image, self.color)
+            return self.rasterize()
         else:
             return self.image
 
-    @staticmethod
-    def rasterize(image: str, color: Color) -> ImageType:
-        mended_pixels = list(image)
+    def rasterize(self):
         is_coloring = False
-        for i, char in enumerate(image):
+        ammended_pix = list(self.image)
+        for i, char in enumerate(self.image):
             if char == "\n":
                 continue
 
-            if is_coloring is False:
-                mended_pixels[i] = "".join((str(color), char))
+            if not is_coloring:
+                ammended_pix[i] = "".join((str(self.color), char))
                 is_coloring = True
-            elif i + 1 == len(image) or image[i + 1] in (" ", "\n"):
-                mended_pixels[i] += ANSI.RESET
-                is_coloring = False
-
-        return mended_pixels
+            if i + 1 == len(self.image) or self.image[i + 1] in (" ", "\n"):
+                ammended_pix[i] += ANSI.RESET
+        return ammended_pix
 
     def blit(self, screen: Screen):
         x, y = self.x, self.y
@@ -141,9 +138,10 @@ class Mask(Collidable, Blitable):
     extending the operations you can do on Masks.
     """
 
-    __slots__ = ("_coordinate", "_pixmap")
+    __slots__ = ("color", "_coordinate", "_pixmap")
 
-    def __init__(self, image: str, coordinate: Sequence[AnyInt] = [1, 1]):
+    def __init__(self, image: str, coordinate: Sequence[AnyInt] = [1, 1], color: Optional[Color]=None):
+        self.color = color
         self._pixmap = self.get_pixmap(coordinate, image)
         self._topleft = coordinate
 

@@ -39,17 +39,17 @@ def my_loop(screen):
         # Check for border collisions and flip signs
         if int(DVD_logo.x) < 0:
             velocity[0] = abs(velocity[0])
-            DVD_logo.color = Color.FORErandom()
+            DVD_logo.color = Color.foreground_random()
         elif round(DVD_logo.x + DVD_logo.dimension[0]) > screen.resolution.width:
             velocity[0] = -velocity[0]
-            DVD_logo.color = Color.FORErandom()
+            DVD_logo.color = Color.foreground_random()
 
         if round(DVD_logo.y) < 0:
             velocity[1] = abs(velocity[1])
-            DVD_logo.color = Color.FORErandom()
+            DVD_logo.color = Color.foreground_random()
         elif round(DVD_logo.y + DVD_logo.dimension[1]) > screen.resolution.height:
             velocity[1] = -velocity[1]
-            DVD_logo.color = Color.FORErandom()
+            DVD_logo.color = Color.foreground_random()
 
         # Blit the dvd logo onto screen
         screen.blit(DVD_logo)

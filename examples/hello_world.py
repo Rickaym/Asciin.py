@@ -4,7 +4,7 @@ from Asciinpy.values import Color
 
 window = Window(resolution=Resolutions.Basic)
 
-window.set_title("Example 1")
+window.set_title("Example Window Title")
 window.set_color(foreground=Color.White, background=Color.Black)
 
 

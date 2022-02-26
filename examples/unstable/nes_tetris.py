@@ -32,7 +32,7 @@ LOGO = """
 @window.loop()
 def my_loop(screen: Screen):
     Mouse.Keys.Left
-    GRAY = Color.BACK(128, 128, 128)
+    GRAY = Color.background(128, 128, 128)
     LEFT_BORDER = 45
     RIGHT_BORDER = 3
     LOGO_PLANE = Plane(LOGO, (13, 0))

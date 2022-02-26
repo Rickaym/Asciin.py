@@ -25,6 +25,7 @@ SOFTWARE.
 """
 TODO: Support enlargement in Planes
       Fix replay functionality for `Window`
+      Save to a variable the starting foreground and background color
 """
 
 __version__ = "0.2.0"

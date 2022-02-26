@@ -1,11 +1,11 @@
 import os
 import sys
 
-from abc import ABCMeta, abstractmethod
 from itertools import chain
 from time import sleep, time
-import traceback
-from typing import Callable, Literal, Sequence, Tuple, Union, Optional, List
+from traceback import print_exception
+from abc import ABCMeta, abstractmethod
+from typing import Callable, Literal, Tuple, Union, Optional, List
 
 from .objects import Blitable
 from .values import WINDOW_COLOR_HEXES, Color, Characters, Resolutions, ANSI
@@ -42,7 +42,7 @@ class Screen(metaclass=ABCMeta):
             A boolean flag whether debug mode is turned on.
     """
 
-    palette = Characters.miniramp
+    palette = Characters.some
     TPS = 25
 
     __slots__ = (
@@ -178,16 +178,17 @@ class Screen(metaclass=ABCMeta):
             self._frame[0] = text[: self.width - 1]
             self._frame[1] = text[self.width - 1 :]
 
-    def blit(self, object: Blitable, *args, **kwargs):
+    def blit(self, *objects: Blitable, **kwargs):
         """
         Simply calls the object's internal blit method onto itself and does necessary
         records.
 
-        :param object:
-            The Model to be blitted onto screen.
+        :param objects:
+            Any number of models to be blitted onto screen.
         :type object: :class:`~Asciinpy.objects.Blitable`
         """
-        object.blit(self, *args, **kwargs)
+        for obj in objects:
+           obj.blit(self, **kwargs)
 
     def refresh(self, log_frames=False):
         """
@@ -202,7 +203,6 @@ class Screen(metaclass=ABCMeta):
 
         self._infograph()
         current_frame = self.frame
-
         if self.sysdout:
             self._update(current_frame)
         if log_frames and self._last_frame != current_frame:
@@ -329,7 +329,7 @@ class ConsoleInterface(EventListener, Screen):
         """
         self._puts(ANSI.CSI, "2J")
 
-    def _cursor(self, goto: Tuple[AnyInt, AnyInt] = None, visibility: bool = None):
+    def _cursor(self, goto: Optional[Tuple[AnyInt, AnyInt]] = None, visibility: Optional[bool] = None):
         if goto is not None:
             self._puts(ANSI.CSI, "%d;%dH" % goto)
         if visibility is not None:
@@ -405,12 +405,12 @@ class Window(EventListener):
         resolution: Union[Resolutions, Tuple[int, int]],
         max_fps: Optional[int] = None,
     ):
-        if isinstance(resolution, tuple):
-            self.resolution = Resolutions.custom(resolution)
-        else:
+        if isinstance(resolution, Resolutions):
             self.resolution = resolution
-        self.max_fps = max_fps
+        else:
+            self.resolution = Resolutions.custom(resolution)
 
+        self.max_fps = max_fps
         self._title = None
         self._debug = False
         self._debug_mode = "k"
@@ -419,7 +419,7 @@ class Window(EventListener):
         self._background_color = None
         self._game_loop: Optional[Displayer] = None
 
-    def enable_debug(self, mode: Literal["k", "c"] = None, origin_depth: int = None):
+    def enable_debug(self, mode: Optional[Literal["k", "c"]] = None, origin_depth: Optional[int] = None):
         """
         Enables debug mode for developers. Defaults to debug mode `k`.
 
@@ -436,7 +436,7 @@ class Window(EventListener):
             self._debug_origin_depth = origin_depth
 
     def loop(
-        self, screen: Screen = None, forcestop: Optional[int] = None
+        self, screen: Optional[Screen] = None, forcestop: Optional[int] = None
     ) -> DisplayerWrapper:
         """
         Registers the client loop under `loop` of window class.
@@ -584,7 +584,7 @@ class Window(EventListener):
         try:
             self.loop(screen=self.screen)
         except Exception as e:
-            traceback.print_exception(e.__class__, e, e.__traceback__)
+            print_exception(e.__class__, e, e.__traceback__)
             exit_code = -1
         else:
             exit_code = 0

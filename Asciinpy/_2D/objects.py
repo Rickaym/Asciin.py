@@ -10,7 +10,7 @@ from ..screen import Screen
 from ..types import AnyInt, IntCoordinate
 from ..globals import Platform
 
-from typing import Tuple, List, Union
+from typing import Optional, Tuple, List, Union
 
 DEFAULT_BRICK = "#" if Platform.is_window else "\u2588"
 
@@ -24,11 +24,11 @@ class Tile(Plane):
         coordinate: Tuple[int, int],
         length: Union[Tuple[int, int], int],
         texture: str = DEFAULT_BRICK,
-        color=None,
+        color: Optional[Color]= None,
     ):
         dimension = (length, length // 2) if isinstance(length, int) else length
         image = (((texture * dimension[0]) + "\n") * (dimension[1])).strip()
-        super().__init__(image=image, coordinate=coordinate, color=color)
+        super().__init__(image, coordinate, color)
 
 
 class Text(Plane):
@@ -37,7 +37,7 @@ class Text(Plane):
     """
 
     def __init__(self, coordinate: Tuple[int, int], text: str):
-        super().__init__(image=str(text), coordinate=coordinate)
+        super().__init__(str(text), coordinate)
         self.text = str(text)
 
 
@@ -50,8 +50,8 @@ class Polygon(Mask):
     def __init__(
         self,
         coordinates: List[Tuple[int, int]],
-        texture: str = None,
-        color: Color = None,
+        texture: str = DEFAULT_BRICK,
+        color: Optional[Color] = None,
     ):
         self.coordinates = coordinates
         self.texture = texture or DEFAULT_BRICK
@@ -120,12 +120,12 @@ class Square(Mask):
         coordinate: IntCoordinate,
         length: int,
         texture: str = DEFAULT_BRICK,
-        color=None,
+        color: Optional[Color]=None
     ):
         dimension = (length, length // 2) if isinstance(length, int) else length
         image = (((texture * dimension[0]) + "\n") * (dimension[1])).strip()
         self.length = length
-        super().__init__(image=image, coordinate=coordinate)
+        super().__init__(image, coordinate, color)
 
     @property
     def right(self):

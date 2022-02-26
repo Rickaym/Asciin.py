@@ -4,6 +4,7 @@ from typing import Tuple
 
 
 class Color(Enum):
+    Initial = None
     Black = 0x000000
     Gray = 0x767676
     Grey = 0x767676
@@ -29,42 +30,54 @@ class Color(Enum):
     """
 
     @staticmethod
-    def RGB_FOREGROUND(r, g, b):
+    def rgb_foreground(r, g, b):
         return ANSI.CSI + "38;2;{};{};{}m".format(r, g, b)
 
     @staticmethod
-    def RGB_BACKGROUND(r, g, b):
+    def rgb_background(r, g, b):
         return ANSI.CSI + "48;2;{};{};{}m".format(r, g, b)
 
     @staticmethod
-    def FORE(r: int, g: int, b: int):
+    def foreground(r: int, g: int, b: int):
         """
         Colors the foreground with a given RGB value.
         """
-        return Color.RGB_FOREGROUND(r, g, b)
+        return Color.rgb_foreground(r, g, b)
 
     @staticmethod
-    def BACK(r: int, g: int, b: int):
+    def background(r: int, g: int, b: int):
         """
         Colors the background with a given RGB value.
         """
-        return Color.RGB_BACKGROUND(r, g, b)
+        return Color.rgb_background(r, g, b)
 
     @staticmethod
-    def FORErandom():
+    def foreground_random(grayscale=False):
         """
         Random foreground color.
         """
-        return Color.FORE(randint(0, 255), randint(0, 255), randint(0, 255))
+        if grayscale:
+            rgb = (randint(0, 255),) * 3
+        else:
+            rgb = (randint(0, 255), randint(0, 255), randint(0, 255))
+
+        return Color.foreground(*rgb)
 
     @staticmethod
-    def BACKrandom():
+    def background_random(grayscale=False):
         """
         Random backgroun color.
         """
-        return Color.BACK(randint(0, 255), randint(0, 255), randint(0, 255))
+        if grayscale:
+            rgb = (randint(0, 255),) * 3
+        else:
+            rgb = (randint(0, 255), randint(0, 255), randint(0, 255))
+
+        return Color.background(*rgb)
 
 
+# A mapping to singular "identifiers" used for command prompt
+# background/foreground color
 WINDOW_COLOR_HEXES = {
     Color.Black: 0,
     Color.Blue: 1,
@@ -87,8 +100,8 @@ WINDOW_COLOR_HEXES = {
 
 
 class Characters:
-    ramp = r"""$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?<>i!lI;:-_+~,"^`". """
-    miniramp = r"""@%#*+=-:. """
+    all = r"""$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?<>i!lI;:-_+~,"^`". """
+    some = r"""@%#*+=-:. """
 
 
 class Resolutions(Enum):
@@ -110,7 +123,7 @@ class Resolutions(Enum):
     HD = (352, 240)
     Custom = (0, 0)
 
-    def __new__(cls, *args, **kwds):
+    def __new__(cls, *args):
         obj = object.__new__(cls)
         obj._value_ = args
         return obj
@@ -122,11 +135,14 @@ class Resolutions(Enum):
 
     @staticmethod
     def custom(dimensions: Tuple[int, int]):
-        Resolutions.Custom._value_ = dimensions
+        Resolutions.Custom.width = dimensions[0]
+        Resolutions.Custom.height = dimensions[1]
         return Resolutions.Custom
 
 class ANSI:
-    # these are intended to be sent to the stdout so they are strings, encode when necessary
+    """
+    ANSI control codes for terminal control.
+    """
     BEL = "\x07"  # bell
     BS = "\x08"  # backspace
     HT = "\x09"  # horizontal tab
