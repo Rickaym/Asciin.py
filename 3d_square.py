@@ -1,5 +1,3 @@
-from Asciinpy.screen import Color
-from __future__ import division
 """
 THIS IS ON THE WORKS AND NOT STABLE
 """
@@ -8,10 +6,10 @@ from time import time
 from Asciinpy.geometry import project_3D, roundi, rotate_3D
 from Asciinpy import Screen, Window
 from Asciinpy.utils import Profiler
-from Asciinpy._2D import Triangle
+from Asciinpy._2D import Polygon
 
 # Start by defining a screen object with the desired resolution
-window = Window(resolution=Resolutions._60c)
+window = Window(resolution=Resolutions.Basic)
 
 # Define a user loop for the screen and accept a screen parameter, this is of type Screen.
 @window.loop()
@@ -70,10 +68,10 @@ def my_loop(screen):
             p3.x *= scale_factor * w
             p3.y *= scale_factor * h
 
-            screen.blit(Triangle(
-                (roundi(p1.x) - 70, roundi(p1.y)-25),
+            screen.blit(Polygon(
+                [(roundi(p1.x) - 70, roundi(p1.y)-25),
                 (roundi(p2.x) - 70, roundi(p2.y)-25),
-                (roundi(p3.x) - 70, roundi(p3.y)-25),
+                (roundi(p3.x) - 70, roundi(p3.y)-25)],
                 texture="#"
             ))
         try:
@@ -81,4 +79,5 @@ def my_loop(screen):
         except RuntimeError:
             return
 
-window.run(show_fps=True, sysdout=True, debug=True)
+window.enable_debug()
+window.run(show_fps=True, sysdout=True)

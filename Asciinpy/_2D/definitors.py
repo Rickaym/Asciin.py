@@ -60,7 +60,10 @@ class Plane(Collidable, Blitable):
     """
 
     def __init__(
-        self, image: str, coordinate: Sequence[AnyInt] = [0, 0], color: Optional[Color] = None
+        self,
+        image: str,
+        coordinate: Sequence[AnyInt] = [0, 0],
+        color: Optional[Color] = None,
     ):
         super().__init__()
         self.image = image
@@ -141,7 +144,12 @@ class Mask(Collidable, Blitable):
 
     __slots__ = ("color", "_coordinate", "_pixmap")
 
-    def __init__(self, image: str, coordinate: Sequence[AnyInt] = [1, 1], color: Optional[Color]=None):
+    def __init__(
+        self,
+        image: str,
+        coordinate: Sequence[AnyInt] = [1, 1],
+        color: Optional[Color] = None,
+    ):
         self.color = color
         self._pixmap = self.get_pixmap(coordinate, image)
         self._topleft = coordinate

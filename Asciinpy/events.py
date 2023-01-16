@@ -8,7 +8,16 @@ from Asciinpy.globals import Platform
 
 from .utils import isinstancemethod
 
-__all__ = ["Event", "EventListener", "ON_TERMINATE", "ON_START", "ON_RESIZE", "ON_KEY_PRESS", "ON_KEY_RELEASE","ON_MOUSE_CLICK"]
+__all__ = [
+    "Event",
+    "EventListener",
+    "ON_TERMINATE",
+    "ON_START",
+    "ON_RESIZE",
+    "ON_KEY_PRESS",
+    "ON_KEY_RELEASE",
+    "ON_MOUSE_CLICK",
+]
 
 Consumer = Callable[[Any], None]
 BoundConsumer = Callable[[object], None]
@@ -42,7 +51,7 @@ class EventListener:
 class Event:
     __slots__ = ("subscribers", "name", "threadable")
 
-    def __init__(self, name: str, threadable: bool=True):
+    def __init__(self, name: str, threadable: bool = True):
         """
         An Event Aggregator that allows observers to listen to certain events and observers in
         this specific case are callables.
@@ -98,4 +107,4 @@ signal.signal(signal.SIGINT, partial(ON_TERMINATE.emit, signal.SIGINT.value))
 signal.signal(signal.SIGTERM, partial(ON_TERMINATE.emit, signal.SIGTERM.value))
 
 if not Platform.is_window:
-   signal.signal(signal.SIGWINCH, partial(ON_TERMINATE.emit, signal.SIGWINCH.value)) # type: ignore
+    signal.signal(signal.SIGWINCH, partial(ON_TERMINATE.emit, signal.SIGWINCH.value))  # type: ignore

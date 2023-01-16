@@ -1,8 +1,11 @@
+"""
+Plot a coordinate grid on the console for any resolution.
+"""
+
 from Asciinpy._2D.objects import Tile, Text
 from Asciinpy.screen import Screen, Window
-from Asciinpy.values import Color, Resolutions
+from Asciinpy.values import Color, ColorLayer, Resolutions
 
-# Start by defining a screen object with the desired resolution
 window = Window(resolution=Resolutions.Basic)
 
 @window.loop()
@@ -13,9 +16,10 @@ def my_loop(screen: Screen):
     x_axis = Tile((1, 1), (screen.width-2, 1))
     y_axis = Tile((1, 1), (1, screen.height-2))
 
-    emph_origin = Tile((1, 1), (1, 1), color=Color.foreground(255, 0, 0))
-    emph_lf = Tile((screen.width-2, 1), (1, 1), color=Color.foreground(255, 0, 0))
-    emph_rf = Tile((1, screen.height-2), (1, 1), color=Color.foreground(255, 0, 0))
+    fore_red = Color.foreground(255, 0, 0)
+    emph_origin = Tile((1, 1), (1, 1), color=fore_red.as_layer(ColorLayer.Background))
+    emph_lf = Tile((screen.width-2, 1), (1, 1), color=fore_red)
+    emph_rf = Tile((1, screen.height-2), (1, 1), color=fore_red)
 
     origin = Text((1, 0), "0, 0")
 

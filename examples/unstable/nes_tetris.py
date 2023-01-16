@@ -31,7 +31,6 @@ LOGO = """
 # Define a user loop for the screen and accept a screen parameter, this is of type Screen.
 @window.loop()
 def my_loop(screen: Screen):
-    Mouse.Keys.Left
     GRAY = Color.background(128, 128, 128)
     LEFT_BORDER = 45
     RIGHT_BORDER = 3

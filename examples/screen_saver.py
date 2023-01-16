@@ -20,14 +20,14 @@ def my_loop(screen):
     # type: (Screen) -> None
     # Make the DVD_logo model out of scratch with the path
     DVD_logo = Plane(
-        image="""  shhhhhhhhhy`  `+hhhhhhhyo.
- `yysosmMMmMM/ .hMmoyyooyNMM:
- sMM:  /MMysMd:NMs.NMm` `dMM-
-`NMMsshMNs``NMMm- oMMdsyNMd:
-.oosso+:`   /Mo`  +oosoo/.
- `-/+syyhdddhdyyhdddhyys+/-`
--mMMMMMMMMM+`   `+MMMMMMMMMm.
-  .-/+ossyyhhyyyhhyysso+/-.""",
+        image="  shhhhhhhhhy`  `+hhhhhhhyo."
+              "\n `yysosmMMmMM/ .hMmoyyooyNMM:"
+              "\n sMM:  /MMysMd:NMs.NMm` `dMM-"
+              "\n`NMMsshMNs``NMMm- oMMdsyNMd:"
+              "\n.oosso+:`   /Mo`  +oosoo/."
+              "\n `-/+syyhdddhdyyhdddhyys+/-`"
+              "\n-mMMMMMMMMM+`   `+MMMMMMMMMm."
+              "\n  .-/+ossyyhhyyyhhyysso+/-.",
         coordinate=(20, 15),
     )
     # Map the velocity for the mmovement

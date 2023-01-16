@@ -28,8 +28,7 @@ class Color:
         if layer is ColorLayer.Unknown:
             raise TypeError(f"color layer {self.layer} is invalid")
         else:
-            self.layer = layer
-            return self
+            return Color(*self.rgb, layer=layer)
 
     @staticmethod
     def foreground(r: int, g: int, b: int):
@@ -101,6 +100,7 @@ Color.Aqua = Color.from_hex(0x3B78FF, ColorLayer.Unknown)
 Color.Red = Color.from_hex(0xC50F1F, ColorLayer.Unknown)
 Color.Purple = Color.from_hex(0x881798, ColorLayer.Unknown)
 Color.Yellow = Color.from_hex(0xC19C00, ColorLayer.Unknown)
+
 Color.Gray = Color.from_hex(0x767676, ColorLayer.Unknown)
 Color.Grey = Color.Gray
 
@@ -110,7 +110,6 @@ Color.LightAqua = Color.from_hex(0x61D6D6, ColorLayer.Unknown)
 Color.LightRed = Color.from_hex(0xE74856, ColorLayer.Unknown)
 Color.LightPurple = Color.from_hex(0xB4009E, ColorLayer.Unknown)
 Color.LightYellow = Color.from_hex(0xF9F1A5, ColorLayer.Unknown)
-
 Color.White = Color.from_hex(0xF2F2F2, ColorLayer.Unknown)
 Color.BrightWhite = Color.from_hex(0xFFFFFF, ColorLayer.Unknown)
 
@@ -175,6 +174,10 @@ class Resolutions(Enum):
 
     @staticmethod
     def custom(dimensions: Tuple[int, int]):
+        """
+        Instantiate a custom resolution and stores it as a enum member at
+        `Resolutions.Custom`
+        """
         Resolutions.Custom.width = dimensions[0]
         Resolutions.Custom.height = dimensions[1]
         return Resolutions.Custom

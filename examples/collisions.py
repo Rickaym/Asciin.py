@@ -8,7 +8,6 @@ from Asciinpy._2D import Square
 
 from typing import Iterable, List
 
-# Start by defining a screen object with the desired resolution
 window = Window(resolution=Resolutions.Basic)
 
 def manage_collisions(velocities: List[List[float]], i: int, square: Square, other_squares: Iterable[Square]) -> List[List[float]]:
@@ -43,7 +42,7 @@ def my_loop(screen: Screen):
         Square((2, 18), 8, texture=","),
         )
 
-    SPEED = 0.03902
+    SPEED = 0.06902
     velocities = [[SPEED, SPEED] for _ in squares]
 
     while True:
@@ -51,20 +50,22 @@ def my_loop(screen: Screen):
             square.x += velocities[i][0]
             square.y += velocities[i][1]
 
+            # Check for boundary collisions
             if round(square.y) < 0:
                 velocities[i][1] = -1 * velocities[i][1]
                 square.y = 0
-            elif round(square.y) + (square.length // 2) -1 > screen.resolution.height:
+            elif round(square.y) + (square.length // 2) > screen.resolution.height:
                 velocities[i][1] = -1 * velocities[i][1]
                 square.y = screen.resolution.height - (square.length // 2)
 
             if round(square.x) < 0:
                 velocities[i][0] = -1 * velocities[i][0]
                 square.x = 0
-            elif round(square.x) + square.length -1 > screen.resolution.width:
+            elif round(square.x) + square.length > screen.resolution.width:
                 velocities[i][0] = -1 * velocities[i][0]
                 square.x = screen.resolution.width - square.length
 
+            # Check for collisions between each other and update the velocity matrix
             velocities = manage_collisions(velocities, i, square, squares)
 
             screen.blit(square)
@@ -74,4 +75,4 @@ def my_loop(screen: Screen):
 window.enable_debug()
 
 if __name__ == "__main__":
-    window.run(show_fps=True)
+    window.run()
